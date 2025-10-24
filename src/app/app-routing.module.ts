@@ -1,0 +1,16 @@
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { MainComponent } from './components/main/main.component';
+import { CompraRifasComponent } from './components/compra-rifas/compra-rifas.component';
+
+const routes: Routes = [
+  {path: '', redirectTo: 'principal', pathMatch: 'full'},
+  {path: 'principal', component: MainComponent},
+  {path: 'rifa', component: CompraRifasComponent},
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
+})
+export class AppRoutingModule { }

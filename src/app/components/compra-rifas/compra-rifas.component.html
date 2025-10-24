@@ -1,0 +1,425 @@
+<div class="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50 py-12 px-4 flex items-center justify-center">
+  <div class="w-full max-w-5xl">
+    <!-- Detalles de la Rifa Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <!-- Left Column: Car Image and Verify Button -->
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Detalles de la Rifa</h2>
+        <div class="bg-white rounded-xl shadow-md p-4 mb-4">
+          <div class="w-full bg-center bg-no-repeat bg-cover rounded-lg overflow-hidden min-h-[280px]" 
+               style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCjTUGmL9NwH8OZIwQHjn6iFG3afF6D8yruIXhYbCsh9oJnYIuZrNap5EzY65NqwsVPpp9I5EqqiPeiHSwI87BD2khh5OZNp7-vjOckYM363CcmQQPl4XnvQfxYBHsTYNE-kcftC70BG_cqImTmUd_hk6qZNVEDLdakRUUKRBSdb6z0nGIdHohtN4mVRr9KZDm2O7jDYjZlpHnc09MVGnLNwMcolA9TMx0Ef7ulN-l3z2-tW1jvaaP3nN2wEEeT_zsBq8tltf-hd4M");'>
+          </div>
+          <div class="mt-4">
+            <p class="text-sm text-gray-700 mb-2">
+              <span class="font-bold">30.000</span> 💵💵💵 <span class="font-bold">LECHUGAS + 5 TICKETS PREMIUM PARA 5 GANADORES PAGO EN BS</span>
+            </p>
+            <p class="text-sm text-gray-600">Precio por ticket: <span class="font-bold">$8.00</span></p>
+          </div>
+        </div>
+        <button 
+          class="w-full bg-gray-900 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors"
+          (click)="abrirModalVerificar()"
+        >
+          Verificar Email para Verificar Tickets
+        </button>
+      </div>
+
+      <!-- Right Column: Comprar Tickets -->
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Comprar Tickets</h2>
+        <div class="bg-white rounded-xl shadow-md p-6">
+          
+          <!-- PASO 1: Cantidad de Tickets y Conversor -->
+          <div *ngIf="pasoActual === 1">
+            <!-- Cantidad de Tickets -->
+            <div class="mb-6">
+              <label class="text-sm font-medium text-gray-900 mb-3 block">Cantidad de Tickets</label>
+              <div class="grid grid-cols-5 gap-2 mb-4">
+                <button 
+                  *ngFor="let opcion of opcionesCantidad"
+                  [class.bg-gray-900]="cantidadTickets === opcion"
+                  [class.text-white]="cantidadTickets === opcion"
+                  [class.bg-gray-100]="cantidadTickets !== opcion"
+                  [class.text-gray-900]="cantidadTickets !== opcion"
+                  class="py-3 px-2 rounded-lg font-bold text-sm hover:bg-gray-200 transition-colors"
+                  (click)="seleccionarCantidad(opcion)"
+                >
+                  {{ opcion }}<br><span class="text-xs font-normal">tickets</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Conversor USD a Bs -->
+            <div class="mb-6">
+              <label class="text-sm font-medium text-gray-900 mb-2 block">Conversor USD a Bs</label>
+              <div class="flex items-center gap-3">
+                <button 
+                  [disabled]="cantidadTickets <= 2"
+                  [class.bg-gray-200]="cantidadTickets > 2"
+                  [class.hover:bg-gray-300]="cantidadTickets > 2"
+                  [class.bg-gray-100]="cantidadTickets <= 2"
+                  [class.cursor-not-allowed]="cantidadTickets <= 2"
+                  [class.opacity-50]="cantidadTickets <= 2"
+                  class="w-10 h-10 rounded-lg flex items-center justify-center transition-colors"
+                  (click)="decrementarCantidad()"
+                >
+                  <span class="text-xl font-bold">-</span>
+                </button>
+                <input 
+                  type="number" 
+                  [(ngModel)]="cantidadTickets"
+                  (ngModelChange)="calcularTotal()"
+                  class="flex-1 h-10 text-center bg-gray-900 text-white rounded-lg font-bold"
+                  min="2"
+                />
+                <button 
+                  class="w-10 h-10 bg-gray-900 text-white rounded-lg flex items-center justify-center hover:bg-gray-800 transition-colors"
+                  (click)="incrementarCantidad()"
+                >
+                  <span class="text-xl font-bold">+</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Totales -->
+            <div class="mb-6 space-y-2">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-700">Total (USD):</span>
+                <span class="font-bold text-gray-900">{{ totalUSD | currency:'USD':'symbol':'1.2-2' }}</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-700">Total (Bs):</span>
+                <span class="font-bold text-gray-900">Bs {{ totalBs | number:'1.2-2' }}</span>
+              </div>
+            </div>
+
+            <!-- Botón Siguiente -->
+            <button 
+              class="w-full bg-gray-900 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors"
+              (click)="irAPaso2()"
+            >
+              Siguiente
+            </button>
+          </div>
+
+          <!-- PASO 2: Datos Personales -->
+          <div *ngIf="pasoActual === 2">
+            <div class="space-y-4">
+              <div>
+                <label class="text-sm font-medium text-gray-900 mb-1 block">Nombre y Apellido*</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="nombreCompleto"
+                  (blur)="validarNombreCompleto()"
+                  placeholder="Ingresa tu nombre completo"
+                  [class.border-red-500]="errores.nombreCompleto"
+                  class="w-full h-10 px-3 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                />
+                <p *ngIf="errores.nombreCompleto" class="text-xs text-red-600 mt-1">{{ errores.nombreCompleto }}</p>
+              </div>
+
+              <div>
+                <label class="text-sm font-medium text-gray-900 mb-1 block">Email</label>
+                <input 
+                  type="email" 
+                  [(ngModel)]="email"
+                  (blur)="validarEmail()"
+                  placeholder="ejemplo@gmail.com"
+                  [class.border-red-500]="errores.email"
+                  class="w-full h-10 px-3 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                />
+                <p *ngIf="errores.email" class="text-xs text-red-600 mt-1">{{ errores.email }}</p>
+              </div>
+
+              <div>
+                <label class="text-sm font-medium text-gray-900 mb-1 block">Confirmar Email</label>
+                <input 
+                  type="email" 
+                  [(ngModel)]="confirmarEmail"
+                  (blur)="validarConfirmarEmail()"
+                  placeholder="Confirma tu email"
+                  [class.border-red-500]="errores.confirmarEmail"
+                  class="w-full h-10 px-3 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                />
+                <p *ngIf="errores.confirmarEmail" class="text-xs text-red-600 mt-1">{{ errores.confirmarEmail }}</p>
+              </div>
+
+              <div>
+                <label class="text-sm font-medium text-gray-900 mb-1 block">Teléfono</label>
+                <input 
+                  type="tel" 
+                  [(ngModel)]="telefono"
+                  (input)="formatearTelefono($event)"
+                  (blur)="validarTelefono()"
+                  placeholder="Ej: 04241234567"
+                  maxlength="11"
+                  [class.border-red-500]="errores.telefono"
+                  class="w-full h-10 px-3 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                />
+                <p *ngIf="errores.telefono" class="text-xs text-red-600 mt-1">{{ errores.telefono }}</p>
+              </div>
+
+              <!-- Botones -->
+              <div class="flex gap-3 mt-6">
+                <button 
+                  class="flex-1 bg-gray-200 text-gray-900 font-bold py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors"
+                  (click)="volverAPaso1()"
+                >
+                  Atrás
+                </button>
+                <button 
+                  class="flex-1 bg-gray-900 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors"
+                  (click)="irAPaso3()"
+                >
+                  Siguiente
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- PASO 3: Método de Pago -->
+          <div *ngIf="pasoActual === 3">
+            <div class="space-y-4">
+              <div>
+                <label class="text-sm font-medium text-gray-900 mb-1 block">Nombre del Titular de la cuenta</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="nombreTitular"
+                  (blur)="validarNombreTitular()"
+                  placeholder="Nombre completo del titular"
+                  [class.border-red-500]="errores.nombreTitular"
+                  class="w-full h-10 px-3 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                />
+                <p *ngIf="errores.nombreTitular" class="text-xs text-red-600 mt-1">{{ errores.nombreTitular }}</p>
+              </div>
+
+              <!-- Método de Pago -->
+              <div>
+                <label class="text-sm font-medium text-gray-900 mb-2 block">Método de Pago</label>
+                <p class="text-xs text-gray-600 mb-2">Selecciona un método de pago</p>
+                <select 
+                  [(ngModel)]="metodoPago"
+                  (change)="validarMetodoPago()"
+                  [class.border-red-500]="errores.metodoPago"
+                  class="w-full h-10 px-3 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                >
+                  <option value="">Seleccionar...</option>
+                  <option value="pago_movil">Pago Móvil</option>
+                </select>
+                <p *ngIf="errores.metodoPago" class="text-xs text-red-600 mt-1">{{ errores.metodoPago }}</p>
+              </div>
+
+              <!-- Datos de Pago Móvil -->
+              <div *ngIf="metodoPago === 'pago_movil'" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 class="text-sm font-bold text-gray-900 mb-3">Datos para Pago Móvil</h4>
+                
+                <div class="space-y-3">
+                  <!-- Banco -->
+                  <div class="flex items-center justify-between bg-white rounded-lg p-3 border border-gray-200">
+                    <div>
+                      <p class="text-xs text-gray-600">Banco</p>
+                      <p class="text-sm font-bold text-gray-900">Banesco</p>
+                    </div>
+                    <button 
+                      (click)="copiarTexto('Banesco')"
+                      class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      title="Copiar"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <!-- Teléfono -->
+                  <div class="flex items-center justify-between bg-white rounded-lg p-3 border border-gray-200">
+                    <div>
+                      <p class="text-xs text-gray-600">Teléfono</p>
+                      <p class="text-sm font-bold text-gray-900">0412-1234567</p>
+                    </div>
+                    <button 
+                      (click)="copiarTexto('04121234567')"
+                      class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      title="Copiar"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <!-- Cédula -->
+                  <div class="flex items-center justify-between bg-white rounded-lg p-3 border border-gray-200">
+                    <div>
+                      <p class="text-xs text-gray-600">Cédula</p>
+                      <p class="text-sm font-bold text-gray-900">V-19543389</p>
+                    </div>
+                    <button 
+                      (click)="copiarTexto('V19543389')"
+                      class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      title="Copiar"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Código de Referencia -->
+              <div>
+                <label class="text-sm font-medium text-gray-900 mb-1 block">Código de Referencia</label>
+                <p class="text-xs text-blue-600 mb-2">⚠️ Importante: Coloque los últimos 6 dígitos de la referencia del pago</p>
+                <input 
+                  type="text" 
+                  [(ngModel)]="codigoReferencia"
+                  (input)="formatearCodigoReferencia($event)"
+                  (blur)="validarCodigoReferencia()"
+                  placeholder="Últimos 6 dígitos"
+                  maxlength="6"
+                  [class.border-red-500]="errores.codigoReferencia"
+                  class="w-full h-10 px-3 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                />
+                <p *ngIf="errores.codigoReferencia" class="text-xs text-red-600 mt-1">{{ errores.codigoReferencia }}</p>
+              </div>
+
+              <!-- Comprobante de Pago -->
+              <div>
+                <label class="text-sm font-medium text-gray-900 mb-1 block">Comprobante de Pago</label>
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center" [class.border-red-500]="errores.comprobante">
+                  <input 
+                    type="file" 
+                    #fileInput
+                    (change)="onFileSelected($event)"
+                    accept="image/*"
+                    class="hidden"
+                    id="fileUpload"
+                  />
+                  <label for="fileUpload" class="cursor-pointer">
+                    <div *ngIf="!archivoSeleccionado" class="text-gray-500">
+                      <p class="text-sm">Agregar Imagen</p>
+                      <p class="text-xs mt-1">Click para seleccionar</p>
+                    </div>
+                    <div *ngIf="archivoSeleccionado" class="text-green-600">
+                      <p class="text-sm font-medium">✓ {{ archivoSeleccionado.name }}</p>
+                      <p class="text-xs mt-1">Click para cambiar</p>
+                    </div>
+                  </label>
+                </div>
+                <p *ngIf="errores.comprobante" class="text-xs text-red-600 mt-1">{{ errores.comprobante }}</p>
+              </div>
+
+              <!-- Botones -->
+              <div class="flex gap-3 mt-6">
+                <button 
+                  class="flex-1 bg-gray-200 text-gray-900 font-bold py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors"
+                  (click)="volverAPaso2()"
+                >
+                  Atrás
+                </button>
+                <button 
+                  class="flex-1 bg-gray-900 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors"
+                  (click)="comprarTickets()"
+                >
+                  Comprar Tickets
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Éxito -->
+<div 
+  *ngIf="mostrarModalExito"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+>
+  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center animate-fade-in">
+    <!-- Icono de éxito -->
+    <div class="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4">
+      <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+      </svg>
+    </div>
+    
+    <!-- Mensaje -->
+    <h3 class="text-2xl font-bold text-gray-900 mb-3">¡Excelente!</h3>
+    <p class="text-gray-700 mb-4">
+      Su compra se está validando. Verifique por su correo electrónico cuáles fueron los tickets de su rifa.
+    </p>
+    <p class="text-gray-900 font-bold text-lg mb-6">
+      Total: ${{ totalUSD.toFixed(2) }} (Bs {{ totalBs.toFixed(2) }})
+    </p>
+    
+    <!-- Botón -->
+    <button 
+      (click)="cerrarModalExito()"
+      class="w-full bg-gray-900 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-800 transition-colors shadow-md"
+    >
+      Aceptar
+    </button>
+  </div>
+</div>
+
+<!-- Modal Verificar Tickets -->
+<div 
+  *ngIf="mostrarModalVerificar"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+  (click)="cerrarModalVerificar()"
+>
+  <div 
+    class="bg-white rounded-xl max-w-2xl w-full p-6"
+    (click)="$event.stopPropagation()"
+  >
+    <h2 class="text-3xl font-bold text-gray-900 mb-6">Verifica Tus TICKETS</h2>
+    
+    <!-- Alert Box -->
+    <div class="border-2 border-gray-900 rounded-lg p-4 mb-6">
+      <div class="flex items-start gap-2 mb-3">
+        <span class="text-xl">⚠️</span>
+        <p class="font-bold text-gray-900">SOPORTE TIENE 24 hrs PARA RESPONDERTE Y APROBAR TU COMPRA</p>
+      </div>
+      <p class="text-gray-700 mb-3">
+        ¿No recibiste tus tickets por correo? ¡VERIFÍCALOS AQUÍ!
+      </p>
+      <p class="text-gray-700 mb-3">
+        Simplemente ingresa al correo electrónico que usaste para la compra en el campo de abajo y haz clic en "Verificar Tickets" para ver los números asociados a tu participación en esta rifa.
+      </p>
+      <p class="font-bold text-gray-900">
+        CONTÁCTANOS POR EL TLF DE SOPORTE: (0424)-1326694
+      </p>
+    </div>
+
+    <!-- Email Input -->
+    <div class="mb-6">
+      <label class="text-sm font-medium text-gray-900 mb-2 block">Email para Verificar Tickets</label>
+      <input 
+        type="email" 
+        [(ngModel)]="emailVerificar"
+        placeholder="Ingresa tu email de compra aquí"
+        class="w-full h-12 px-4 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+      />
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex gap-3">
+      <button 
+        class="flex-1 bg-gray-900 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors"
+        (click)="verificarTickets()"
+      >
+        Verificar Tickets
+      </button>
+      <button 
+        class="px-6 bg-gray-200 text-gray-900 font-bold py-3 rounded-lg hover:bg-gray-300 transition-colors"
+        (click)="cerrarModalVerificar()"
+      >
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
