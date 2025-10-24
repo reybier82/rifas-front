@@ -18,6 +18,7 @@ export class CompraRifasComponent implements OnInit {
   nombreCompleto: string = '';
   email: string = '';
   confirmarEmail: string = '';
+  codigoPais: string = 'VE'; // País por defecto: Venezuela
   telefono: string = '';
   nombreTitular: string = '';
   metodoPago: string = '';
@@ -119,12 +120,48 @@ export class CompraRifasComponent implements OnInit {
     }
   }
 
+  onCambioPais(): void {
+    // Limpiar teléfono al cambiar de país
+    this.telefono = '';
+    this.errores.telefono = '';
+  }
+
+  obtenerCodigoTelefonico(): string {
+    const codigos: any = {
+      'VE': '+58',
+      'US': '+1',
+      'CO': '+57',
+      'CL': '+56'
+    };
+    return codigos[this.codigoPais] || '+58';
+  }
+
+  obtenerPlaceholderTelefono(): string {
+    const placeholders: any = {
+      'VE': '4241234567',
+      'US': '2025551234',
+      'CO': '3001234567',
+      'CL': '912345678'
+    };
+    return placeholders[this.codigoPais] || '4241234567';
+  }
+
+  obtenerMaxLengthTelefono(): number {
+    const maxLengths: any = {
+      'VE': 10, // Sin el 0 inicial
+      'US': 10,
+      'CO': 10,
+      'CL': 9
+    };
+    return maxLengths[this.codigoPais] || 10;
+  }
+
   formatearTelefono(event: any): void {
     let valor = event.target.value.replace(/\D/g, ''); // Solo números
     
-    // Limitar a 11 dígitos
-    if (valor.length > 11) {
-      valor = valor.substring(0, 11);
+    const maxLength = this.obtenerMaxLengthTelefono();
+    if (valor.length > maxLength) {
+      valor = valor.substring(0, maxLength);
     }
     
     this.telefono = valor;
@@ -132,22 +169,42 @@ export class CompraRifasComponent implements OnInit {
   }
 
   validarTelefono(): void {
-    const codigosValidos = ['0412', '0424', '0414', '0422', '0426', '0416'];
-    
     if (!this.telefono || this.telefono.trim() === '') {
       this.errores.telefono = 'El teléfono es obligatorio';
       return;
     }
     
-    if (this.telefono.length !== 11) {
-      this.errores.telefono = 'El teléfono debe tener exactamente 11 dígitos';
-      return;
-    }
+    const maxLength = this.obtenerMaxLengthTelefono();
     
-    const codigo = this.telefono.substring(0, 4);
-    if (!codigosValidos.includes(codigo)) {
-      this.errores.telefono = 'El teléfono debe comenzar con 0412, 0424, 0414, 0422, 0426 o 0416';
-      return;
+    // Validaciones específicas por país
+    if (this.codigoPais === 'VE') {
+      const codigosValidos = ['412', '424', '414', '422', '426', '416'];
+      
+      if (this.telefono.length !== 10) {
+        this.errores.telefono = 'El teléfono debe tener exactamente 10 dígitos';
+        return;
+      }
+      
+      const codigo = this.telefono.substring(0, 3);
+      if (!codigosValidos.includes(codigo)) {
+        this.errores.telefono = 'El teléfono debe comenzar con 412, 424, 414, 422, 426 o 416';
+        return;
+      }
+    } else if (this.codigoPais === 'US') {
+      if (this.telefono.length !== 10) {
+        this.errores.telefono = 'El teléfono debe tener exactamente 10 dígitos';
+        return;
+      }
+    } else if (this.codigoPais === 'CO') {
+      if (this.telefono.length !== 10) {
+        this.errores.telefono = 'El teléfono debe tener exactamente 10 dígitos';
+        return;
+      }
+    } else if (this.codigoPais === 'CL') {
+      if (this.telefono.length !== 9) {
+        this.errores.telefono = 'El teléfono debe tener exactamente 9 dígitos';
+        return;
+      }
     }
     
     this.errores.telefono = '';
@@ -277,6 +334,7 @@ export class CompraRifasComponent implements OnInit {
     this.nombreCompleto = '';
     this.email = '';
     this.confirmarEmail = '';
+    this.codigoPais = 'VE';
     this.telefono = '';
     this.nombreTitular = '';
     this.metodoPago = '';

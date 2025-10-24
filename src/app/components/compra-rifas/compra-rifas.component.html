@@ -144,18 +144,39 @@
                 <p *ngIf="errores.confirmarEmail" class="text-xs text-red-600 mt-1">{{ errores.confirmarEmail }}</p>
               </div>
 
+              <!-- Código de País -->
+              <div>
+                <label class="text-sm font-medium text-gray-900 mb-1 block">País</label>
+                <select 
+                  [(ngModel)]="codigoPais"
+                  (change)="onCambioPais()"
+                  class="w-full h-10 px-3 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                >
+                  <option value="VE">🇻🇪 Venezuela (+58)</option>
+                  <option value="US">🇺🇸 Estados Unidos (+1)</option>
+                  <option value="CO">🇨🇴 Colombia (+57)</option>
+                  <option value="CL">🇨🇱 Chile (+56)</option>
+                </select>
+              </div>
+
+              <!-- Teléfono -->
               <div>
                 <label class="text-sm font-medium text-gray-900 mb-1 block">Teléfono</label>
-                <input 
-                  type="tel" 
-                  [(ngModel)]="telefono"
-                  (input)="formatearTelefono($event)"
-                  (blur)="validarTelefono()"
-                  placeholder="Ej: 04241234567"
-                  maxlength="11"
-                  [class.border-red-500]="errores.telefono"
-                  class="w-full h-10 px-3 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
-                />
+                <div class="flex gap-2">
+                  <div class="w-24 h-10 px-3 rounded-lg border border-gray-300 text-sm flex items-center justify-center bg-gray-50 font-medium">
+                    {{ obtenerCodigoTelefonico() }}
+                  </div>
+                  <input 
+                    type="tel" 
+                    [(ngModel)]="telefono"
+                    (input)="formatearTelefono($event)"
+                    (blur)="validarTelefono()"
+                    [placeholder]="obtenerPlaceholderTelefono()"
+                    [maxlength]="obtenerMaxLengthTelefono()"
+                    [class.border-red-500]="errores.telefono"
+                    class="flex-1 h-10 px-3 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                  />
+                </div>
                 <p *ngIf="errores.telefono" class="text-xs text-red-600 mt-1">{{ errores.telefono }}</p>
               </div>
 
