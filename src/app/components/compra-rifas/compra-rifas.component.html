@@ -1,11 +1,11 @@
-<div class="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50 py-12 px-4 flex items-center justify-center">
+<div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-12 px-4 flex items-center justify-center">
   <div class="w-full max-w-5xl">
     <!-- Detalles de la Rifa Section -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       <!-- Left Column: Car Image and Verify Button -->
       <div>
         <h2 class="text-2xl font-bold text-gray-900 mb-4">Detalles de la Rifa</h2>
-        <div class="bg-white rounded-xl shadow-md p-4 mb-4">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-4">
           <div class="w-full bg-center bg-no-repeat bg-cover rounded-lg overflow-hidden min-h-[280px]" 
                style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCjTUGmL9NwH8OZIwQHjn6iFG3afF6D8yruIXhYbCsh9oJnYIuZrNap5EzY65NqwsVPpp9I5EqqiPeiHSwI87BD2khh5OZNp7-vjOckYM363CcmQQPl4XnvQfxYBHsTYNE-kcftC70BG_cqImTmUd_hk6qZNVEDLdakRUUKRBSdb6z0nGIdHohtN4mVRr9KZDm2O7jDYjZlpHnc09MVGnLNwMcolA9TMx0Ef7ulN-l3z2-tW1jvaaP3nN2wEEeT_zsBq8tltf-hd4M");'>
           </div>
@@ -27,7 +27,7 @@
       <!-- Right Column: Comprar Tickets -->
       <div>
         <h2 class="text-2xl font-bold text-gray-900 mb-4">Comprar Tickets</h2>
-        <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           
           <!-- PASO 1: Cantidad de Tickets y Conversor -->
           <div *ngIf="pasoActual === 1">
@@ -210,7 +210,7 @@
               </div>
 
               <!-- Datos de Pago Móvil -->
-              <div *ngIf="metodoPago === 'pago_movil'" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div *ngIf="metodoPago === 'pago_movil'" class="bg-gray-50 border border-gray-300 rounded-lg p-4">
                 <h4 class="text-sm font-bold text-gray-900 mb-3">Datos para Pago Móvil</h4>
                 
                 <div class="space-y-3">
@@ -270,7 +270,7 @@
               <!-- Código de Referencia -->
               <div>
                 <label class="text-sm font-medium text-gray-900 mb-1 block">Código de Referencia</label>
-                <p class="text-xs text-blue-600 mb-2">⚠️ Importante: Coloque los últimos 6 dígitos de la referencia del pago</p>
+                <p class="text-xs text-gray-700 mb-2">⚠️ Importante: Coloque los últimos 6 dígitos de la referencia del pago</p>
                 <input 
                   type="text" 
                   [(ngModel)]="codigoReferencia"
@@ -337,11 +337,11 @@
 <!-- Modal de Éxito -->
 <div 
   *ngIf="mostrarModalExito"
-  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+  class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
 >
-  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center animate-fade-in">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center animate-fade-in border border-gray-100">
     <!-- Icono de éxito -->
-    <div class="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4">
+    <div class="mx-auto w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-4 border-2 border-green-200">
       <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
       </svg>
@@ -359,7 +359,7 @@
     <!-- Botón -->
     <button 
       (click)="cerrarModalExito()"
-      class="w-full bg-gray-900 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-800 transition-colors shadow-md"
+      class="w-full bg-gray-900 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-800 transition-colors"
     >
       Aceptar
     </button>
@@ -369,17 +369,17 @@
 <!-- Modal Verificar Tickets -->
 <div 
   *ngIf="mostrarModalVerificar"
-  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+  class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
   (click)="cerrarModalVerificar()"
 >
   <div 
-    class="bg-white rounded-xl max-w-2xl w-full p-6"
+    class="bg-white rounded-xl max-w-2xl w-full p-6 border border-gray-100 shadow-2xl"
     (click)="$event.stopPropagation()"
   >
     <h2 class="text-3xl font-bold text-gray-900 mb-6">Verifica Tus TICKETS</h2>
     
     <!-- Alert Box -->
-    <div class="border-2 border-gray-900 rounded-lg p-4 mb-6">
+    <div class="border-2 border-gray-900 rounded-lg p-4 mb-6 bg-gray-50">
       <div class="flex items-start gap-2 mb-3">
         <span class="text-xl">⚠️</span>
         <p class="font-bold text-gray-900">SOPORTE TIENE 24 hrs PARA RESPONDERTE Y APROBAR TU COMPRA</p>
