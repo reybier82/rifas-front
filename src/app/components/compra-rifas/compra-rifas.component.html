@@ -217,21 +217,103 @@
               <!-- Método de Pago -->
               <div>
                 <label class="text-sm font-medium text-gray-900 mb-2 block">Método de Pago</label>
-                <p class="text-xs text-gray-600 mb-2">Selecciona un método de pago</p>
-                <select 
-                  [(ngModel)]="metodoPago"
-                  (change)="validarMetodoPago()"
-                  [class.border-red-500]="errores.metodoPago"
-                  class="w-full h-10 px-3 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
-                >
-                  <option value="">Seleccionar...</option>
-                  <option value="pago_movil">Pago Móvil</option>
-                </select>
+                <p class="text-xs text-gray-600 mb-3">Elige una opción</p>
+                
+                <!-- Logos de métodos de pago -->
+                <div class="grid grid-cols-3 gap-4 mb-2">
+                  <!-- Pago Móvil (BDV) -->
+                  <div 
+                    (click)="seleccionarMetodoPago('pago_movil')"
+                    class="flex flex-col items-center cursor-pointer group"
+                  >
+                    <div 
+                      class="w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 relative"
+                      [class.ring-4]="metodoPago === 'pago_movil'"
+                      [class.ring-blue-500]="metodoPago === 'pago_movil'"
+                      [class.bg-white]="metodoPago !== 'pago_movil'"
+                      [class.bg-blue-50]="metodoPago === 'pago_movil'"
+                      [class.shadow-lg]="metodoPago === 'pago_movil'"
+                      [class.shadow-md]="metodoPago !== 'pago_movil'"
+                      [class.hover:shadow-lg]="metodoPago !== 'pago_movil'"
+                    >
+                      <img src="assets/img/bdv.png" alt="Pago Móvil" class="w-12 h-12 object-contain">
+                      <!-- Check mark cuando está seleccionado -->
+                      <div 
+                        *ngIf="metodoPago === 'pago_movil'"
+                        class="absolute -top-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center"
+                      >
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                      </div>
+                    </div>
+                    <p class="text-xs font-medium text-gray-900 mt-2 text-center">Pago Móvil</p>
+                  </div>
+
+                  <!-- Binance -->
+                  <div 
+                    (click)="seleccionarMetodoPago('binance')"
+                    class="flex flex-col items-center cursor-pointer group"
+                  >
+                    <div 
+                      class="w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 relative"
+                      [class.ring-4]="metodoPago === 'binance'"
+                      [class.ring-yellow-500]="metodoPago === 'binance'"
+                      [class.bg-white]="metodoPago !== 'binance'"
+                      [class.bg-yellow-50]="metodoPago === 'binance'"
+                      [class.shadow-lg]="metodoPago === 'binance'"
+                      [class.shadow-md]="metodoPago !== 'binance'"
+                      [class.hover:shadow-lg]="metodoPago !== 'binance'"
+                    >
+                      <img src="assets/img/binance.png" alt="Binance" class="w-16 h-16 object-contain">
+                      <!-- Check mark cuando está seleccionado -->
+                      <div 
+                        *ngIf="metodoPago === 'binance'"
+                        class="absolute -top-1 -right-1 w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center"
+                      >
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                      </div>
+                    </div>
+                    <p class="text-xs font-medium text-gray-900 mt-2 text-center">Binance</p>
+                  </div>
+
+                  <!-- Zelle -->
+                  <div 
+                    (click)="seleccionarMetodoPago('zelle')"
+                    class="flex flex-col items-center cursor-pointer group"
+                  >
+                    <div 
+                      class="w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 relative"
+                      [class.ring-4]="metodoPago === 'zelle'"
+                      [class.ring-purple-500]="metodoPago === 'zelle'"
+                      [class.bg-white]="metodoPago !== 'zelle'"
+                      [class.bg-purple-50]="metodoPago === 'zelle'"
+                      [class.shadow-lg]="metodoPago === 'zelle'"
+                      [class.shadow-md]="metodoPago !== 'zelle'"
+                      [class.hover:shadow-lg]="metodoPago !== 'zelle'"
+                    >
+                      <img src="assets/img/zelle.png" alt="Zelle" class="w-16 h-16 object-contain">
+                      <!-- Check mark cuando está seleccionado -->
+                      <div 
+                        *ngIf="metodoPago === 'zelle'"
+                        class="absolute -top-1 -right-1 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center"
+                      >
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                      </div>
+                    </div>
+                    <p class="text-xs font-medium text-gray-900 mt-2 text-center">Zelle</p>
+                  </div>
+                </div>
+                
                 <p *ngIf="errores.metodoPago" class="text-xs text-red-600 mt-1">{{ errores.metodoPago }}</p>
               </div>
 
               <!-- Datos de Pago Móvil -->
-              <div *ngIf="metodoPago === 'pago_movil'" class="bg-gray-50 border border-gray-300 rounded-lg p-4">
+              <div *ngIf="metodoPago === 'pago_movil'" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h4 class="text-sm font-bold text-gray-900 mb-3">Datos para Pago Móvil</h4>
                 
                 <div class="space-y-3">
@@ -239,10 +321,10 @@
                   <div class="flex items-center justify-between bg-white rounded-lg p-3 border border-gray-200">
                     <div>
                       <p class="text-xs text-gray-600">Banco</p>
-                      <p class="text-sm font-bold text-gray-900">Banesco</p>
+                      <p class="text-sm font-bold text-gray-900">Venezuela</p>
                     </div>
                     <button 
-                      (click)="copiarTexto('Banesco')"
+                      (click)="copiarTexto('Venezuela')"
                       class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                       title="Copiar"
                     >
@@ -276,7 +358,89 @@
                       <p class="text-sm font-bold text-gray-900">V-19543389</p>
                     </div>
                     <button 
-                      (click)="copiarTexto('V19543389')"
+                      (click)="copiarTexto('V-19543389')"
+                      class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      title="Copiar"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Datos de Binance -->
+              <div *ngIf="metodoPago === 'binance'" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <h4 class="text-sm font-bold text-gray-900 mb-3">Datos para Binance</h4>
+                
+                <div class="space-y-3">
+                  <!-- ID de Binance -->
+                  <div class="flex items-center justify-between bg-white rounded-lg p-3 border border-gray-200">
+                    <div>
+                      <p class="text-xs text-gray-600">ID de Binance</p>
+                      <p class="text-sm font-bold text-gray-900">123456789</p>
+                    </div>
+                    <button 
+                      (click)="copiarTexto('123456789')"
+                      class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      title="Copiar"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <!-- Email -->
+                  <div class="flex items-center justify-between bg-white rounded-lg p-3 border border-gray-200">
+                    <div>
+                      <p class="text-xs text-gray-600">Email</p>
+                      <p class="text-sm font-bold text-gray-900">binance@ejemplo.com</p>
+                    </div>
+                    <button 
+                      (click)="copiarTexto('binance@ejemplo.com')"
+                      class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      title="Copiar"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Datos de Zelle -->
+              <div *ngIf="metodoPago === 'zelle'" class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                <h4 class="text-sm font-bold text-gray-900 mb-3">Datos para Zelle</h4>
+                
+                <div class="space-y-3">
+                  <!-- Email -->
+                  <div class="flex items-center justify-between bg-white rounded-lg p-3 border border-gray-200">
+                    <div>
+                      <p class="text-xs text-gray-600">Email</p>
+                      <p class="text-sm font-bold text-gray-900">zelle@ejemplo.com</p>
+                    </div>
+                    <button 
+                      (click)="copiarTexto('zelle@ejemplo.com')"
+                      class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      title="Copiar"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <!-- Nombre -->
+                  <div class="flex items-center justify-between bg-white rounded-lg p-3 border border-gray-200">
+                    <div>
+                      <p class="text-xs text-gray-600">Nombre</p>
+                      <p class="text-sm font-bold text-gray-900">John Doe</p>
+                    </div>
+                    <button 
+                      (click)="copiarTexto('John Doe')"
                       class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                       title="Copiar"
                     >

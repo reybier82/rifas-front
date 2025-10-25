@@ -229,6 +229,11 @@ export class CompraRifasComponent implements OnInit {
     }
   }
 
+  seleccionarMetodoPago(metodo: string): void {
+    this.metodoPago = metodo;
+    this.validarMetodoPago();
+  }
+
   validarMetodoPago(): void {
     if (!this.metodoPago || this.metodoPago === '') {
       this.errores.metodoPago = 'Debes seleccionar un método de pago';
