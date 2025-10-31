@@ -35,24 +35,40 @@
           </div>
   
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <!-- Card 1 -->
-            <article class="flex flex-col gap-3 bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100">
-              <div class="w-full aspect-video bg-center bg-no-repeat bg-cover" style="background-image:url('https://lh3.googleusercontent.com/aida-public/AB6AXuD-JKQrS34tDzkqA_5pibhKtQwGHiyFQrjBhqQbj_upVOhBRykfy-_bO6YJ95GKMgjA0laokxzXuwmjzwIxIFt_8ozKH1q7NX4xepG9Y0IozQ7XSegpQjKnYDSb5HYr-DI5qyo-Q3TjA0zFXY_fvoYsJYpo3W2o-EV-4JrBomVph-m_DsvwTEvn09beX4NkbIUHyIvuxI8jSWu7DzRJMu_DDeuiESgQ2ZRkm3hUmG_utUsN92uLVMQdXKOvd1VPu7ISuOEHFbvycuE');" role="img" aria-label="Coche deportivo rojo"></div>
+            <!-- Loading state -->
+            <div *ngIf="cargando" class="text-center py-8">
+              <p class="text-white">Cargando rifas...</p>
+            </div>
+
+            <!-- No rifas message -->
+            <div *ngIf="!cargando && rifas.length === 0" class="text-center py-8">
+              <p class="text-white">No hay rifas disponibles en este momento.</p>
+            </div>
+
+            <!-- Dynamic rifas -->
+            <article *ngFor="let rifa of rifas" 
+                     class="flex flex-col gap-3 bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100">
+              <div class="w-full aspect-video bg-center bg-no-repeat bg-cover" 
+                   [style.background-image]="'url(' + rifa.imagenUrl + ')'" 
+                   role="img" 
+                   [attr.aria-label]="rifa.titulo"></div>
               <div class="p-4 flex flex-col flex-grow min-h-[220px]">
-                <!-- fixed-height title so cards don't reflow when text wraps -->
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white h-16 overflow-hidden">Gana un Coche Deportivo del Año</h3>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white h-16 overflow-hidden">
+                  {{ rifa.titulo }}
+                </h3>
                 <div class="flex items-center justify-between mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  <span class="font-semibold text-blue-600">$8 por boleto</span>
-                  <span>Elige y gana</span>
+                  <span class="font-semibold text-blue-600">${{ rifa.precioTicketUSD }} por boleto</span>
+                  <span>{{ rifa.ticketsDisponibles }} disponibles</span>
                 </div>
-                <!-- product short description (no progress bar) -->
-                <p class="mt-3 mb-4 text-sm text-gray-600 dark:text-gray-400">Sorteo de un carro deportivo modelo 2025.</p>
-                <!-- button pinned to bottom using mt-auto (black for contrast) -->
-                <button class="w-full mt-auto h-12 rounded-lg bg-gray-900 text-white font-bold hover:bg-gray-800 transition-colors" (click)="redirectToCompraRifas()">Comprar Boleto</button>
+                <p class="mt-3 mb-4 text-sm text-gray-600 dark:text-gray-400">
+                  {{ rifa.descripcion }}
+                </p>
+                <button class="w-full mt-auto h-12 rounded-lg bg-gray-900 text-white font-bold hover:bg-gray-800 transition-colors" 
+                        (click)="redirectToCompraRifas(rifa._id)">
+                  Comprar Boleto
+                </button>
               </div>
             </article>
-  
-            <!-- Agrega más cards aquí siguiendo el mismo patrón -->
           </div>
         </div>
       </section>

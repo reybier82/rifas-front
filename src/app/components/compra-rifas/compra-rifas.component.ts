@@ -1,5 +1,9 @@
-  import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { RifasService } from '../../services/rifas.service';
+import { PaisesService } from '../../services/paises.service';
+import { BancosService } from '../../services/bancos.service';
+import { ComprasService } from '../../services/compras.service';
 
 @Component({
   selector: 'app-compra-rifas',
@@ -25,6 +29,22 @@ export class CompraRifasComponent implements OnInit {
   codigoReferencia: string = '';
   archivoSeleccionado: File | null = null;
   
+  // Nuevas propiedades para integración backend
+  rifaId: string = '';
+  rifaSeleccionada: any = null;
+  paises: any[] = [];
+  bancos: any[] = [];
+  bancosDisponibles: any[] = [];
+  bancoSeleccionado: string = '';
+  numerosAsignados: number[] = [];
+  
+  // ⭐ Mapeo directo de métodos de pago a IDs de banco
+  bancosMap: any = {
+    'pago_movil': '690516ded6b683289b85129d',  // ID del Pago Móvil BDV
+    'binance': '',  // Agregar cuando tengas el ID
+    'zelle': '690516ded6b683289b85129e'   // ID de Zelle
+  };
+  
   // Conversión de moneda
   tasaCambio: number = 216; // Tasa: 216 Bs por cada dólar (8 USD = 1728 Bs)
   precioPorTicket: number = 8.00;
@@ -46,14 +66,31 @@ export class CompraRifasComponent implements OnInit {
     telefono: '',
     nombreTitular: '',
     metodoPago: '',
+    bancoId: '',
     codigoReferencia: '',
     comprobante: ''
   };
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private rifasService: RifasService,
+    private paisesService: PaisesService,
+    private bancosService: BancosService,
+    private comprasService: ComprasService
+  ) { }
 
   ngOnInit(): void {
-    this.calcularTotal();
+    // Obtener ID de la rifa desde la URL
+    this.route.queryParams.subscribe(params => {
+      this.rifaId = params['id'];
+      if (this.rifaId) {
+        this.cargarRifa();
+      }
+    });
+    
+    this.cargarPaises();
+    this.cargarTasa();
   }
 
   seleccionarCantidad(cantidad: number): void {
@@ -81,9 +118,26 @@ export class CompraRifasComponent implements OnInit {
   onFileSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
+      // ⭐ Validar tipo de archivo (solo imágenes)
+      const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (!tiposPermitidos.includes(file.type)) {
+        this.errores.comprobante = 'Solo se permiten imágenes (JPG, PNG, GIF, WEBP)';
+        this.archivoSeleccionado = null;
+        return;
+      }
+      
+      // ⭐ Validar tamaño (máximo 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+      if (file.size > maxSize) {
+        this.errores.comprobante = 'El archivo no debe superar los 5MB';
+        this.archivoSeleccionado = null;
+        return;
+      }
+      
+      // ⭐ Guardar el archivo
       this.archivoSeleccionado = file;
       this.errores.comprobante = '';
-      console.log('Archivo seleccionado:', file.name);
+      console.log('Archivo seleccionado:', file.name, 'Tamaño:', (file.size / 1024).toFixed(2) + ' KB');
     }
   }
 
@@ -120,10 +174,67 @@ export class CompraRifasComponent implements OnInit {
     }
   }
 
+  cargarRifa(): void {
+    this.rifasService.obtenerRifaPorId(this.rifaId).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.rifaSeleccionada = response.data;
+          this.precioPorTicket = response.data.precioTicketUSD;
+          this.calcularTotal();
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar rifa:', error);
+        alert('Error al cargar la rifa');
+        this.router.navigate(['/']);
+      }
+    });
+  }
+
+  cargarPaises(): void {
+    this.paisesService.obtenerPaises().subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.paises = response.data;
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar países:', error);
+      }
+    });
+  }
+
+  cargarTasa(): void {
+    this.comprasService.obtenerTasaBCV().subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.tasaCambio = response.data.tasa;
+          this.calcularTotal();
+        }
+      },
+      error: (error) => {
+        console.error('Error al obtener tasa:', error);
+      }
+    });
+  }
+
   onCambioPais(): void {
-    // Limpiar teléfono al cambiar de país
     this.telefono = '';
     this.errores.telefono = '';
+    
+    // Cargar bancos del país seleccionado
+    if (this.codigoPais) {
+      this.bancosService.obtenerBancosPorPais(this.codigoPais).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.bancosDisponibles = response.data;
+          }
+        },
+        error: (error) => {
+          console.error('Error al cargar bancos:', error);
+        }
+      });
+    }
   }
 
   obtenerCodigoTelefonico(): string {
@@ -232,6 +343,21 @@ export class CompraRifasComponent implements OnInit {
   seleccionarMetodoPago(metodo: string): void {
     this.metodoPago = metodo;
     this.validarMetodoPago();
+    
+    console.log('🔍 Método seleccionado:', metodo);
+    
+    // ⭐ Usar mapeo directo de IDs
+    const bancoId = this.bancosMap[metodo];
+    
+    if (bancoId && bancoId !== '') {
+      this.bancoSeleccionado = bancoId;
+      this.errores.bancoId = ''; // ⭐ Limpiar error inmediatamente
+      console.log('✅ Banco seleccionado (ID):', bancoId);
+      console.log('✅ bancoSeleccionado:', this.bancoSeleccionado);
+    } else {
+      console.warn('❌ No hay ID configurado para el método:', metodo);
+      this.errores.bancoId = 'No hay banco configurado para este método de pago';
+    }
   }
 
   validarMetodoPago(): void {
@@ -276,6 +402,25 @@ export class CompraRifasComponent implements OnInit {
     }
   }
 
+  validarBanco(): void {
+    if (!this.bancoSeleccionado || this.bancoSeleccionado === '') {
+      this.errores.bancoId = 'Debes seleccionar un banco o método de pago';
+    } else {
+      this.errores.bancoId = '';
+    }
+  }
+
+  obtenerNombreBancoSeleccionado(): string {
+    // Mapeo de IDs a nombres
+    const nombresMap: any = {
+      '690516ded6b683289b85129d': 'Pago Móvil BDV',
+      '690516ded6b683289b85129e': 'Zelle',
+      // Agregar Binance cuando tengas el ID
+    };
+    
+    return nombresMap[this.bancoSeleccionado] || 'Banco seleccionado';
+  }
+
   // Validar todos los campos del paso 2
   validarPaso2(): boolean {
     this.validarNombreCompleto();
@@ -293,44 +438,69 @@ export class CompraRifasComponent implements OnInit {
   validarPaso3(): boolean {
     this.validarNombreTitular();
     this.validarMetodoPago();
+    this.validarBanco();
     this.validarCodigoReferencia();
     this.validarComprobante();
 
     return !this.errores.nombreTitular && 
            !this.errores.metodoPago && 
+           !this.errores.bancoId &&
            !this.errores.codigoReferencia && 
            !this.errores.comprobante;
   }
 
   comprarTickets(): void {
-    // Validar todos los campos del paso 3
     if (!this.validarPaso3()) {
       return;
     }
 
-    // Aquí puedes agregar la lógica para enviar los datos al backend
-    const datosCompra = {
-      cantidadTickets: this.cantidadTickets,
-      nombreCompleto: this.nombreCompleto,
-      email: this.email,
-      telefono: this.telefono,
-      nombreTitular: this.nombreTitular,
-      metodoPago: this.metodoPago,
-      codigoReferencia: this.codigoReferencia,
-      totalUSD: this.totalUSD,
-      totalBs: this.totalBs,
-      comprobante: this.archivoSeleccionado?.name || ''
-    };
+    // ⭐ IMPORTANTE: Crear FormData para enviar archivo
+    // FormData es necesario para enviar archivos (multipart/form-data)
+    const formData = new FormData();
+    
+    // Agregar todos los campos de texto
+    formData.append('rifaId', this.rifaId);
+    formData.append('cantidadTickets', this.cantidadTickets.toString());
+    formData.append('nombreCompleto', this.nombreCompleto);
+    formData.append('email', this.email);
+    formData.append('codigoPais', this.codigoPais);
+    formData.append('telefono', this.telefono);
+    formData.append('nombreTitular', this.nombreTitular);
+    formData.append('metodoPago', this.metodoPago);
+    formData.append('bancoId', this.bancoSeleccionado);
+    formData.append('codigoReferencia', this.codigoReferencia);
+    
+    // ⭐ CRÍTICO: Agregar el archivo (comprobante de pago)
+    // El nombre del campo debe ser 'comprobante' (igual que en el backend)
+    // archivoSeleccionado es un objeto File que viene del input type="file"
+    if (this.archivoSeleccionado) {
+      formData.append('comprobante', this.archivoSeleccionado, this.archivoSeleccionado.name);
+    }
 
-    console.log('Compra realizada:', datosCompra);
-    
-    // Mostrar modal de éxito
-    this.mostrarModalExito = true;
-    
-    // Cerrar automáticamente después de 3 segundos y redirigir
-    setTimeout(() => {
-      this.cerrarModalExito();
-    }, 3000);
+    // ⭐ NOTA: NO establecer Content-Type manualmente
+    // Angular lo hace automáticamente con FormData
+    // HttpClient detecta FormData y configura multipart/form-data
+
+    // Enviar al backend
+    this.comprasService.crearCompra(formData).subscribe({
+      next: (response) => {
+        if (response.success) {
+          console.log('Compra exitosa:', response.data);
+          this.mostrarModalExito = true;
+          
+          // Guardar números para mostrar en el modal
+          this.numerosAsignados = response.data.tickets;
+          
+          setTimeout(() => {
+            this.cerrarModalExito();
+          }, 5000);
+        }
+      },
+      error: (error) => {
+        console.error('Error al crear compra:', error);
+        alert(error.error?.message || 'Error al procesar la compra');
+      }
+    });
   }
 
   resetearFormulario(): void {
@@ -343,6 +513,7 @@ export class CompraRifasComponent implements OnInit {
     this.telefono = '';
     this.nombreTitular = '';
     this.metodoPago = '';
+    this.bancoSeleccionado = '';
     this.codigoReferencia = '';
     this.archivoSeleccionado = null;
     this.errores = {
@@ -352,6 +523,7 @@ export class CompraRifasComponent implements OnInit {
       telefono: '',
       nombreTitular: '',
       metodoPago: '',
+      bancoId: '',
       codigoReferencia: '',
       comprobante: ''
     };
@@ -392,11 +564,20 @@ export class CompraRifasComponent implements OnInit {
       return;
     }
 
-    // Aquí puedes agregar la lógica para verificar los tickets en el backend
-    console.log('Verificando tickets para:', this.emailVerificar);
-    alert(`Verificando tickets para el email: ${this.emailVerificar}`);
+    this.comprasService.verificarTicketsPorEmail(this.emailVerificar).subscribe({
+      next: (response) => {
+        if (response.success) {
+          console.log('Tickets encontrados:', response.data);
+          // Mostrar los tickets en un modal o lista
+          alert(`Se encontraron ${response.data.length} compra(s) para este email`);
+        }
+      },
+      error: (error) => {
+        console.error('Error al verificar tickets:', error);
+        alert(error.error?.message || 'No se encontraron compras para este email');
+      }
+    });
     
-    // Cerrar modal después de verificar
     this.cerrarModalVerificar();
   }
 
