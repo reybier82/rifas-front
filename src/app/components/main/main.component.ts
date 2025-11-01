@@ -74,16 +74,19 @@ export class MainComponent implements OnInit {
     this.comprasService.verificarTicketsPorEmail(this.emailVerificar).subscribe({
       next: (response: any) => {
         this.cargandoVerificacion = false;
-        if (response.success && response.data.length > 0) {
+        if (response.success && response.data && response.data.length > 0) {
           this.comprasEncontradas = response.data;
           this.mostrarResultadosVerificacion = true;
         } else {
+          // No se encontraron compras o success: false
           this.mostrarAlertaNoCompras = true;
         }
       },
       error: (error: any) => {
         this.cargandoVerificacion = false;
         console.error('Error al verificar compras:', error);
+        // También mostrar modal de no encontradas en caso de error
+        this.mostrarAlertaNoCompras = true;
       }
     });
   }
