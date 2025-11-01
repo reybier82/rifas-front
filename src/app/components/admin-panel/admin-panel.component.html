@@ -104,11 +104,11 @@
       <div class="p-6">
         <!-- Tab: Compras Pendientes -->
         <div *ngIf="tabActivo === 'pendientes'">
-          <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl font-semibold text-gray-900">Compras Pendientes</h2>
+          <div class="mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-3">Compras Pendientes</h2>
             
             <!-- Buscador -->
-            <div class="relative w-96">
+            <div class="relative w-full">
               <input 
                 type="text" 
                 [(ngModel)]="busquedaPendientes"
@@ -133,64 +133,61 @@
             <p class="text-sm text-gray-500">No hay compras pendientes</p>
           </div>
 
-          <!-- Tabla Compacta -->
-          <div *ngIf="!cargandoCompras && comprasPendientesFiltradas.length > 0" class="border rounded-lg overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rifa</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Método</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tickets</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                  <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <tr *ngFor="let compra of comprasPendientesFiltradas" class="hover:bg-gray-50 transition">
-                  <td class="px-4 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-gray-900">{{ compra.nombreCompleto }}</div>
-                    <div class="text-sm text-gray-500">{{ compra.email }}</div>
-                  </td>
-                  <td class="px-4 py-4">
-                    <div class="text-sm text-gray-900">{{ compra.rifaId.titulo }}</div>
-                  </td>
-                  <td class="px-4 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">{{ compra.pago.metodoPago }}</div>
-                    <div class="text-sm text-gray-500">{{ compra.pago.bancoId?.nombre || 'N/A' }}</div>
-                  </td>
-                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {{ compra.cantidadTickets }}
-                  </td>
-                  <td class="px-4 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-gray-900">${{ compra.totalUSD.toFixed(2) }}</div>
-                    <div class="text-sm text-gray-500">Bs. {{ compra.totalBs.toFixed(2) }}</div>
-                  </td>
-                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ compra.createdAt | date:'short' }}
-                  </td>
-                  <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button 
-                      (click)="verDetallesCompra(compra)"
-                      class="text-blue-600 hover:text-blue-900 transition">
-                      Ver Detalle
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <!-- Tarjetas Responsive -->
+          <div *ngIf="!cargandoCompras && comprasPendientesFiltradas.length > 0" class="space-y-3">
+            <div *ngFor="let compra of comprasPendientesFiltradas" class="bg-white border border-yellow-200 rounded-lg p-4 hover:shadow-md transition">
+              <!-- Header -->
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex-1">
+                  <h3 class="text-base font-semibold text-gray-900">{{ compra.nombreCompleto }}</h3>
+                  <p class="text-sm text-gray-500">{{ compra.email }}</p>
+                </div>
+                <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded">Pendiente</span>
+              </div>
+              
+              <!-- Info Grid -->
+              <div class="grid grid-cols-2 gap-3 text-sm mb-3">
+                <div>
+                  <p class="text-gray-500 text-xs">Rifa</p>
+                  <p class="font-medium text-gray-900">{{ compra.rifaId.titulo }}</p>
+                </div>
+                <div>
+                  <p class="text-gray-500 text-xs">Método</p>
+                  <p class="font-medium text-gray-900">{{ compra.pago.metodoPago }}</p>
+                  <p class="text-xs text-gray-500">{{ compra.pago.bancoId?.nombre || 'N/A' }}</p>
+                </div>
+                <div>
+                  <p class="text-gray-500 text-xs">Tickets</p>
+                  <p class="font-medium text-gray-900">{{ compra.cantidadTickets }}</p>
+                </div>
+                <div>
+                  <p class="text-gray-500 text-xs">Total</p>
+                  <p class="font-semibold text-green-600">${{ compra.totalUSD.toFixed(2) }}</p>
+                  <p class="text-xs text-gray-500">Bs. {{ compra.totalBs.toFixed(2) }}</p>
+                </div>
+              </div>
+              
+              <!-- Footer -->
+              <div class="flex items-center justify-between pt-3 border-t">
+                <span class="text-xs text-gray-500">{{ compra.createdAt | date:'short' }}</span>
+                <button 
+                  (click)="verDetallesCompra(compra)"
+                  class="text-blue-600 hover:text-blue-900 font-medium text-sm transition">
+                  Ver Detalle →
+                </button>
+              </div>
+            </div>
           </div>
 
         </div>
 
         <!-- Tab: Compras Verificadas -->
         <div *ngIf="tabActivo === 'verificadas'">
-          <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl font-semibold text-gray-900">Compras Verificadas</h2>
+          <div class="mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-3">Compras Verificadas</h2>
             
             <!-- Buscador -->
-            <div class="relative w-96">
+            <div class="relative w-full">
               <input 
                 type="text" 
                 [(ngModel)]="busquedaVerificadas"
@@ -212,50 +209,53 @@
             <p class="text-gray-600 text-lg">No hay compras verificadas aún</p>
           </div>
 
-          <div *ngIf="!cargandoCompras && comprasVerificadasFiltradas.length > 0" class="space-y-4">
-            <div *ngFor="let compra of comprasVerificadasFiltradas" class="bg-white border border-green-200 rounded-lg shadow-sm p-6">
-              <div class="flex items-start justify-between">
-                <div class="flex-1">
-                  <div class="flex items-center gap-2 mb-2">
-                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <h3 class="text-lg font-bold text-gray-800">{{ compra.nombreCompleto }}</h3>
+          <div *ngIf="!cargandoCompras && comprasVerificadasFiltradas.length > 0" class="space-y-3">
+            <div *ngFor="let compra of comprasVerificadasFiltradas" class="bg-white border border-green-200 rounded-lg p-4">
+              <!-- Header -->
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center gap-2 flex-1">
+                  <svg class="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <div class="min-w-0">
+                    <h3 class="text-base font-semibold text-gray-900 truncate">{{ compra.nombreCompleto }}</h3>
+                    <p class="text-sm text-gray-500 truncate">{{ compra.email }}</p>
                   </div>
-                  <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
-                    <div>
-                      <p class="text-gray-600">Email</p>
-                      <p class="font-medium">{{ compra.email }}</p>
-                    </div>
-                    <div>
-                      <p class="text-gray-600">Rifa</p>
-                      <p class="font-medium">{{ compra.rifaId.titulo }}</p>
-                    </div>
-                    <div>
-                      <p class="text-gray-600">Total</p>
-                      <p class="font-medium text-green-600">${{ compra.totalUSD.toFixed(2) }}</p>
-                    </div>
-                    <div>
-                      <p class="text-gray-600">Verificado</p>
-                      <p class="font-medium">{{ compra.fechaVerificacion | date:'short' }}</p>
-                    </div>
-                    <div>
-                      <p class="text-gray-600">Comprobante</p>
-                      <button 
-                        (click)="verComprobante(compra.pago.comprobanteUrl, compra.pago.codigoReferencia)"
-                        class="text-blue-600 hover:text-blue-900 font-medium transition">
-                        Ver Comprobante
-                      </button>
-                    </div>
-                  </div>
-                  <div class="mt-3">
-                    <p class="text-gray-600 text-sm mb-1">Números:</p>
-                    <div class="flex flex-wrap gap-2">
-                      <span *ngFor="let ticket of compra.tickets" class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-bold">
-                        {{ ticket.numero }}
-                      </span>
-                    </div>
-                  </div>
+                </div>
+                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded flex-shrink-0">Verificado</span>
+              </div>
+              
+              <!-- Info Grid -->
+              <div class="grid grid-cols-2 gap-3 text-sm mb-3">
+                <div>
+                  <p class="text-gray-500 text-xs">Rifa</p>
+                  <p class="font-medium text-gray-900 truncate">{{ compra.rifaId.titulo }}</p>
+                </div>
+                <div>
+                  <p class="text-gray-500 text-xs">Total</p>
+                  <p class="font-semibold text-green-600">${{ compra.totalUSD.toFixed(2) }}</p>
+                </div>
+                <div>
+                  <p class="text-gray-500 text-xs">Verificado</p>
+                  <p class="font-medium text-gray-900 text-xs">{{ compra.fechaVerificacion | date:'short' }}</p>
+                </div>
+                <div>
+                  <p class="text-gray-500 text-xs">Comprobante</p>
+                  <button 
+                    (click)="verComprobante(compra.pago.comprobanteUrl, compra.pago.codigoReferencia)"
+                    class="text-blue-600 hover:text-blue-900 font-medium text-xs transition">
+                    Ver Comprobante
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Números -->
+              <div class="pt-3 border-t">
+                <p class="text-gray-500 text-xs mb-2">Números:</p>
+                <div class="flex flex-wrap gap-1.5">
+                  <span *ngFor="let ticket of compra.tickets" class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs font-bold">
+                    {{ ticket.numero }}
+                  </span>
                 </div>
               </div>
             </div>
@@ -264,11 +264,11 @@
 
         <!-- Tab: Compras Rechazadas -->
         <div *ngIf="tabActivo === 'rechazadas'">
-          <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl font-semibold text-gray-900">Compras Rechazadas</h2>
+          <div class="mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-3">Compras Rechazadas</h2>
             
             <!-- Buscador -->
-            <div class="relative w-96">
+            <div class="relative w-full">
               <input 
                 type="text" 
                 [(ngModel)]="busquedaRechazadas"
@@ -290,42 +290,45 @@
             <p class="text-sm text-gray-500">No hay compras rechazadas</p>
           </div>
 
-          <div *ngIf="!cargandoCompras && comprasRechazadasFiltradas.length > 0" class="space-y-4">
-            <div *ngFor="let compra of comprasRechazadasFiltradas" class="border border-red-200 rounded-lg p-6 bg-red-50">
-              <div class="flex items-start justify-between">
-                <div class="flex-1">
-                  <div class="flex items-center gap-2 mb-2">
-                    <h3 class="text-lg font-bold text-gray-800">{{ compra.nombreCompleto }}</h3>
-                  </div>
-                  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-3">
-                    <div>
-                      <p class="text-gray-600">Email</p>
-                      <p class="font-medium">{{ compra.email }}</p>
-                    </div>
-                    <div>
-                      <p class="text-gray-600">Rifa</p>
-                      <p class="font-medium">{{ compra.rifaId.titulo }}</p>
-                    </div>
-                    <div>
-                      <p class="text-gray-600">Total</p>
-                      <p class="font-medium">${{ compra.totalUSD.toFixed(2) }}</p>
-                    </div>
-                    <div>
-                      <p class="text-gray-600">Rechazado</p>
-                      <p class="font-medium">{{ compra.fechaVerificacion | date:'short' }}</p>
-                    </div>
-                  </div>
-                  <div *ngIf="compra.motivoRechazo" class="bg-white border border-red-200 rounded p-3 text-sm">
-                    <p class="text-gray-600 font-medium mb-1">Motivo:</p>
-                    <p class="text-gray-800">{{ compra.motivoRechazo }}</p>
-                  </div>
-                  <button 
-                    (click)="verComprobante(compra.pago.comprobanteUrl)"
-                    class="mt-3 text-sm text-gray-600 hover:text-gray-900 underline">
-                    Ver comprobante
-                  </button>
+          <div *ngIf="!cargandoCompras && comprasRechazadasFiltradas.length > 0" class="space-y-3">
+            <div *ngFor="let compra of comprasRechazadasFiltradas" class="bg-white border border-red-200 rounded-lg p-4">
+              <!-- Header -->
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex-1 min-w-0">
+                  <h3 class="text-base font-semibold text-gray-900 truncate">{{ compra.nombreCompleto }}</h3>
+                  <p class="text-sm text-gray-500 truncate">{{ compra.email }}</p>
+                </div>
+                <span class="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded flex-shrink-0">Rechazado</span>
+              </div>
+              
+              <!-- Info Grid -->
+              <div class="grid grid-cols-2 gap-3 text-sm mb-3">
+                <div>
+                  <p class="text-gray-500 text-xs">Rifa</p>
+                  <p class="font-medium text-gray-900 truncate">{{ compra.rifaId.titulo }}</p>
+                </div>
+                <div>
+                  <p class="text-gray-500 text-xs">Total</p>
+                  <p class="font-semibold text-gray-900">${{ compra.totalUSD.toFixed(2) }}</p>
+                </div>
+                <div class="col-span-2">
+                  <p class="text-gray-500 text-xs">Rechazado</p>
+                  <p class="font-medium text-gray-900 text-xs">{{ compra.fechaVerificacion | date:'short' }}</p>
                 </div>
               </div>
+              
+              <!-- Motivo -->
+              <div *ngIf="compra.motivoRechazo" class="bg-red-50 border border-red-200 rounded p-3 mb-3">
+                <p class="text-gray-600 font-medium text-xs mb-1">Motivo:</p>
+                <p class="text-gray-800 text-sm">{{ compra.motivoRechazo }}</p>
+              </div>
+              
+              <!-- Comprobante -->
+              <button 
+                (click)="verComprobante(compra.pago.comprobanteUrl, compra.pago.codigoReferencia)"
+                class="text-blue-600 hover:text-blue-900 font-medium text-sm transition">
+                Ver comprobante →
+              </button>
             </div>
           </div>
         </div>
@@ -341,10 +344,58 @@
               <p class="text-sm text-gray-500">No hay rifas disponibles</p>
             </div>
 
-            <!-- Lista de Rifas (estilo tabla horizontal) -->
+            <!-- Lista de Rifas (responsive) -->
             <div class="space-y-4">
               <div *ngFor="let rifa of rifasConEstadisticas" class="bg-white border rounded-lg overflow-hidden hover:border-gray-300 transition">
-                <div class="flex items-center p-4 gap-6">
+                <!-- Layout móvil (vertical) -->
+                <div class="flex flex-col md:hidden p-4 space-y-4">
+                  <!-- Header con imagen y título -->
+                  <div class="flex items-start gap-3">
+                    <img [src]="rifa.imagenUrl" [alt]="rifa.titulo" class="w-20 h-20 object-cover rounded-lg flex-shrink-0">
+                    <div class="flex-1 min-w-0">
+                      <h3 class="text-base font-semibold text-gray-900 mb-1">{{ rifa.titulo }}</h3>
+                      <p class="text-xs text-gray-500 line-clamp-2">{{ rifa.descripcion }}</p>
+                    </div>
+                  </div>
+                  
+                  <!-- Info compacta -->
+                  <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <span class="text-gray-500">Precio:</span>
+                      <span class="font-semibold text-gray-900 ml-1">${{ rifa.precioTicketUSD }}</span>
+                    </div>
+                    <div>
+                      <span class="text-gray-500">Sorteo:</span>
+                      <span class="font-medium text-gray-900 ml-1">{{ rifa.fechaSorteo | date:'short' }}</span>
+                    </div>
+                  </div>
+                  
+                  <!-- Estadísticas -->
+                  <div class="bg-gray-50 rounded-lg p-3 space-y-2">
+                    <div class="flex justify-between text-xs">
+                      <span class="text-gray-600">Compras:</span>
+                      <span class="font-semibold text-gray-900">{{ rifa.estadisticas.compras.total }}</span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                      <span class="text-gray-600">Tickets vendidos:</span>
+                      <span class="font-semibold text-green-600">{{ rifa.estadisticas.tickets.vendidos }} / {{ rifa.estadisticas.tickets.total }}</span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                      <span class="text-gray-600">Total vendido:</span>
+                      <span class="font-bold text-green-600">${{ rifa.estadisticas.ventas.totalUSD }}</span>
+                    </div>
+                  </div>
+                  
+                  <!-- Botón -->
+                  <button 
+                    (click)="verDetallesEstadisticas(rifa._id); $event.stopPropagation()"
+                    class="w-full bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium py-2.5 rounded-md transition">
+                    Ver Detalles
+                  </button>
+                </div>
+                
+                <!-- Layout desktop (horizontal) -->
+                <div class="hidden md:flex items-center p-4 gap-6">
                   <!-- Imagen de la rifa -->
                   <div class="flex-shrink-0">
                     <img [src]="rifa.imagenUrl" [alt]="rifa.titulo" class="w-24 h-24 object-cover rounded-lg">
@@ -915,15 +966,15 @@
       </button>
     </div>
 
-    <div class="p-6">
+    <div class="p-4 md:p-6">
       <!-- Header con info de la rifa -->
-      <div class="bg-gray-50 border rounded-lg p-6 mb-6">
-        <div class="flex items-start gap-6">
-          <img [src]="rifaSeleccionadaEstadisticas.rifa.imagenUrl" [alt]="rifaSeleccionadaEstadisticas.rifa.titulo" class="w-32 h-32 object-cover rounded-lg">
+      <div class="bg-gray-50 border rounded-lg p-4 md:p-6 mb-6">
+        <div class="flex flex-col md:flex-row items-start gap-4 md:gap-6">
+          <img [src]="rifaSeleccionadaEstadisticas.rifa.imagenUrl" [alt]="rifaSeleccionadaEstadisticas.rifa.titulo" class="w-24 h-24 md:w-32 md:h-32 object-cover rounded-lg">
           <div class="flex-1">
-            <h2 class="text-2xl font-bold text-gray-900 mb-2">{{ rifaSeleccionadaEstadisticas.rifa.titulo }}</h2>
-            <p class="text-gray-600 mb-3">{{ rifaSeleccionadaEstadisticas.rifa.descripcion }}</p>
-            <div class="flex gap-4 text-sm">
+            <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-2">{{ rifaSeleccionadaEstadisticas.rifa.titulo }}</h2>
+            <p class="text-sm md:text-base text-gray-600 mb-3">{{ rifaSeleccionadaEstadisticas.rifa.descripcion }}</p>
+            <div class="flex flex-wrap gap-2 md:gap-4 text-xs md:text-sm">
               <span class="text-gray-600">Precio: <strong class="text-gray-900">${{ rifaSeleccionadaEstadisticas.rifa.precioTicketUSD }}</strong></span>
               <span class="text-gray-600">Sorteo: <strong class="text-gray-900">{{ rifaSeleccionadaEstadisticas.rifa.fechaSorteo | date:'short' }}</strong></span>
               <span class="px-2 py-1 rounded text-xs font-medium" 
@@ -938,7 +989,7 @@
           <!-- Botón Ver Compradores -->
           <button
             (click)="abrirModalCompradores(rifaSeleccionadaEstadisticas.rifa._id)"
-            class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+            class="w-full md:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors text-sm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
             </svg>
