@@ -39,7 +39,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   estadisticas: any = null;
   rifasConEstadisticas: any[] = [];
   rifaSeleccionadaEstadisticas: any = null;
-  vistaEstadisticas: 'lista' | 'detalle' = 'lista'; // Vista actual de estadísticas
+  mostrarModalEstadisticasDetalle: boolean = false;
   
   // Modal de compradores
   mostrarModalCompradores: boolean = false;
@@ -77,6 +77,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   // Ver comprobante
   mostrarModalComprobante: boolean = false;
   comprobanteUrl: string = '';
+  comprobanteReferencia: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -263,7 +264,6 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   }
 
   cargarEstadisticas(): void {
-    this.vistaEstadisticas = 'lista';
     this.adminService.obtenerRifasConEstadisticas(this.token).subscribe({
       next: (response) => {
         if (response.success) {
@@ -282,7 +282,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
       next: (response) => {
         if (response.success) {
           this.rifaSeleccionadaEstadisticas = response.data;
-          this.vistaEstadisticas = 'detalle';
+          this.mostrarModalEstadisticasDetalle = true;
         }
       },
       error: (error) => {
@@ -292,8 +292,8 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     });
   }
 
-  volverAListaEstadisticas(): void {
-    this.vistaEstadisticas = 'lista';
+  cerrarModalEstadisticasDetalle(): void {
+    this.mostrarModalEstadisticasDetalle = false;
     this.rifaSeleccionadaEstadisticas = null;
   }
 
@@ -370,14 +370,16 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     this.compraSeleccionada = null;
   }
 
-  verComprobante(url: string): void {
+  verComprobante(url: string, referencia: string = ''): void {
     this.comprobanteUrl = url;
+    this.comprobanteReferencia = referencia;
     this.mostrarModalComprobante = true;
   }
 
   cerrarModalComprobante(): void {
     this.mostrarModalComprobante = false;
     this.comprobanteUrl = '';
+    this.comprobanteReferencia = '';
   }
 
   seleccionarImagen(event: any): void {
