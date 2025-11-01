@@ -101,4 +101,11 @@ export class AdminService {
   cambiarEstadoRifa(rifaId: string, nuevoEstado: string, token: string): Observable<any> {
     return this.http.patch(`${this.apiUrl}/admin/${token}/rifas/${rifaId}/estado`, { estado: nuevoEstado });
   }
+
+  /**
+   * Editar una rifa existente
+   */
+  editarRifa(rifaId: string, formData: FormData, token: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/admin/${token}/rifas/${rifaId}`, formData);
+  }
 }

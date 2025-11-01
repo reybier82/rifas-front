@@ -64,6 +64,11 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   creandoRifa: boolean = false;
   fechaMinima: string = new Date().toISOString().split('T')[0]; // Fecha de hoy en formato YYYY-MM-DD
   
+  // Editar rifa
+  mostrarModalEditarRifa: boolean = false;
+  rifaEditando: any = null;
+  editandoRifa: boolean = false;
+  
   // Mensajes
   mensaje: string = '';
   tipoMensaje: 'success' | 'error' | 'info' = 'info';
@@ -730,6 +735,96 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
       error: (error: any) => {
         console.error('Error al cargar compradores:', error);
         this.cargandoCompradores = false;
+      }
+    });
+  }
+
+  // Abrir modal de editar rifa
+  abrirModalEditarRifa(): void {
+    if (!this.rifaSeleccionadaEstadisticas) return;
+    
+    const rifa = this.rifaSeleccionadaEstadisticas.rifa;
+    
+    // Extraer fecha y hora del campo fechaSorteo
+    const fechaSorteo = new Date(rifa.fechaSorteo);
+    const fecha = fechaSorteo.toISOString().split('T')[0];
+    const hora = fechaSorteo.toTimeString().slice(0, 5);
+    
+    this.rifaEditando = {
+      _id: rifa._id,
+      titulo: rifa.titulo,
+      descripcion: rifa.descripcion,
+      precioTicketUSD: rifa.precioTicketUSD,
+      fechaSorteo: fecha,
+      horaSorteo: hora,
+      imagenUrl: rifa.imagenUrl,
+      imagen: null as File | null
+    };
+    
+    this.imagenPreview = rifa.imagenUrl;
+    this.mostrarModalEditarRifa = true;
+  }
+
+  // Cerrar modal de editar rifa
+  cerrarModalEditarRifa(): void {
+    this.mostrarModalEditarRifa = false;
+    this.rifaEditando = null;
+    this.imagenPreview = '';
+  }
+
+  // Seleccionar imagen para editar
+  seleccionarImagenEditar(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.rifaEditando.imagen = file;
+      
+      // Preview
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.imagenPreview = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // Guardar cambios de la rifa
+  guardarCambiosRifa(): void {
+    if (!this.rifaEditando || !this.rifaEditando.titulo || !this.rifaEditando.descripcion || !this.rifaEditando.fechaSorteo || !this.rifaEditando.horaSorteo) {
+      this.mostrarMensaje('Completa todos los campos obligatorios', 'error');
+      return;
+    }
+
+    this.editandoRifa = true;
+
+    // Combinar fecha y hora
+    const fechaHoraSorteo = `${this.rifaEditando.fechaSorteo}T${this.rifaEditando.horaSorteo}:00`;
+
+    const formData = new FormData();
+    formData.append('titulo', this.rifaEditando.titulo);
+    formData.append('descripcion', this.rifaEditando.descripcion);
+    formData.append('precioTicketUSD', this.rifaEditando.precioTicketUSD.toString());
+    formData.append('fechaSorteo', fechaHoraSorteo);
+    
+    if (this.rifaEditando.imagen) {
+      formData.append('imagen', this.rifaEditando.imagen);
+    }
+
+    this.adminService.editarRifa(this.rifaEditando._id, formData, this.token).subscribe({
+      next: (response: any) => {
+        this.mostrarMensaje('Rifa actualizada exitosamente', 'success');
+        this.cerrarModalEditarRifa();
+        // Recargar estadísticas
+        this.cargarEstadisticas();
+        // Actualizar datos del modal de estadísticas
+        if (this.rifaSeleccionadaEstadisticas) {
+          this.verDetallesEstadisticas(this.rifaSeleccionadaEstadisticas.rifa._id);
+        }
+        this.editandoRifa = false;
+      },
+      error: (error: any) => {
+        console.error('Error al editar rifa:', error);
+        this.mostrarMensaje('Error al actualizar la rifa', 'error');
+        this.editandoRifa = false;
       }
     });
   }
