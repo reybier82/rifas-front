@@ -41,6 +41,14 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   rifaSeleccionadaEstadisticas: any = null;
   vistaEstadisticas: 'lista' | 'detalle' = 'lista'; // Vista actual de estadísticas
   
+  // Modal de compradores
+  mostrarModalCompradores: boolean = false;
+  compradoresRifa: any[] = [];
+  compradoresFiltrados: any[] = [];
+  cargandoCompradores: boolean = false;
+  filtroEstado: 'todos' | 'pendiente' | 'verificado' | 'rechazado' = 'todos';
+  busquedaComprador: string = '';
+  
   // Crear rifa
   mostrarModalRifa: boolean = false;
   nuevaRifa = {
@@ -454,5 +462,83 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
 
   obtenerNumeros(tickets: any[]): string {
     return tickets.map(t => t.numero).sort((a, b) => a - b).join(', ');
+  }
+
+  // ==================== MODAL DE COMPRADORES ====================
+
+  abrirModalCompradores(rifaId: string): void {
+    this.mostrarModalCompradores = true;
+    this.cargandoCompradores = true;
+    this.filtroEstado = 'todos';
+    this.busquedaComprador = '';
+    
+    this.adminService.obtenerComprasPorRifa(this.token, rifaId).subscribe({
+      next: (response) => {
+        this.cargandoCompradores = false;
+        if (response.success) {
+          this.compradoresRifa = response.data.compras;
+          this.aplicarFiltros();
+        }
+      },
+      error: (error) => {
+        this.cargandoCompradores = false;
+        console.error('Error al cargar compradores:', error);
+      }
+    });
+  }
+
+  cerrarModalCompradores(): void {
+    this.mostrarModalCompradores = false;
+    this.compradoresRifa = [];
+    this.compradoresFiltrados = [];
+    this.busquedaComprador = '';
+    this.filtroEstado = 'todos';
+  }
+
+  cambiarFiltroEstado(estado: 'todos' | 'pendiente' | 'verificado' | 'rechazado'): void {
+    this.filtroEstado = estado;
+    this.aplicarFiltros();
+  }
+
+  buscarComprador(): void {
+    this.aplicarFiltros();
+  }
+
+  aplicarFiltros(): void {
+    let resultado = [...this.compradoresRifa];
+    
+    // Filtrar por estado
+    if (this.filtroEstado !== 'todos') {
+      resultado = resultado.filter(c => c.estado === this.filtroEstado);
+    }
+    
+    // Filtrar por búsqueda (nombre o email)
+    if (this.busquedaComprador.trim()) {
+      const busqueda = this.busquedaComprador.toLowerCase().trim();
+      resultado = resultado.filter(c => 
+        c.nombreCompleto.toLowerCase().includes(busqueda) ||
+        c.email.toLowerCase().includes(busqueda)
+      );
+    }
+    
+    this.compradoresFiltrados = resultado;
+  }
+
+  obtenerBadgeEstado(estado: string): string {
+    const badges: any = {
+      'pendiente': 'bg-yellow-100 text-yellow-800',
+      'verificado': 'bg-green-100 text-green-800',
+      'rechazado': 'bg-red-100 text-red-800'
+    };
+    return badges[estado] || 'bg-gray-100 text-gray-800';
+  }
+
+  obtenerTextoEstado(estado: string): string {
+    const textos: any = {
+      'pendiente': 'Pendiente',
+      'verificado': 'Verificado',
+      'rechazado': 'Rechazado'
+    };
+    return textos[estado] || estado;
   }
 }

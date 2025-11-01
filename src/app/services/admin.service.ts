@@ -87,4 +87,11 @@ export class AdminService {
   obtenerEstadisticasRifa(token: string, rifaId: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/admin/${token}/rifas/${rifaId}/estadisticas`);
   }
+
+  /**
+   * Obtener todas las compras de una rifa específica
+   */
+  obtenerComprasPorRifa(token: string, rifaId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/admin/${token}/rifas/${rifaId}/compras`);
+  }
 }
