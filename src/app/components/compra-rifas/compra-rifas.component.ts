@@ -35,6 +35,7 @@ export class CompraRifasComponent implements OnInit {
   paises: any[] = [];
   bancos: any[] = [];
   bancosDisponibles: any[] = [];
+  mostrarImagenGrande: boolean = false;
   bancoSeleccionado: string = '';
   numerosAsignados: number[] = [];
   
@@ -185,7 +186,7 @@ export class CompraRifasComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al cargar rifa:', error);
-        alert('Error al cargar la rifa');
+        // Redirigir a la página principal si la rifa no existe
         this.router.navigate(['/']);
       }
     });

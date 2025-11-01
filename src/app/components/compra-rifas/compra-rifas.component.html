@@ -2,18 +2,25 @@
   <div class="w-full max-w-5xl">
     <!-- Detalles de la Rifa Section -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-      <!-- Left Column: Car Image and Verify Button -->
+      <!-- Left Column: Prize Image and Verify Button -->
       <div>
         <h2 class="text-2xl font-bold text-white mb-4 drop-shadow-lg">Detalles de la Rifa</h2>
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-4">
-          <div class="w-full bg-center bg-no-repeat bg-cover rounded-lg overflow-hidden min-h-[280px]" 
-               style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCjTUGmL9NwH8OZIwQHjn6iFG3afF6D8yruIXhYbCsh9oJnYIuZrNap5EzY65NqwsVPpp9I5EqqiPeiHSwI87BD2khh5OZNp7-vjOckYM363CcmQQPl4XnvQfxYBHsTYNE-kcftC70BG_cqImTmUd_hk6qZNVEDLdakRUUKRBSdb6z0nGIdHohtN4mVRr9KZDm2O7jDYjZlpHnc09MVGnLNwMcolA9TMx0Ef7ulN-l3z2-tW1jvaaP3nN2wEEeT_zsBq8tltf-hd4M");'>
+          <!-- Imagen clickeable -->
+          <div 
+            class="w-full rounded-lg overflow-hidden cursor-pointer hover:opacity-95 transition"
+            (click)="mostrarImagenGrande = true">
+            <img 
+              [src]="rifaSeleccionada?.imagenUrl || 'https://via.placeholder.com/600x400?text=Sin+Imagen'" 
+              [alt]="rifaSeleccionada?.titulo"
+              class="w-full h-auto object-cover min-h-[320px] max-h-[400px]">
           </div>
           <div class="mt-4">
             <p class="text-sm text-gray-700 mb-2">
-              <span class="font-bold">CARRO</span> <span class="font-bold"> ¡Gana el carro de tus sueños con nosotros!</span>
+              <span class="font-bold text-lg">{{ rifaSeleccionada?.titulo || 'Cargando...' }}</span>
             </p>
-            <p class="text-sm text-gray-600">Precio por ticket: <span class="font-bold">$8.00</span></p>
+            <p class="text-sm text-gray-600 mb-2">{{ rifaSeleccionada?.descripcion }}</p>
+            <p class="text-sm text-gray-600">Precio por ticket: <span class="font-bold">${{ precioPorTicket?.toFixed(2) }}</span></p>
           </div>
         </div>
         <button 
@@ -627,5 +634,22 @@
         Cerrar
       </button>
     </div>
+  </div>
+</div>
+
+<!-- Modal: Ver Imagen Grande -->
+<div *ngIf="mostrarImagenGrande" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4" (click)="mostrarImagenGrande = false">
+  <div class="relative max-w-6xl w-full" (click)="$event.stopPropagation()">
+    <button 
+      (click)="mostrarImagenGrande = false"
+      class="absolute top-4 right-4 text-white bg-black bg-opacity-50 hover:bg-opacity-75 rounded-full p-2 transition z-10">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+    <img 
+      [src]="rifaSeleccionada?.imagenUrl" 
+      [alt]="rifaSeleccionada?.titulo"
+      class="w-full h-auto max-h-[90vh] object-contain rounded-lg">
   </div>
 </div>
