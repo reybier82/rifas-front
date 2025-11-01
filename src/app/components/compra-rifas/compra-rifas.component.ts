@@ -110,12 +110,15 @@ export class CompraRifasComponent implements OnInit {
   }
 
   incrementarCantidad(): void {
-    this.cantidadTickets++;
-    this.calcularTotal();
+    const disponibles = this.rifaSeleccionada?.numerosDisponibles?.length || 0;
+    if (this.cantidadTickets < disponibles) {
+      this.cantidadTickets++;
+      this.calcularTotal();
+    }
   }
 
   decrementarCantidad(): void {
-    if (this.cantidadTickets > 2) {
+    if (this.cantidadTickets > 1) {
       this.cantidadTickets--;
       this.calcularTotal();
     }
