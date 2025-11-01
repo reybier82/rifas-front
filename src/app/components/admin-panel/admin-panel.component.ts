@@ -57,6 +57,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     precioTicketUSD: 8,
     cantidadNumeros: 100,
     fechaSorteo: '',
+    horaSorteo: '20:00',
     imagen: null as File | null
   };
   imagenPreview: string = '';
@@ -79,6 +80,9 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   mostrarModalRechazarCompradores: boolean = false;
   compraSeleccionadaCompradores: any = null;
   motivoRechazoCompradores: string = '';
+  
+  // Modal de confirmación para inactivar rifa
+  mostrarModalConfirmarInactivar: boolean = false;
   
   // Ver comprobante
   mostrarModalComprobante: boolean = false;
@@ -415,19 +419,22 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   }
 
   crearRifa(): void {
-    if (!this.nuevaRifa.titulo || !this.nuevaRifa.descripcion || !this.nuevaRifa.fechaSorteo) {
+    if (!this.nuevaRifa.titulo || !this.nuevaRifa.descripcion || !this.nuevaRifa.fechaSorteo || !this.nuevaRifa.horaSorteo) {
       this.mostrarMensaje('Completa todos los campos obligatorios', 'error');
       return;
     }
 
     this.creandoRifa = true;
 
+    // Combinar fecha y hora en formato ISO
+    const fechaHoraSorteo = `${this.nuevaRifa.fechaSorteo}T${this.nuevaRifa.horaSorteo}:00`;
+
     const formData = new FormData();
     formData.append('titulo', this.nuevaRifa.titulo);
     formData.append('descripcion', this.nuevaRifa.descripcion);
     formData.append('precioTicketUSD', this.nuevaRifa.precioTicketUSD.toString());
     formData.append('cantidadNumeros', this.nuevaRifa.cantidadNumeros.toString());
-    formData.append('fechaSorteo', this.nuevaRifa.fechaSorteo);
+    formData.append('fechaSorteo', fechaHoraSorteo);
     
     if (this.nuevaRifa.imagen) {
       formData.append('imagen', this.nuevaRifa.imagen);
@@ -457,6 +464,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
       precioTicketUSD: 8,
       cantidadNumeros: 100,
       fechaSorteo: '',
+      horaSorteo: '20:00',
       imagen: null
     };
     this.imagenPreview = '';
@@ -563,9 +571,9 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     // Si la rifa está cerrada, no se puede cambiar
     if (rifa.estado === 'cerrada') return false;
     
-    // Si está activa, verificar que no tenga compras pendientes
+    // Si está activa, verificar que no tenga compras pendientes NI tickets vendidos
     if (rifa.estado === 'activa') {
-      return estadisticas.compras.pendientes === 0;
+      return estadisticas.compras.pendientes === 0 && estadisticas.tickets.vendidos === 0;
     }
     
     // Si está inactiva, siempre se puede activar
@@ -583,8 +591,17 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
       return 'La rifa ya finalizó';
     }
     
-    if (rifa.estado === 'activa' && estadisticas.compras.pendientes > 0) {
-      return `Hay ${estadisticas.compras.pendientes} compra(s) pendiente(s)`;
+    if (rifa.estado === 'activa') {
+      const problemas = [];
+      if (estadisticas.compras.pendientes > 0) {
+        problemas.push(`${estadisticas.compras.pendientes} compra(s) pendiente(s)`);
+      }
+      if (estadisticas.tickets.vendidos > 0) {
+        problemas.push(`${estadisticas.tickets.vendidos} ticket(s) vendido(s)`);
+      }
+      if (problemas.length > 0) {
+        return `Hay ${problemas.join(' y ')}`;
+      }
     }
     
     return '';
@@ -595,16 +612,35 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     if (!this.rifaSeleccionadaEstadisticas || !this.puedeCambiarEstadoRifa()) return;
     
     const rifa = this.rifaSeleccionadaEstadisticas.rifa;
-    const nuevoEstado = rifa.estado === 'activa' ? 'inactiva' : 'activa';
-    const accion = nuevoEstado === 'activa' ? 'activar' : 'inactivar';
     
-    if (!confirm(`¿Estás seguro de ${accion} esta rifa?`)) return;
+    // Si está activa, mostrar modal de confirmación
+    if (rifa.estado === 'activa') {
+      this.mostrarModalConfirmarInactivar = true;
+    } else {
+      // Si está inactiva, activar directamente
+      this.ejecutarCambioEstadoRifa();
+    }
+  }
+
+  // Cerrar modal de confirmación
+  cerrarModalConfirmarInactivar(): void {
+    this.mostrarModalConfirmarInactivar = false;
+  }
+
+  // Ejecutar cambio de estado
+  ejecutarCambioEstadoRifa(): void {
+    if (!this.rifaSeleccionadaEstadisticas) return;
+    
+    const rifa = this.rifaSeleccionadaEstadisticas.rifa;
+    const nuevoEstado = rifa.estado === 'activa' ? 'inactiva' : 'activa';
     
     this.adminService.cambiarEstadoRifa(rifa._id, nuevoEstado, this.token).subscribe({
       next: (response: any) => {
         this.mostrarMensaje(`Rifa ${nuevoEstado === 'activa' ? 'activada' : 'inactivada'} exitosamente`, 'success');
         // Actualizar el estado local
         this.rifaSeleccionadaEstadisticas.rifa.estado = nuevoEstado;
+        // Cerrar modal si está abierto
+        this.cerrarModalConfirmarInactivar();
         // Recargar estadísticas
         this.cargarEstadisticas();
       },
