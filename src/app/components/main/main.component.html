@@ -48,24 +48,57 @@
             <!-- Dynamic rifas -->
             <article *ngFor="let rifa of rifas" 
                      class="flex flex-col gap-3 bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100">
-              <div class="w-full aspect-video bg-center bg-no-repeat bg-cover" 
+              <!-- Imagen con filtro gris si está agotado -->
+              <div class="w-full aspect-video bg-center bg-no-repeat bg-cover relative" 
                    [style.background-image]="'url(' + rifa.imagenUrl + ')'" 
+                   [class.grayscale]="rifa.ticketsDisponibles === 0"
+                   [class.opacity-60]="rifa.ticketsDisponibles === 0"
                    role="img" 
-                   [attr.aria-label]="rifa.titulo"></div>
+                   [attr.aria-label]="rifa.titulo">
+                <!-- Badge de agotado -->
+                <div *ngIf="rifa.ticketsDisponibles === 0" 
+                     class="absolute inset-0 flex items-center justify-center bg-black/50">
+                  <span class="bg-red-600 text-white font-bold px-6 py-2 rounded-lg text-lg">
+                    AGOTADO
+                  </span>
+                </div>
+              </div>
               <div class="p-4 flex flex-col flex-grow min-h-[220px]">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white h-16 overflow-hidden">
                   {{ rifa.titulo }}
                 </h3>
                 <div class="flex items-center justify-between mt-2 text-sm text-gray-600 dark:text-gray-400">
                   <span class="font-semibold text-blue-600">${{ rifa.precioTicketUSD }} por boleto</span>
-                  <span>{{ rifa.ticketsDisponibles }} disponibles</span>
+                  <span [class.text-red-600]="rifa.ticketsDisponibles === 0" 
+                        [class.font-bold]="rifa.ticketsDisponibles === 0">
+                    {{ rifa.ticketsDisponibles }} disponibles
+                  </span>
                 </div>
                 <p class="mt-3 mb-4 text-sm text-gray-600 dark:text-gray-400">
                   {{ rifa.descripcion }}
                 </p>
-                <button class="w-full mt-auto h-12 rounded-lg bg-gray-900 text-white font-bold hover:bg-gray-800 transition-colors" 
-                        (click)="redirectToCompraRifas(rifa._id)">
+                
+                <!-- Botón de compra (deshabilitado si está agotado) -->
+                <button 
+                  *ngIf="rifa.ticketsDisponibles > 0"
+                  class="w-full mt-auto h-12 rounded-lg bg-gray-900 text-white font-bold hover:bg-gray-800 transition-colors" 
+                  (click)="redirectToCompraRifas(rifa._id)">
                   Comprar Boleto
+                </button>
+                
+                <!-- Botón deshabilitado cuando está agotado -->
+                <button 
+                  *ngIf="rifa.ticketsDisponibles === 0"
+                  disabled
+                  class="w-full mt-auto h-12 rounded-lg bg-gray-400 text-gray-200 font-bold cursor-not-allowed">
+                  Boletos Agotados
+                </button>
+                
+                <!-- Botón de verificar tickets (siempre visible) -->
+                <button 
+                  class="w-full mt-2 h-12 rounded-lg border-2 border-gray-900 text-gray-900 font-bold hover:bg-gray-100 transition-colors" 
+                  (click)="abrirModalVerificar()">
+                  Verificar Email para Verificar Tickets
                 </button>
               </div>
             </article>
@@ -74,3 +107,225 @@
       </section>
     </div>
   </main>
+
+  <!-- Modal Verificar Tickets -->
+<div 
+  *ngIf="mostrarModalVerificar"
+  class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+  (click)="cerrarModalVerificar()"
+>
+  <div 
+    class="bg-white rounded-xl max-w-2xl w-full p-6 border border-gray-100 shadow-2xl"
+    (click)="$event.stopPropagation()"
+  >
+    <h2 class="text-3xl font-bold text-gray-900 mb-6">Verifica Tus TICKETS</h2>
+    
+    <!-- Alert Box -->
+    <div class="border-2 border-gray-900 rounded-lg p-4 mb-6 bg-gray-50">
+      <div class="flex items-start gap-2 mb-3">
+        <span class="text-xl">⚠️</span>
+        <p class="font-bold text-gray-900">SOPORTE TIENE 24 hrs PARA RESPONDERTE Y APROBAR TU COMPRA</p>
+      </div>
+      <p class="text-gray-700 mb-3">
+        ¿No recibiste tus tickets por correo? ¡VERIFÍCALOS AQUÍ!
+      </p>
+      <p class="text-gray-700 mb-3">
+        Simplemente ingresa al correo electrónico que usaste para la compra en el campo de abajo y haz clic en "Verificar Tickets" para ver los números asociados a tu participación en esta rifa.
+      </p>
+      <p class="font-bold text-gray-900">
+        CONTÁCTANOS POR EL TLF DE SOPORTE: (0412)-9809727
+      </p>
+    </div>
+
+    <!-- Email Input -->
+    <div class="mb-6">
+      <label class="text-sm font-medium text-gray-900 mb-2 block">Email para Verificar Tickets</label>
+      <input 
+        type="email" 
+        [(ngModel)]="emailVerificar"
+        placeholder="Ingresa tu email de compra aquí"
+        class="w-full h-12 px-4 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+      />
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex gap-3">
+      <button 
+        class="flex-1 bg-gray-900 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        (click)="verificarTickets()"
+        [disabled]="cargandoVerificacion"
+      >
+        <span *ngIf="!cargandoVerificacion">Verificar Tickets</span>
+        <span *ngIf="cargandoVerificacion" class="flex items-center justify-center gap-2">
+          <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Buscando...
+        </span>
+      </button>
+      <button 
+        class="px-6 bg-gray-200 text-gray-900 font-bold py-3 rounded-lg hover:bg-gray-300 transition-colors"
+        (click)="cerrarModalVerificar()"
+      >
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Resultados de Verificación -->
+<div 
+  *ngIf="mostrarResultadosVerificacion"
+  class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4"
+  (click)="cerrarModalVerificar()"
+>
+  <div 
+    class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 border border-gray-100 shadow-2xl"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold text-gray-900">Tus Compras</h2>
+      <button 
+        (click)="cerrarModalVerificar()"
+        class="text-gray-500 hover:text-gray-700 transition">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Resumen -->
+    <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-6">
+      <div class="flex items-center gap-2 mb-2">
+        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <h3 class="text-lg font-bold text-gray-900">Encontramos {{ comprasEncontradas.length }} compra(s) para tu email</h3>
+      </div>
+      <p class="text-gray-700">Email: <strong>{{ emailVerificar }}</strong></p>
+    </div>
+
+    <!-- Lista de Compras -->
+    <div class="space-y-4">
+      <div *ngFor="let compra of comprasEncontradas; let i = index" class="border-2 rounded-lg p-5 hover:border-gray-300 transition"
+        [class.border-green-300]="compra.estado === 'verificado'"
+        [class.bg-green-50]="compra.estado === 'verificado'"
+        [class.border-yellow-300]="compra.estado === 'pendiente'"
+        [class.bg-yellow-50]="compra.estado === 'pendiente'"
+        [class.border-red-300]="compra.estado === 'rechazado'"
+        [class.bg-red-50]="compra.estado === 'rechazado'">
+        
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <h4 class="text-lg font-bold text-gray-900 mb-1">Compra #{{ i + 1 }}</h4>
+            <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold"
+              [class.bg-green-200]="compra.estado === 'verificado'"
+              [class.text-green-800]="compra.estado === 'verificado'"
+              [class.bg-yellow-200]="compra.estado === 'pendiente'"
+              [class.text-yellow-800]="compra.estado === 'pendiente'"
+              [class.bg-red-200]="compra.estado === 'rechazado'"
+              [class.text-red-800]="compra.estado === 'rechazado'">
+              {{ compra.estado === 'verificado' ? '✓ Verificado' : compra.estado === 'pendiente' ? '⏳ Pendiente' : '✗ Rechazado' }}
+            </span>
+          </div>
+          <p class="text-sm text-gray-500">{{ compra.createdAt | date:'short' }}</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <p class="text-sm text-gray-600">Rifa</p>
+            <p class="font-semibold text-gray-900">{{ compra.rifaId?.titulo || compra.rifa?.titulo || 'N/A' }}</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Método de Pago</p>
+            <p class="font-semibold text-gray-900">{{ compra.pago?.metodoPago || 'N/A' }}</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Banco</p>
+            <p class="font-semibold text-gray-900">{{ compra.pago?.bancoId?.nombre || 'N/A' }}</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Referencia</p>
+            <p class="font-mono text-sm bg-gray-100 px-2 py-1 rounded inline-block">{{ compra.pago?.codigoReferencia || 'N/A' }}</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Cantidad de Tickets</p>
+            <p class="font-semibold text-gray-900">{{ compra.cantidadTickets }} tickets</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Total Pagado</p>
+            <p class="font-semibold text-green-600">${{ compra.totalUSD?.toFixed(2) || '0.00' }} USD / Bs. {{ compra.totalBs?.toFixed(2) || '0.00' }}</p>
+          </div>
+        </div>
+
+        <!-- Números Asignados -->
+        <div class="border-t pt-4">
+          <p class="text-sm font-semibold text-gray-700 mb-3">Tus Números de la Suerte:</p>
+          <div class="flex flex-wrap gap-2">
+            <span *ngFor="let ticket of compra.tickets" 
+              class="inline-flex items-center justify-center w-12 h-12 bg-gray-900 text-white text-sm font-bold rounded-lg border-2 border-gray-700">
+              {{ ticket.numero }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Mensaje de estado -->
+        <div *ngIf="compra.estado === 'pendiente'" class="mt-4 bg-yellow-100 border border-yellow-300 rounded-lg p-3">
+          <p class="text-sm text-yellow-800">
+            ⏳ Tu compra está siendo verificada. Recibirás un email cuando sea aprobada (máximo 24 horas).
+          </p>
+        </div>
+        <div *ngIf="compra.estado === 'rechazado'" class="mt-4 bg-red-100 border border-red-300 rounded-lg p-3">
+          <p class="text-sm text-red-800 font-semibold">
+            ✗ Esta compra fue rechazada. Motivo: {{ compra.motivoRechazo || 'No especificado' }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón Cerrar -->
+    <div class="mt-6">
+      <button 
+        class="w-full bg-gray-900 text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition-colors"
+        (click)="cerrarModalVerificar()"
+      >
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Alerta No Compras Encontradas -->
+<div 
+  *ngIf="mostrarAlertaNoCompras"
+  class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[70] p-4"
+  (click)="cerrarAlertaNoCompras()"
+>
+  <div 
+    class="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl transform transition-all"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Icono de alerta -->
+    <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full">
+      <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+      </svg>
+    </div>
+
+    <!-- Título -->
+    <h3 class="text-xl font-bold text-gray-900 text-center mb-2">No se encontraron compras</h3>
+    
+    <!-- Mensaje -->
+    <p class="text-gray-600 text-center mb-6">
+      No se encontraron compras para el email <strong>{{ emailVerificar }}</strong>.
+    </p>
+
+    <!-- Botón -->
+    <button 
+      (click)="cerrarAlertaNoCompras()"
+      class="w-full bg-gray-900 hover:bg-gray-800 text-white font-semibold py-3 px-4 rounded-lg transition-colors">
+      Aceptar
+    </button>
+  </div>
+</div>
