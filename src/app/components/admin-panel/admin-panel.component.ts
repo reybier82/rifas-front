@@ -74,6 +74,12 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   compraSeleccionada: any = null;
   motivoRechazo: string = '';
   
+  // Modales desde compradores
+  mostrarModalVerificarCompradores: boolean = false;
+  mostrarModalRechazarCompradores: boolean = false;
+  compraSeleccionadaCompradores: any = null;
+  motivoRechazoCompradores: string = '';
+  
   // Ver comprobante
   mostrarModalComprobante: boolean = false;
   comprobanteUrl: string = '';
@@ -605,6 +611,89 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
       error: (error: any) => {
         console.error('Error al cambiar estado de rifa:', error);
         this.mostrarMensaje('Error al cambiar estado de la rifa', 'error');
+      }
+    });
+  }
+
+  // Abrir modal de verificación desde compradores
+  abrirModalVerificarDesdeCompradores(compra: any): void {
+    this.compraSeleccionadaCompradores = compra;
+    this.mostrarModalVerificarCompradores = true;
+  }
+
+  // Cerrar modal de verificación desde compradores
+  cerrarModalVerificarCompradores(): void {
+    this.mostrarModalVerificarCompradores = false;
+    this.compraSeleccionadaCompradores = null;
+  }
+
+  // Confirmar verificación desde compradores
+  confirmarVerificacionCompradores(): void {
+    if (!this.compraSeleccionadaCompradores) return;
+    
+    this.adminService.verificarPago(this.token, this.compraSeleccionadaCompradores._id).subscribe({
+      next: (response: any) => {
+        this.mostrarMensaje('Pago verificado y email enviado exitosamente', 'success');
+        this.cerrarModalVerificarCompradores();
+        // Recargar compradores
+        this.cargarCompradoresRifa(this.compraSeleccionadaCompradores.rifaId._id || this.compraSeleccionadaCompradores.rifaId);
+      },
+      error: (error: any) => {
+        console.error('Error al verificar pago:', error);
+        this.mostrarMensaje('Error al verificar pago', 'error');
+      }
+    });
+  }
+
+  // Abrir modal de rechazo desde compradores
+  abrirModalRechazarDesdeCompradores(compra: any): void {
+    this.compraSeleccionadaCompradores = compra;
+    this.motivoRechazoCompradores = '';
+    this.mostrarModalRechazarCompradores = true;
+  }
+
+  // Cerrar modal de rechazo desde compradores
+  cerrarModalRechazarCompradores(): void {
+    this.mostrarModalRechazarCompradores = false;
+    this.compraSeleccionadaCompradores = null;
+    this.motivoRechazoCompradores = '';
+  }
+
+  // Confirmar rechazo desde compradores
+  confirmarRechazoCompradores(): void {
+    if (!this.compraSeleccionadaCompradores) return;
+    
+    if (!this.motivoRechazoCompradores || this.motivoRechazoCompradores.trim() === '') {
+      this.mostrarMensaje('Debes ingresar un motivo de rechazo', 'error');
+      return;
+    }
+    
+    this.adminService.rechazarPago(this.token, this.compraSeleccionadaCompradores._id, this.motivoRechazoCompradores).subscribe({
+      next: (response: any) => {
+        this.mostrarMensaje('Pago rechazado y notificación enviada', 'success');
+        this.cerrarModalRechazarCompradores();
+        // Recargar compradores
+        this.cargarCompradoresRifa(this.compraSeleccionadaCompradores.rifaId._id || this.compraSeleccionadaCompradores.rifaId);
+      },
+      error: (error: any) => {
+        console.error('Error al rechazar pago:', error);
+        this.mostrarMensaje('Error al rechazar pago', 'error');
+      }
+    });
+  }
+
+  // Cargar compradores de una rifa (helper para recargar después de verificar/rechazar)
+  private cargarCompradoresRifa(rifaId: string): void {
+    this.cargandoCompradores = true;
+    this.adminService.obtenerComprasPorRifa(this.token, rifaId).subscribe({
+      next: (response: any) => {
+        this.compradoresRifa = response.data?.compras || response.compras || [];
+        this.aplicarFiltros();
+        this.cargandoCompradores = false;
+      },
+      error: (error: any) => {
+        console.error('Error al cargar compradores:', error);
+        this.cargandoCompradores = false;
       }
     });
   }
