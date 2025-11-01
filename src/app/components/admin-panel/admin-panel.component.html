@@ -295,52 +295,67 @@
               <p class="text-sm text-gray-500">No hay rifas disponibles</p>
             </div>
 
-            <!-- Grid de Rifas -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div *ngFor="let rifa of rifasConEstadisticas" class="bg-white border rounded-lg overflow-hidden hover:shadow-lg transition">
-                <!-- Imagen de la rifa -->
-                <div class="h-48 bg-gray-200 overflow-hidden">
-                  <img [src]="rifa.imagenUrl" [alt]="rifa.titulo" class="w-full h-full object-cover">
-                </div>
-                
-                <!-- Contenido -->
-                <div class="p-4">
-                  <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2">{{ rifa.titulo }}</h3>
-                  <p class="text-sm text-gray-500 mb-4">{{ rifa.fechaSorteo | date:'short' }}</p>
+            <!-- Lista de Rifas (estilo tabla horizontal) -->
+            <div class="space-y-4">
+              <div *ngFor="let rifa of rifasConEstadisticas" class="bg-white border rounded-lg overflow-hidden hover:border-gray-300 transition">
+                <div class="flex items-center p-4 gap-6">
+                  <!-- Imagen de la rifa -->
+                  <div class="flex-shrink-0">
+                    <img [src]="rifa.imagenUrl" [alt]="rifa.titulo" class="w-24 h-24 object-cover rounded-lg">
+                  </div>
+                  
+                  <!-- Información principal -->
+                  <div class="flex-1 min-w-0">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ rifa.titulo }}</h3>
+                    <p class="text-sm text-gray-500 mb-2">{{ rifa.descripcion }}</p>
+                    <div class="flex items-center gap-4 text-sm">
+                      <span class="text-gray-600">Precio: <strong class="text-gray-900">${{ rifa.precioTicketUSD }}</strong></span>
+                      <span class="text-gray-600">Sorteo: <strong class="text-gray-900">{{ rifa.fechaSorteo | date:'short' }}</strong></span>
+                      <span class="px-2 py-1 rounded text-xs font-medium" 
+                        [class.bg-green-100]="rifa.estado === 'activa'"
+                        [class.text-green-700]="rifa.estado === 'activa'"
+                        [class.bg-gray-100]="rifa.estado === 'cerrada'"
+                        [class.text-gray-700]="rifa.estado === 'cerrada'">
+                        {{ rifa.estado }}
+                      </span>
+                    </div>
+                  </div>
                   
                   <!-- Estadísticas resumidas -->
-                  <div class="space-y-2 mb-4">
-                    <div class="flex justify-between text-sm">
+                  <div class="flex-shrink-0 text-right space-y-1">
+                    <div class="text-sm">
                       <span class="text-gray-600">Compras:</span>
-                      <span class="font-medium">{{ rifa.estadisticas.compras.total }}</span>
+                      <span class="font-semibold text-gray-900 ml-2">{{ rifa.estadisticas.compras.total }}</span>
                     </div>
-                    <div class="flex justify-between text-sm">
+                    <div class="text-sm">
                       <span class="text-gray-600">Tickets vendidos:</span>
-                      <span class="font-medium text-green-600">{{ rifa.estadisticas.tickets.vendidos }} / {{ rifa.estadisticas.tickets.total }}</span>
+                      <span class="font-semibold text-green-600 ml-2">{{ rifa.estadisticas.tickets.vendidos }} / {{ rifa.estadisticas.tickets.total }}</span>
                     </div>
-                    <div class="flex justify-between text-sm">
+                    <div class="text-sm">
                       <span class="text-gray-600">Total vendido:</span>
-                      <span class="font-semibold text-green-600">${{ rifa.estadisticas.ventas.totalUSD }}</span>
+                      <span class="font-bold text-green-600 ml-2">${{ rifa.estadisticas.ventas.totalUSD }}</span>
                     </div>
                     
                     <!-- Barra de progreso -->
-                    <div class="mt-3">
+                    <div class="mt-2">
                       <div class="flex justify-between text-xs text-gray-500 mb-1">
                         <span>Progreso</span>
-                        <span>{{ rifa.estadisticas.tickets.porcentajeVendido }}%</span>
+                        <span class="font-medium">{{ rifa.estadisticas.tickets.porcentajeVendido }}%</span>
                       </div>
-                      <div class="w-full bg-gray-200 rounded-full h-2">
+                      <div class="w-48 bg-gray-200 rounded-full h-2">
                         <div class="bg-green-600 h-2 rounded-full transition-all" [style.width.%]="rifa.estadisticas.tickets.porcentajeVendido"></div>
                       </div>
                     </div>
                   </div>
                   
                   <!-- Botón Ver Detalles -->
-                  <button 
-                    (click)="verDetallesEstadisticas(rifa._id)"
-                    class="w-full bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium py-2 px-4 rounded-md transition">
-                    Ver Detalles
-                  </button>
+                  <div class="flex-shrink-0">
+                    <button 
+                      (click)="verDetallesEstadisticas(rifa._id)"
+                      class="bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium py-2 px-6 rounded-md transition whitespace-nowrap">
+                      Ver Detalles
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
