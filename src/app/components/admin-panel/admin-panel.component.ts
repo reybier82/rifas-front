@@ -27,6 +27,9 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   
   // Estadísticas
   estadisticas: any = null;
+  rifasConEstadisticas: any[] = [];
+  rifaSeleccionadaEstadisticas: any = null;
+  vistaEstadisticas: 'lista' | 'detalle' = 'lista'; // Vista actual de estadísticas
   
   // Crear rifa
   mostrarModalRifa: boolean = false;
@@ -182,16 +185,38 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   }
 
   cargarEstadisticas(): void {
-    this.adminService.obtenerEstadisticas(this.token).subscribe({
+    this.vistaEstadisticas = 'lista';
+    this.adminService.obtenerRifasConEstadisticas(this.token).subscribe({
       next: (response) => {
         if (response.success) {
-          this.estadisticas = response.data;
+          this.rifasConEstadisticas = response.data;
         }
       },
       error: (error) => {
         console.error('Error al cargar estadísticas:', error);
+        this.mostrarMensaje('Error al cargar estadísticas', 'error');
       }
     });
+  }
+
+  verDetallesEstadisticas(rifaId: string): void {
+    this.adminService.obtenerEstadisticasRifa(this.token, rifaId).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.rifaSeleccionadaEstadisticas = response.data;
+          this.vistaEstadisticas = 'detalle';
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar estadísticas de rifa:', error);
+        this.mostrarMensaje('Error al cargar estadísticas de la rifa', 'error');
+      }
+    });
+  }
+
+  volverAListaEstadisticas(): void {
+    this.vistaEstadisticas = 'lista';
+    this.rifaSeleccionadaEstadisticas = null;
   }
 
   abrirModalVerificar(compra: any): void {

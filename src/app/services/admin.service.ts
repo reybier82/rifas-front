@@ -68,9 +68,23 @@ export class AdminService {
   }
 
   /**
-   * Obtener estadísticas
+   * Obtener estadísticas generales (LEGACY)
    */
   obtenerEstadisticas(token: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/admin/${token}/estadisticas`);
+  }
+
+  /**
+   * Obtener lista de rifas con estadísticas resumidas
+   */
+  obtenerRifasConEstadisticas(token: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/admin/${token}/rifas-estadisticas`);
+  }
+
+  /**
+   * Obtener estadísticas detalladas de una rifa específica
+   */
+  obtenerEstadisticasRifa(token: string, rifaId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/admin/${token}/rifas/${rifaId}/estadisticas`);
   }
 }
