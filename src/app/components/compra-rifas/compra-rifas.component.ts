@@ -55,6 +55,9 @@ export class CompraRifasComponent implements OnInit {
   // Modal de verificación
   mostrarModalVerificar: boolean = false;
   emailVerificar: string = '';
+  comprasEncontradas: any[] = [];
+  mostrarResultadosVerificacion: boolean = false;
+  cargandoVerificacion: boolean = false;
 
   // Modal de éxito
   mostrarModalExito: boolean = false;
@@ -560,25 +563,51 @@ export class CompraRifasComponent implements OnInit {
   }
 
   verificarTickets(): void {
-    if (!this.emailVerificar) {
+    if (!this.emailVerificar || !this.emailVerificar.trim()) {
       alert('Por favor ingresa tu email');
       return;
     }
 
+    this.cargandoVerificacion = true;
     this.comprasService.verificarTicketsPorEmail(this.emailVerificar).subscribe({
       next: (response) => {
-        if (response.success) {
-          console.log('Tickets encontrados:', response.data);
-          // Mostrar los tickets en un modal o lista
-          alert(`Se encontraron ${response.data.length} compra(s) para este email`);
+        this.cargandoVerificacion = false;
+        console.log('Respuesta del servidor:', response);
+        
+        if (response.success && response.data && response.data.length > 0) {
+          // Mapear los datos para que coincidan con la estructura esperada
+          this.comprasEncontradas = response.data.map((compra: any) => ({
+            ...compra,
+            rifaId: compra.rifa || compra.rifaId, // Usar 'rifa' si existe, sino 'rifaId'
+            estado: compra.estadoVerificacion || compra.estado, // Mapear estadoVerificacion a estado
+            pago: compra.pago || {
+              metodoPago: 'N/A',
+              bancoId: { nombre: 'N/A' },
+              codigoReferencia: 'N/A'
+            },
+            nombreCompleto: compra.nombreCompleto || 'Usuario',
+            email: this.emailVerificar,
+            createdAt: compra.fechaCompra || compra.createdAt
+          }));
+          
+          console.log('Compras procesadas:', this.comprasEncontradas);
+          this.mostrarResultadosVerificacion = true;
+        } else {
+          alert('No se encontraron compras para este email');
         }
       },
       error: (error) => {
+        this.cargandoVerificacion = false;
         console.error('Error al verificar tickets:', error);
         alert(error.error?.message || 'No se encontraron compras para este email');
       }
     });
-    
+  }
+
+  cerrarResultadosVerificacion(): void {
+    this.mostrarResultadosVerificacion = false;
+    this.comprasEncontradas = [];
+    this.emailVerificar = '';
     this.cerrarModalVerificar();
   }
 
