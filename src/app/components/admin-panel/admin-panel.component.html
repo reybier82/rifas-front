@@ -104,7 +104,22 @@
       <div class="p-6">
         <!-- Tab: Compras Pendientes -->
         <div *ngIf="tabActivo === 'pendientes'">
-          <h2 class="text-xl font-semibold text-gray-900 mb-6">Compras Pendientes</h2>
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-semibold text-gray-900">Compras Pendientes</h2>
+            
+            <!-- Buscador -->
+            <div class="relative w-96">
+              <input 
+                type="text" 
+                [(ngModel)]="busquedaPendientes"
+                (ngModelChange)="filtrarComprasPendientes()"
+                placeholder="Buscar por nombre, email o rifa..."
+                class="w-full h-10 pl-10 pr-4 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent">
+              <svg class="absolute left-3 top-3 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+          </div>
           
           <div *ngIf="cargandoCompras" class="text-center py-12">
             <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900 mx-auto"></div>
@@ -119,7 +134,7 @@
           </div>
 
           <!-- Tabla Compacta -->
-          <div *ngIf="!cargandoCompras && comprasPendientes.length > 0" class="border rounded-lg overflow-hidden">
+          <div *ngIf="!cargandoCompras && comprasPendientesFiltradas.length > 0" class="border rounded-lg overflow-hidden">
             <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-50">
                 <tr>
@@ -133,7 +148,7 @@
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
-                <tr *ngFor="let compra of comprasPendientes" class="hover:bg-gray-50 transition">
+                <tr *ngFor="let compra of comprasPendientesFiltradas" class="hover:bg-gray-50 transition">
                   <td class="px-4 py-4 whitespace-nowrap">
                     <div class="text-sm font-medium text-gray-900">{{ compra.nombreCompleto }}</div>
                     <div class="text-sm text-gray-500">{{ compra.email }}</div>
@@ -176,7 +191,22 @@
 
         <!-- Tab: Compras Verificadas -->
         <div *ngIf="tabActivo === 'verificadas'">
-          <h2 class="text-2xl font-bold text-gray-800 mb-4">Compras Verificadas</h2>
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-semibold text-gray-900">Compras Verificadas</h2>
+            
+            <!-- Buscador -->
+            <div class="relative w-96">
+              <input 
+                type="text" 
+                [(ngModel)]="busquedaVerificadas"
+                (ngModelChange)="filtrarComprasVerificadas()"
+                placeholder="Buscar por nombre, email o rifa..."
+                class="w-full h-10 pl-10 pr-4 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent">
+              <svg class="absolute left-3 top-3 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+          </div>
           
           <div *ngIf="cargandoCompras" class="text-center py-8">
             <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600 mx-auto"></div>
@@ -187,8 +217,8 @@
             <p class="text-gray-600 text-lg">No hay compras verificadas aún</p>
           </div>
 
-          <div *ngIf="!cargandoCompras && comprasVerificadas.length > 0" class="space-y-4">
-            <div *ngFor="let compra of comprasVerificadas" class="bg-white border border-green-200 rounded-lg shadow-sm p-6">
+          <div *ngIf="!cargandoCompras && comprasVerificadasFiltradas.length > 0" class="space-y-4">
+            <div *ngFor="let compra of comprasVerificadasFiltradas" class="bg-white border border-green-200 rounded-lg shadow-sm p-6">
               <div class="flex items-start justify-between">
                 <div class="flex-1">
                   <div class="flex items-center gap-2 mb-2">
@@ -231,7 +261,22 @@
 
         <!-- Tab: Compras Rechazadas -->
         <div *ngIf="tabActivo === 'rechazadas'">
-          <h2 class="text-xl font-semibold text-gray-900 mb-6">Compras Rechazadas</h2>
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-semibold text-gray-900">Compras Rechazadas</h2>
+            
+            <!-- Buscador -->
+            <div class="relative w-96">
+              <input 
+                type="text" 
+                [(ngModel)]="busquedaRechazadas"
+                (ngModelChange)="filtrarComprasRechazadas()"
+                placeholder="Buscar por nombre, email o rifa..."
+                class="w-full h-10 pl-10 pr-4 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent">
+              <svg class="absolute left-3 top-3 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+          </div>
           
           <div *ngIf="cargandoCompras" class="text-center py-12">
             <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900 mx-auto"></div>
@@ -242,8 +287,8 @@
             <p class="text-sm text-gray-500">No hay compras rechazadas</p>
           </div>
 
-          <div *ngIf="!cargandoCompras && comprasRechazadas.length > 0" class="space-y-4">
-            <div *ngFor="let compra of comprasRechazadas" class="border border-red-200 rounded-lg p-6 bg-red-50">
+          <div *ngIf="!cargandoCompras && comprasRechazadasFiltradas.length > 0" class="space-y-4">
+            <div *ngFor="let compra of comprasRechazadasFiltradas" class="border border-red-200 rounded-lg p-6 bg-red-50">
               <div class="flex items-start justify-between">
                 <div class="flex-1">
                   <div class="flex items-center gap-2 mb-2">
@@ -334,17 +379,6 @@
                     <div class="text-sm">
                       <span class="text-gray-600">Total vendido:</span>
                       <span class="font-bold text-green-600 ml-2">${{ rifa.estadisticas.ventas.totalUSD }}</span>
-                    </div>
-                    
-                    <!-- Barra de progreso -->
-                    <div class="mt-2">
-                      <div class="flex justify-between text-xs text-gray-500 mb-1">
-                        <span>Progreso</span>
-                        <span class="font-medium">{{ rifa.estadisticas.tickets.porcentajeVendido }}%</span>
-                      </div>
-                      <div class="w-48 bg-gray-200 rounded-full h-2">
-                        <div class="bg-green-600 h-2 rounded-full transition-all" [style.width.%]="rifa.estadisticas.tickets.porcentajeVendido"></div>
-                      </div>
                     </div>
                   </div>
                   

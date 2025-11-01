@@ -22,6 +22,16 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   cargandoCompras: boolean = false;
   cargaInicial: boolean = true; // Solo mostrar loading en primera carga
   
+  // Búsqueda
+  busquedaPendientes: string = '';
+  busquedaVerificadas: string = '';
+  busquedaRechazadas: string = '';
+  
+  // Listas filtradas
+  comprasPendientesFiltradas: any[] = [];
+  comprasVerificadasFiltradas: any[] = [];
+  comprasRechazadasFiltradas: any[] = [];
+  
   // Auto-refresh
   private refreshInterval: any;
   
@@ -135,6 +145,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
       next: (response) => {
         if (response.success) {
           this.comprasPendientes = response.data;
+          this.filtrarComprasPendientes();
         }
         this.cargandoCompras = false;
       },
@@ -146,6 +157,25 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     });
   }
 
+  filtrarComprasPendientes(): void {
+    const busqueda = this.busquedaPendientes.toLowerCase().trim();
+    
+    if (!busqueda) {
+      this.comprasPendientesFiltradas = this.comprasPendientes;
+      return;
+    }
+    
+    this.comprasPendientesFiltradas = this.comprasPendientes.filter(compra => {
+      const nombre = compra.nombreCompleto?.toLowerCase() || '';
+      const email = compra.email?.toLowerCase() || '';
+      const rifa = compra.rifaId?.titulo?.toLowerCase() || '';
+      
+      return nombre.includes(busqueda) || 
+             email.includes(busqueda) || 
+             rifa.includes(busqueda);
+    });
+  }
+
   cargarComprasVerificadas(mostrarLoading: boolean = true): void {
     if (mostrarLoading) {
       this.cargandoCompras = true;
@@ -154,6 +184,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
       next: (response) => {
         if (response.success) {
           this.comprasVerificadas = response.data;
+          this.filtrarComprasVerificadas();
         }
         this.cargandoCompras = false;
       },
@@ -165,6 +196,25 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     });
   }
 
+  filtrarComprasVerificadas(): void {
+    const busqueda = this.busquedaVerificadas.toLowerCase().trim();
+    
+    if (!busqueda) {
+      this.comprasVerificadasFiltradas = this.comprasVerificadas;
+      return;
+    }
+    
+    this.comprasVerificadasFiltradas = this.comprasVerificadas.filter(compra => {
+      const nombre = compra.nombreCompleto?.toLowerCase() || '';
+      const email = compra.email?.toLowerCase() || '';
+      const rifa = compra.rifaId?.titulo?.toLowerCase() || '';
+      
+      return nombre.includes(busqueda) || 
+             email.includes(busqueda) || 
+             rifa.includes(busqueda);
+    });
+  }
+
   cargarComprasRechazadas(mostrarLoading: boolean = true): void {
     if (mostrarLoading) {
       this.cargandoCompras = true;
@@ -173,6 +223,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
       next: (response) => {
         if (response.success) {
           this.comprasRechazadas = response.data;
+          this.filtrarComprasRechazadas();
         }
         this.cargandoCompras = false;
       },
@@ -181,6 +232,25 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
         this.mostrarMensaje('Error al cargar compras rechazadas', 'error');
         this.cargandoCompras = false;
       }
+    });
+  }
+
+  filtrarComprasRechazadas(): void {
+    const busqueda = this.busquedaRechazadas.toLowerCase().trim();
+    
+    if (!busqueda) {
+      this.comprasRechazadasFiltradas = this.comprasRechazadas;
+      return;
+    }
+    
+    this.comprasRechazadasFiltradas = this.comprasRechazadas.filter(compra => {
+      const nombre = compra.nombreCompleto?.toLowerCase() || '';
+      const email = compra.email?.toLowerCase() || '';
+      const rifa = compra.rifaId?.titulo?.toLowerCase() || '';
+      
+      return nombre.includes(busqueda) || 
+             email.includes(busqueda) || 
+             rifa.includes(busqueda);
     });
   }
 
