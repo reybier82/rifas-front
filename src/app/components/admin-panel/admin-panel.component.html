@@ -6,68 +6,66 @@
   </div>
 </div>
 
-<!-- Token Inválido -->
-<div *ngIf="!cargando && !tokenValido" class="min-h-screen flex items-center justify-center bg-gray-100">
-  <div class="bg-white p-8 rounded-lg shadow-lg max-w-md text-center">
-    <svg class="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-    </svg>
-    <h2 class="text-2xl font-bold text-gray-800 mb-2">Acceso Denegado</h2>
-    <p class="text-gray-600">Token de administrador inválido</p>
+<!-- 404 Not Found -->
+<div *ngIf="!cargando && !tokenValido" class="min-h-screen flex items-center justify-center bg-white">
+  <div class="text-center">
+    <h1 class="text-9xl font-bold text-gray-200">404</h1>
+    <p class="text-2xl font-semibold text-gray-800 mt-4">Página no encontrada</p>
+    <p class="text-gray-500 mt-2">La página que buscas no existe.</p>
   </div>
 </div>
 
 <!-- Panel de Admin -->
-<div *ngIf="!cargando && tokenValido" class="min-h-screen bg-gray-100">
+<div *ngIf="!cargando && tokenValido" class="min-h-screen bg-gray-50">
   <!-- Header -->
-  <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
+  <div class="bg-white border-b">
     <div class="container mx-auto px-4 py-6">
-      <h1 class="text-3xl font-bold">🎲 Panel de Administrador - Rifas Online</h1>
-      <p class="text-blue-100 mt-1">Gestiona tus rifas y verifica pagos</p>
+      <h1 class="text-2xl font-semibold text-gray-900">Panel de Administrador</h1>
+      <p class="text-sm text-gray-500 mt-1">Gestiona rifas y verifica pagos</p>
     </div>
   </div>
 
   <!-- Mensaje -->
   <div *ngIf="mensaje" class="container mx-auto px-4 mt-4">
     <div [ngClass]="{
-      'bg-green-50 border-green-500 text-green-800': tipoMensaje === 'success',
-      'bg-red-50 border-red-500 text-red-800': tipoMensaje === 'error',
-      'bg-blue-50 border-blue-500 text-blue-800': tipoMensaje === 'info'
-    }" class="border-l-4 p-4 rounded">
+      'bg-green-50 border-green-200 text-green-900': tipoMensaje === 'success',
+      'bg-red-50 border-red-200 text-red-900': tipoMensaje === 'error',
+      'bg-blue-50 border-blue-200 text-blue-900': tipoMensaje === 'info'
+    }" class="border p-4 rounded-lg text-sm">
       {{ mensaje }}
     </div>
   </div>
 
   <!-- Tabs -->
   <div class="container mx-auto px-4 mt-6">
-    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-      <div class="flex border-b">
+    <div class="bg-white rounded-lg border overflow-hidden">
+      <div class="flex border-b bg-gray-50">
         <button 
           (click)="cambiarTab('pendientes')"
-          [ngClass]="{'bg-blue-50 border-b-2 border-blue-600 text-blue-600': tabActivo === 'pendientes'}"
-          class="flex-1 px-6 py-4 text-center font-medium hover:bg-gray-50 transition">
-          📋 Pendientes
-          <span *ngIf="comprasPendientes.length > 0" class="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+          [ngClass]="{'bg-white border-b-2 border-gray-900 text-gray-900': tabActivo === 'pendientes', 'text-gray-600': tabActivo !== 'pendientes'}"
+          class="flex-1 px-6 py-3 text-sm font-medium hover:bg-white transition relative">
+          Pendientes
+          <span *ngIf="comprasPendientes.length > 0" class="ml-2 bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full">
             {{ comprasPendientes.length }}
           </span>
         </button>
         <button 
           (click)="cambiarTab('verificadas')"
-          [ngClass]="{'bg-blue-50 border-b-2 border-blue-600 text-blue-600': tabActivo === 'verificadas'}"
-          class="flex-1 px-6 py-4 text-center font-medium hover:bg-gray-50 transition">
-          ✅ Verificadas
+          [ngClass]="{'bg-white border-b-2 border-gray-900 text-gray-900': tabActivo === 'verificadas', 'text-gray-600': tabActivo !== 'verificadas'}"
+          class="flex-1 px-6 py-3 text-sm font-medium hover:bg-white transition">
+          Verificadas
         </button>
         <button 
           (click)="cambiarTab('crear-rifa')"
-          [ngClass]="{'bg-blue-50 border-b-2 border-blue-600 text-blue-600': tabActivo === 'crear-rifa'}"
-          class="flex-1 px-6 py-4 text-center font-medium hover:bg-gray-50 transition">
-          ➕ Nueva Rifa
+          [ngClass]="{'bg-white border-b-2 border-gray-900 text-gray-900': tabActivo === 'crear-rifa', 'text-gray-600': tabActivo !== 'crear-rifa'}"
+          class="flex-1 px-6 py-3 text-sm font-medium hover:bg-white transition">
+          Nueva Rifa
         </button>
         <button 
           (click)="cambiarTab('estadisticas')"
-          [ngClass]="{'bg-blue-50 border-b-2 border-blue-600 text-blue-600': tabActivo === 'estadisticas'}"
-          class="flex-1 px-6 py-4 text-center font-medium hover:bg-gray-50 transition">
-          📊 Estadísticas
+          [ngClass]="{'bg-white border-b-2 border-gray-900 text-gray-900': tabActivo === 'estadisticas', 'text-gray-600': tabActivo !== 'estadisticas'}"
+          class="flex-1 px-6 py-3 text-sm font-medium hover:bg-white transition">
+          Estadísticas
         </button>
       </div>
 
@@ -75,64 +73,64 @@
       <div class="p-6">
         <!-- Tab: Compras Pendientes -->
         <div *ngIf="tabActivo === 'pendientes'">
-          <h2 class="text-2xl font-bold text-gray-800 mb-4">Compras Pendientes de Verificación</h2>
+          <h2 class="text-xl font-semibold text-gray-900 mb-6">Compras Pendientes</h2>
           
-          <div *ngIf="cargandoCompras" class="text-center py-8">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600 mx-auto"></div>
-            <p class="mt-4 text-gray-600">Cargando compras...</p>
+          <div *ngIf="cargandoCompras" class="text-center py-12">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900 mx-auto"></div>
+            <p class="mt-4 text-sm text-gray-500">Cargando...</p>
           </div>
 
           <div *ngIf="!cargandoCompras && comprasPendientes.length === 0" class="text-center py-12">
-            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <p class="text-gray-600 text-lg">No hay compras pendientes</p>
+            <p class="text-sm text-gray-500">No hay compras pendientes</p>
           </div>
 
           <div *ngIf="!cargandoCompras && comprasPendientes.length > 0" class="space-y-4">
-            <div *ngFor="let compra of comprasPendientes" class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition">
+            <div *ngFor="let compra of comprasPendientes" class="border rounded-lg overflow-hidden hover:border-gray-300 transition">
               <div class="p-6">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <!-- Comprobante -->
                   <div>
-                    <h3 class="font-semibold text-gray-700 mb-2">📷 Comprobante</h3>
+                    <h3 class="text-sm font-medium text-gray-700 mb-3">Comprobante</h3>
                     <a [href]="compra.pago.comprobanteUrl" target="_blank">
-                      <img [src]="compra.pago.comprobanteUrl" alt="Comprobante" class="w-full h-48 object-cover rounded border cursor-pointer hover:opacity-75">
+                      <img [src]="compra.pago.comprobanteUrl" alt="Comprobante" class="w-full h-48 object-cover rounded-md border border-gray-200 cursor-pointer hover:opacity-90 transition">
                     </a>
                   </div>
 
                   <!-- Datos del Comprador -->
                   <div>
-                    <h3 class="font-semibold text-gray-700 mb-2">👤 Datos del Comprador</h3>
-                    <div class="space-y-2 text-sm">
-                      <p><strong>Nombre:</strong> {{ compra.nombreCompleto }}</p>
-                      <p><strong>Email:</strong> {{ compra.email }}</p>
-                      <p><strong>Teléfono:</strong> {{ compra.telefono.completo }}</p>
-                      <p><strong>Rifa:</strong> {{ compra.rifaId.titulo }}</p>
-                      <p><strong>Fecha:</strong> {{ compra.createdAt | date:'short' }}</p>
+                    <h3 class="text-sm font-medium text-gray-700 mb-3">Datos del Comprador</h3>
+                    <div class="space-y-2 text-sm text-gray-600">
+                      <p><span class="font-medium text-gray-900">Nombre:</span> {{ compra.nombreCompleto }}</p>
+                      <p><span class="font-medium text-gray-900">Email:</span> {{ compra.email }}</p>
+                      <p><span class="font-medium text-gray-900">Teléfono:</span> {{ compra.telefono.completo }}</p>
+                      <p><span class="font-medium text-gray-900">Rifa:</span> {{ compra.rifaId.titulo }}</p>
+                      <p><span class="font-medium text-gray-900">Fecha:</span> {{ compra.createdAt | date:'short' }}</p>
                     </div>
                   </div>
 
                   <!-- Datos del Pago -->
                   <div>
-                    <h3 class="font-semibold text-gray-700 mb-2">💰 Datos del Pago</h3>
-                    <div class="space-y-2 text-sm">
-                      <p><strong>Método:</strong> {{ compra.pago.metodoPago }}</p>
-                      <p><strong>Banco:</strong> {{ compra.pago.bancoId?.nombre || 'N/A' }}</p>
-                      <p><strong>Titular:</strong> {{ compra.pago.nombreTitular }}</p>
-                      <p><strong>Referencia:</strong> <span class="font-mono bg-gray-100 px-2 py-1 rounded">{{ compra.pago.codigoReferencia }}</span></p>
-                      <p><strong>Cantidad:</strong> {{ compra.cantidadTickets }} tickets</p>
-                      <p><strong>Total USD:</strong> <span class="text-green-600 font-bold">${{ compra.totalUSD.toFixed(2) }}</span></p>
-                      <p><strong>Total Bs:</strong> <span class="text-blue-600 font-bold">Bs. {{ compra.totalBs.toFixed(2) }}</span></p>
+                    <h3 class="text-sm font-medium text-gray-700 mb-3">Datos del Pago</h3>
+                    <div class="space-y-2 text-sm text-gray-600">
+                      <p><span class="font-medium text-gray-900">Método:</span> {{ compra.pago.metodoPago }}</p>
+                      <p><span class="font-medium text-gray-900">Banco:</span> {{ compra.pago.bancoId?.nombre || 'N/A' }}</p>
+                      <p><span class="font-medium text-gray-900">Titular:</span> {{ compra.pago.nombreTitular }}</p>
+                      <p><span class="font-medium text-gray-900">Referencia:</span> <span class="font-mono text-xs bg-gray-100 px-2 py-1 rounded">{{ compra.pago.codigoReferencia }}</span></p>
+                      <p><span class="font-medium text-gray-900">Cantidad:</span> {{ compra.cantidadTickets }} tickets</p>
+                      <p><span class="font-medium text-gray-900">Total USD:</span> <span class="font-semibold">${{ compra.totalUSD.toFixed(2) }}</span></p>
+                      <p><span class="font-medium text-gray-900">Total Bs:</span> <span class="font-semibold">Bs. {{ compra.totalBs.toFixed(2) }}</span></p>
                     </div>
                   </div>
                 </div>
 
                 <!-- Números Asignados -->
-                <div class="mt-4 pt-4 border-t">
-                  <h3 class="font-semibold text-gray-700 mb-2">🎲 Números Asignados</h3>
+                <div class="mt-6 pt-6 border-t">
+                  <h3 class="text-sm font-medium text-gray-700 mb-3">Números Asignados</h3>
                   <div class="flex flex-wrap gap-2">
-                    <span *ngFor="let ticket of compra.tickets" class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-bold">
+                    <span *ngFor="let ticket of compra.tickets" class="inline-flex items-center justify-center w-10 h-10 bg-gray-100 text-gray-900 text-sm font-semibold rounded-md border">
                       {{ ticket.numero }}
                     </span>
                   </div>
@@ -142,18 +140,12 @@
                 <div class="mt-6 flex gap-3">
                   <button 
                     (click)="verificarPago(compra._id)"
-                    class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    Verificar Pago y Enviar Email
+                    class="flex-1 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium py-2.5 px-4 rounded-md transition">
+                    Verificar y Enviar Email
                   </button>
                   <button 
                     (click)="rechazarPago(compra._id)"
-                    class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
+                    class="bg-white hover:bg-gray-50 text-gray-900 text-sm font-medium py-2.5 px-4 rounded-md border transition">
                     Rechazar
                   </button>
                 </div>

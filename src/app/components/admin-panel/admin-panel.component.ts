@@ -24,6 +24,7 @@ export class AdminPanelComponent implements OnInit {
   estadisticas: any = null;
   
   // Crear rifa
+  mostrarModalRifa: boolean = false;
   nuevaRifa = {
     titulo: '',
     descripcion: '',
@@ -181,6 +182,15 @@ export class AdminPanelComponent implements OnInit {
     }
   }
 
+  abrirModalRifa(): void {
+    this.mostrarModalRifa = true;
+  }
+
+  cerrarModalRifa(): void {
+    this.mostrarModalRifa = false;
+    this.limpiarFormularioRifa();
+  }
+
   crearRifa(): void {
     if (!this.nuevaRifa.titulo || !this.nuevaRifa.descripcion || !this.nuevaRifa.fechaSorteo) {
       this.mostrarMensaje('Completa todos los campos obligatorios', 'error');
@@ -204,7 +214,7 @@ export class AdminPanelComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           this.mostrarMensaje('Rifa creada exitosamente', 'success');
-          this.limpiarFormularioRifa();
+          this.cerrarModalRifa();
           this.cargarEstadisticas();
         }
         this.creandoRifa = false;
