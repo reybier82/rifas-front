@@ -20,6 +20,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   comprasVerificadas: any[] = [];
   comprasRechazadas: any[] = [];
   cargandoCompras: boolean = false;
+  cargaInicial: boolean = true; // Solo mostrar loading en primera carga
   
   // Auto-refresh
   private refreshInterval: any;
@@ -95,14 +96,14 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   }
   
   iniciarAutoRefresh(): void {
-    // Refrescar cada 30 segundos
+    // Refrescar cada 30 segundos (sin mostrar loading)
     this.refreshInterval = setInterval(() => {
       if (this.tabActivo === 'pendientes') {
-        this.cargarComprasPendientes();
+        this.cargarComprasPendientes(false);
       } else if (this.tabActivo === 'verificadas') {
-        this.cargarComprasVerificadas();
+        this.cargarComprasVerificadas(false);
       } else if (this.tabActivo === 'rechazadas') {
-        this.cargarComprasRechazadas();
+        this.cargarComprasRechazadas(false);
       }
       this.cargarEstadisticas();
     }, 30000); // 30 segundos
@@ -122,8 +123,10 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     }
   }
 
-  cargarComprasPendientes(): void {
-    this.cargandoCompras = true;
+  cargarComprasPendientes(mostrarLoading: boolean = true): void {
+    if (mostrarLoading) {
+      this.cargandoCompras = true;
+    }
     this.adminService.obtenerComprasPendientes(this.token).subscribe({
       next: (response) => {
         if (response.success) {
@@ -139,8 +142,10 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     });
   }
 
-  cargarComprasVerificadas(): void {
-    this.cargandoCompras = true;
+  cargarComprasVerificadas(mostrarLoading: boolean = true): void {
+    if (mostrarLoading) {
+      this.cargandoCompras = true;
+    }
     this.adminService.obtenerComprasVerificadas(this.token).subscribe({
       next: (response) => {
         if (response.success) {
@@ -156,8 +161,10 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     });
   }
 
-  cargarComprasRechazadas(): void {
-    this.cargandoCompras = true;
+  cargarComprasRechazadas(mostrarLoading: boolean = true): void {
+    if (mostrarLoading) {
+      this.cargandoCompras = true;
+    }
     this.adminService.obtenerComprasRechazadas(this.token).subscribe({
       next: (response) => {
         if (response.success) {
