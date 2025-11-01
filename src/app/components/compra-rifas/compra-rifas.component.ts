@@ -578,15 +578,8 @@ export class CompraRifasComponent implements OnInit {
           // Mapear los datos para que coincidan con la estructura esperada
           this.comprasEncontradas = response.data.map((compra: any) => ({
             ...compra,
-            rifaId: compra.rifa || compra.rifaId, // Usar 'rifa' si existe, sino 'rifaId'
-            estado: compra.estadoVerificacion || compra.estado, // Mapear estadoVerificacion a estado
-            pago: compra.pago || {
-              metodoPago: 'N/A',
-              bancoId: { nombre: 'N/A' },
-              codigoReferencia: 'N/A'
-            },
-            nombreCompleto: compra.nombreCompleto || 'Usuario',
-            email: this.emailVerificar,
+            rifaId: compra.rifa || compra.rifaId,
+            estado: compra.estadoVerificacion || compra.estado,
             createdAt: compra.fechaCompra || compra.createdAt
           }));
           
