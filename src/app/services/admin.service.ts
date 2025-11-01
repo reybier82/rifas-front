@@ -108,4 +108,11 @@ export class AdminService {
   editarRifa(rifaId: string, formData: FormData, token: string): Observable<any> {
     return this.http.put(`${this.apiUrl}/admin/${token}/rifas/${rifaId}`, formData);
   }
+
+  /**
+   * Notificar al ganador de una rifa
+   */
+  notificarGanador(data: any, token: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/admin/${token}/notificar-ganador`, data);
+  }
 }

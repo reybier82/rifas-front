@@ -40,14 +40,14 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   rifasConEstadisticas: any[] = [];
   rifaSeleccionadaEstadisticas: any = null;
   mostrarModalEstadisticasDetalle: boolean = false;
-  
   // Modal de compradores
   mostrarModalCompradores: boolean = false;
   compradoresRifa: any[] = [];
   compradoresFiltrados: any[] = [];
   cargandoCompradores: boolean = false;
-  filtroEstado: 'todos' | 'pendiente' | 'verificado' | 'rechazado' = 'todos';
+  rifaIdCompradores: string = ''; // ID de la rifa actual en el modal de compradores
   busquedaComprador: string = '';
+  filtroEstado: 'todos' | 'pendiente' | 'verificado' | 'rechazado' = 'todos';
   
   // Crear rifa
   mostrarModalRifa: boolean = false;
@@ -68,6 +68,13 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   mostrarModalEditarRifa: boolean = false;
   rifaEditando: any = null;
   editandoRifa: boolean = false;
+  
+  // Notificar ganador
+  mostrarModalNotificarGanador: boolean = false;
+  emailGanador: string = '';
+  numeroGanador: string = '';
+  notificandoGanador: boolean = false;
+  errorNotificarGanador: string = ''; // Mensaje de error dentro del modal
   
   // Mensajes
   mensaje: string = '';
@@ -491,6 +498,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   // ==================== MODAL DE COMPRADORES ====================
 
   abrirModalCompradores(rifaId: string): void {
+    this.rifaIdCompradores = rifaId; // Guardar el ID de la rifa
     this.mostrarModalCompradores = true;
     this.cargandoCompradores = true;
     this.filtroEstado = 'todos';
@@ -536,13 +544,21 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
       resultado = resultado.filter(c => c.estado === this.filtroEstado);
     }
     
-    // Filtrar por búsqueda (nombre o email)
+    // Filtrar por búsqueda (nombre, email o números de rifa)
     if (this.busquedaComprador.trim()) {
       const busqueda = this.busquedaComprador.toLowerCase().trim();
-      resultado = resultado.filter(c => 
-        c.nombreCompleto.toLowerCase().includes(busqueda) ||
-        c.email.toLowerCase().includes(busqueda)
-      );
+      resultado = resultado.filter(c => {
+        // Buscar en nombre y email
+        const matchNombreEmail = c.nombreCompleto.toLowerCase().includes(busqueda) ||
+                                 c.email.toLowerCase().includes(busqueda);
+        
+        // Buscar en números de tickets
+        const matchNumeros = c.tickets && c.tickets.some((ticket: any) => 
+          ticket.numero.toString().includes(busqueda)
+        );
+        
+        return matchNombreEmail || matchNumeros;
+      });
     }
     
     this.compradoresFiltrados = resultado;
@@ -739,9 +755,61 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Verificar si se puede editar la rifa
+  puedeEditarRifa(): boolean {
+    if (!this.rifaSeleccionadaEstadisticas) return false;
+    
+    const estadisticas = this.rifaSeleccionadaEstadisticas.estadisticas;
+    
+    // No se puede editar si hay compras pendientes o verificadas
+    return estadisticas.compras.pendientes === 0 && estadisticas.compras.verificadas === 0;
+  }
+
+  // Obtener mensaje de por qué no se puede editar
+  getMensajeNoEditable(): string {
+    if (!this.rifaSeleccionadaEstadisticas) return '';
+    
+    const estadisticas = this.rifaSeleccionadaEstadisticas.estadisticas;
+    
+    const problemas = [];
+    if (estadisticas.compras.pendientes > 0) {
+      problemas.push(`${estadisticas.compras.pendientes} compra(s) pendiente(s)`);
+    }
+    if (estadisticas.compras.verificadas > 0) {
+      problemas.push(`${estadisticas.compras.verificadas} compra(s) verificada(s)`);
+    }
+    
+    if (problemas.length > 0) {
+      return `No se puede editar. Hay ${problemas.join(' y ')}`;
+    }
+    
+    return '';
+  }
+
+  // Obtener mensaje mejorado para inactivar
+  getMensajeInactivar(): string {
+    if (!this.rifaSeleccionadaEstadisticas) return '';
+    
+    const estadisticas = this.rifaSeleccionadaEstadisticas.estadisticas;
+    
+    const problemas = [];
+    if (estadisticas.compras.pendientes > 0) {
+      problemas.push(`${estadisticas.compras.pendientes} compra(s) pendiente(s)`);
+    }
+    if (estadisticas.compras.verificadas > 0) {
+      problemas.push(`${estadisticas.compras.verificadas} compra(s) verificada(s)`);
+    }
+    
+    if (problemas.length > 0) {
+      return `No se puede inactivar. Hay ${problemas.join(' y ')}`;
+    }
+    
+    return '';
+  }
+
   // Abrir modal de editar rifa
   abrirModalEditarRifa(): void {
-    if (!this.rifaSeleccionadaEstadisticas) return;
+    if (!this.rifaSeleccionadaEstadisticas || !this.puedeEditarRifa()) return;
     
     const rifa = this.rifaSeleccionadaEstadisticas.rifa;
     
@@ -825,6 +893,73 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
         console.error('Error al editar rifa:', error);
         this.mostrarMensaje('Error al actualizar la rifa', 'error');
         this.editandoRifa = false;
+      }
+    });
+  }
+
+  // Abrir modal de notificar ganador
+  abrirModalNotificarGanador(): void {
+    this.emailGanador = '';
+    this.numeroGanador = '';
+    this.errorNotificarGanador = '';
+    this.mostrarModalNotificarGanador = true;
+  }
+
+  // Cerrar modal de notificar ganador
+  cerrarModalNotificarGanador(): void {
+    this.mostrarModalNotificarGanador = false;
+    this.emailGanador = '';
+    this.numeroGanador = '';
+    this.errorNotificarGanador = '';
+  }
+
+  // Notificar al ganador
+  notificarGanador(): void {
+    // Limpiar error previo
+    this.errorNotificarGanador = '';
+
+    if (!this.emailGanador || !this.numeroGanador) {
+      this.errorNotificarGanador = 'Completa todos los campos';
+      return;
+    }
+
+    // Validar email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.emailGanador)) {
+      this.errorNotificarGanador = 'Email inválido';
+      return;
+    }
+
+    // Validar que el número ganador exista entre los compradores
+    const numeroGanadorInt = parseInt(this.numeroGanador);
+    const numeroExiste = this.compradoresRifa.some(compra => 
+      compra.tickets && compra.tickets.some((ticket: any) => ticket.numero === numeroGanadorInt)
+    );
+
+    if (!numeroExiste) {
+      this.errorNotificarGanador = `El número ${this.numeroGanador} no existe entre los números comprados`;
+      return;
+    }
+
+    this.notificandoGanador = true;
+
+    const data = {
+      rifaId: this.rifaIdCompradores,
+      emailGanador: this.emailGanador,
+      numeroGanador: this.numeroGanador
+    };
+
+    this.adminService.notificarGanador(data, this.token).subscribe({
+      next: (response: any) => {
+        this.mostrarMensaje('Notificación enviada al ganador exitosamente', 'success');
+        this.cerrarModalNotificarGanador();
+        this.notificandoGanador = false;
+      },
+      error: (error: any) => {
+        console.error('Error al notificar ganador:', error);
+        const mensaje = error.error?.message || 'Error al enviar notificación';
+        this.mostrarMensaje(mensaje, 'error');
+        this.notificandoGanador = false;
       }
     });
   }
