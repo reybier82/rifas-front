@@ -118,7 +118,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   }
   
   iniciarAutoRefresh(): void {
-    // Refrescar cada 30 segundos (sin mostrar loading)
+    // Refrescar cada 3 segundos (sin mostrar loading)
     this.refreshInterval = setInterval(() => {
       if (this.tabActivo === 'pendientes') {
         this.cargarComprasPendientes(false);
@@ -128,7 +128,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
         this.cargarComprasRechazadas(false);
       }
       this.cargarEstadisticas();
-    }, 30000); // 30 segundos
+    }, 3000); // 3 segundos
   }
 
   cambiarTab(tab: string): void {
