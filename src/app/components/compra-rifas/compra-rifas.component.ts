@@ -58,6 +58,7 @@ export class CompraRifasComponent implements OnInit {
   comprasEncontradas: any[] = [];
   mostrarResultadosVerificacion: boolean = false;
   cargandoVerificacion: boolean = false;
+  mostrarAlertaNoCompras: boolean = false;
 
   // Modal de éxito
   mostrarModalExito: boolean = false;
@@ -564,7 +565,7 @@ export class CompraRifasComponent implements OnInit {
 
   verificarTickets(): void {
     if (!this.emailVerificar || !this.emailVerificar.trim()) {
-      alert('Por favor ingresa tu email');
+      this.mostrarAlertaNoCompras = true;
       return;
     }
 
@@ -575,26 +576,43 @@ export class CompraRifasComponent implements OnInit {
         console.log('Respuesta del servidor:', response);
         
         if (response.success && response.data && response.data.length > 0) {
-          // Mapear los datos para que coincidan con la estructura esperada
-          this.comprasEncontradas = response.data.map((compra: any) => ({
-            ...compra,
-            rifaId: compra.rifa || compra.rifaId,
-            estado: compra.estadoVerificacion || compra.estado,
-            createdAt: compra.fechaCompra || compra.createdAt
-          }));
+          // Filtrar solo las compras de esta rifa específica
+          const comprasFiltradas = response.data.filter((compra: any) => {
+            const rifaIdCompra = compra.rifa?._id;
+            console.log('Comparando:', rifaIdCompra, 'con', this.rifaId);
+            return rifaIdCompra === this.rifaId;
+          });
           
-          console.log('Compras procesadas:', this.comprasEncontradas);
-          this.mostrarResultadosVerificacion = true;
+          if (comprasFiltradas.length > 0) {
+            // Mapear los datos para que coincidan con la estructura esperada
+            this.comprasEncontradas = comprasFiltradas.map((compra: any) => ({
+              ...compra,
+              rifaId: compra.rifa || compra.rifaId,
+              estado: compra.estadoVerificacion || compra.estado,
+              createdAt: compra.fechaCompra || compra.createdAt
+            }));
+            
+            console.log('Compras procesadas:', this.comprasEncontradas);
+            this.mostrarResultadosVerificacion = true;
+          } else {
+            // No hay compras para esta rifa específica
+            this.mostrarAlertaNoCompras = true;
+          }
         } else {
-          alert('No se encontraron compras para este email');
+          // No hay compras para este email
+          this.mostrarAlertaNoCompras = true;
         }
       },
       error: (error) => {
         this.cargandoVerificacion = false;
         console.error('Error al verificar tickets:', error);
-        alert(error.error?.message || 'No se encontraron compras para este email');
+        this.mostrarAlertaNoCompras = true;
       }
     });
+  }
+
+  cerrarAlertaNoCompras(): void {
+    this.mostrarAlertaNoCompras = false;
   }
 
   cerrarResultadosVerificacion(): void {

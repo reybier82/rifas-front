@@ -767,6 +767,40 @@
   </div>
 </div>
 
+<!-- Modal: Alerta No Compras Encontradas -->
+<div 
+  *ngIf="mostrarAlertaNoCompras"
+  class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[70] p-4"
+  (click)="cerrarAlertaNoCompras()"
+>
+  <div 
+    class="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl transform transition-all"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Icono de alerta -->
+    <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full">
+      <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+      </svg>
+    </div>
+
+    <!-- Título -->
+    <h3 class="text-xl font-bold text-gray-900 text-center mb-2">No se encontraron compras</h3>
+    
+    <!-- Mensaje -->
+    <p class="text-gray-600 text-center mb-6">
+      No se encontraron compras para el email <strong>{{ emailVerificar }}</strong> en esta rifa.
+    </p>
+
+    <!-- Botón -->
+    <button 
+      (click)="cerrarAlertaNoCompras()"
+      class="w-full bg-gray-900 hover:bg-gray-800 text-white font-semibold py-3 px-4 rounded-lg transition-colors">
+      Aceptar
+    </button>
+  </div>
+</div>
+
 <!-- Modal: Ver Imagen Grande -->
 <div *ngIf="mostrarImagenGrande" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4" (click)="mostrarImagenGrande = false">
   <div class="relative max-w-6xl w-full" (click)="$event.stopPropagation()">
