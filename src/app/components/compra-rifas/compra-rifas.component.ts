@@ -57,6 +57,13 @@ export class CompraRifasComponent implements OnInit {
   // Modal de éxito
   mostrarModalExito: boolean = false;
   
+  // Modal de error
+  mostrarModalError: boolean = false;
+  mensajeError: string = '';
+  
+  // Modal de copiado
+  mostrarMensajeCopiado: boolean = false;
+  
   // Estado de procesamiento de compra
   procesandoCompra: boolean = false;
 
@@ -338,10 +345,14 @@ export class CompraRifasComponent implements OnInit {
 
   copiarTexto(texto: string): void {
     navigator.clipboard.writeText(texto).then(() => {
-      // Opcional: Mostrar mensaje de éxito
-      alert('¡Copiado al portapapeles!');
+      this.mostrarMensajeCopiado = true;
+      setTimeout(() => {
+        this.mostrarMensajeCopiado = false;
+      }, 2000);
     }).catch(err => {
       console.error('Error al copiar:', err);
+      this.mensajeError = 'Error al copiar al portapapeles';
+      this.mostrarModalError = true;
     });
   }
 
@@ -506,7 +517,8 @@ export class CompraRifasComponent implements OnInit {
       error: (error) => {
         this.procesandoCompra = false; // ✅ Desactivar estado de carga en error
         console.error('Error al crear compra:', error);
-        alert(error.error?.message || 'Error al procesar la compra');
+        this.mensajeError = error.error?.message || 'Error al procesar la compra';
+        this.mostrarModalError = true;
       }
     });
   }
@@ -630,5 +642,10 @@ export class CompraRifasComponent implements OnInit {
     this.resetearFormulario();
     // Redirigir a la página principal
     this.router.navigate(['/']);
+  }
+
+  cerrarModalError(): void {
+    this.mostrarModalError = false;
+    this.mensajeError = '';
   }
 }
