@@ -209,24 +209,24 @@
     <!-- Lista de Compras -->
     <div class="space-y-4">
       <div *ngFor="let compra of comprasEncontradas; let i = index" class="border-2 rounded-lg p-5 hover:border-gray-300 transition"
-        [class.border-green-300]="compra.estado === 'verificado'"
-        [class.bg-green-50]="compra.estado === 'verificado'"
-        [class.border-yellow-300]="compra.estado === 'pendiente'"
-        [class.bg-yellow-50]="compra.estado === 'pendiente'"
-        [class.border-red-300]="compra.estado === 'rechazado'"
-        [class.bg-red-50]="compra.estado === 'rechazado'">
+        [class.border-green-300]="compra.estadoVerificacion === 'verificado'"
+        [class.bg-green-50]="compra.estadoVerificacion === 'verificado'"
+        [class.border-yellow-300]="compra.estadoVerificacion === 'pendiente'"
+        [class.bg-yellow-50]="compra.estadoVerificacion === 'pendiente'"
+        [class.border-red-300]="compra.estadoVerificacion === 'rechazado'"
+        [class.bg-red-50]="compra.estadoVerificacion === 'rechazado'">
         
         <div class="flex items-start justify-between mb-4">
           <div>
             <h4 class="text-lg font-bold text-gray-900 mb-1">Compra #{{ i + 1 }}</h4>
             <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold"
-              [class.bg-green-200]="compra.estado === 'verificado'"
-              [class.text-green-800]="compra.estado === 'verificado'"
-              [class.bg-yellow-200]="compra.estado === 'pendiente'"
-              [class.text-yellow-800]="compra.estado === 'pendiente'"
-              [class.bg-red-200]="compra.estado === 'rechazado'"
-              [class.text-red-800]="compra.estado === 'rechazado'">
-              {{ compra.estado === 'verificado' ? '✓ Verificado' : compra.estado === 'pendiente' ? '⏳ Pendiente' : '✗ Rechazado' }}
+              [class.bg-green-200]="compra.estadoVerificacion === 'verificado'"
+              [class.text-green-800]="compra.estadoVerificacion === 'verificado'"
+              [class.bg-yellow-200]="compra.estadoVerificacion === 'pendiente'"
+              [class.text-yellow-800]="compra.estadoVerificacion === 'pendiente'"
+              [class.bg-red-200]="compra.estadoVerificacion === 'rechazado'"
+              [class.text-red-800]="compra.estadoVerificacion === 'rechazado'">
+              {{ compra.estadoVerificacion === 'verificado' ? '✓ Verificado' : compra.estadoVerificacion === 'pendiente' ? '⏳ Pendiente' : '✗ Rechazado' }}
             </span>
           </div>
           <p class="text-sm text-gray-500">{{ compra.createdAt | date:'short' }}</p>
@@ -271,12 +271,12 @@
         </div>
 
         <!-- Mensaje de estado -->
-        <div *ngIf="compra.estado === 'pendiente'" class="mt-4 bg-yellow-100 border border-yellow-300 rounded-lg p-3">
+        <div *ngIf="compra.estadoVerificacion === 'pendiente'" class="mt-4 bg-yellow-100 border border-yellow-300 rounded-lg p-3">
           <p class="text-sm text-yellow-800">
             ⏳ Tu compra está siendo verificada. Recibirás un email cuando sea aprobada (máximo 24 horas).
           </p>
         </div>
-        <div *ngIf="compra.estado === 'rechazado'" class="mt-4 bg-red-100 border border-red-300 rounded-lg p-3">
+        <div *ngIf="compra.estadoVerificacion === 'rechazado'" class="mt-4 bg-red-100 border border-red-300 rounded-lg p-3">
           <p class="text-sm text-red-800 font-semibold">
             ✗ Esta compra fue rechazada. Motivo: {{ compra.motivoRechazo || 'No especificado' }}
           </p>
