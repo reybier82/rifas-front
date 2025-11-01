@@ -56,6 +56,9 @@ export class CompraRifasComponent implements OnInit {
 
   // Modal de éxito
   mostrarModalExito: boolean = false;
+  
+  // Estado de procesamiento de compra
+  procesandoCompra: boolean = false;
 
   // Objeto para almacenar errores de validación
   errores: any = {
@@ -453,6 +456,9 @@ export class CompraRifasComponent implements OnInit {
       return;
     }
 
+    // 🔄 Activar estado de carga
+    this.procesandoCompra = true;
+
     // ⭐ IMPORTANTE: Crear FormData para enviar archivo
     // FormData es necesario para enviar archivos (multipart/form-data)
     const formData = new FormData();
@@ -483,6 +489,8 @@ export class CompraRifasComponent implements OnInit {
     // Enviar al backend
     this.comprasService.crearCompra(formData).subscribe({
       next: (response) => {
+        this.procesandoCompra = false; // ✅ Desactivar estado de carga
+        
         if (response.success) {
           console.log('Compra exitosa:', response.data);
           this.mostrarModalExito = true;
@@ -496,6 +504,7 @@ export class CompraRifasComponent implements OnInit {
         }
       },
       error: (error) => {
+        this.procesandoCompra = false; // ✅ Desactivar estado de carga en error
         console.error('Error al crear compra:', error);
         alert(error.error?.message || 'Error al procesar la compra');
       }
