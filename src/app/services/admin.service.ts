@@ -33,6 +33,13 @@ export class AdminService {
   }
 
   /**
+   * Obtener compras rechazadas
+   */
+  obtenerComprasRechazadas(token: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/admin/${token}/compras/rechazadas`);
+  }
+
+  /**
    * Obtener todas las compras
    */
   obtenerTodasLasCompras(token: string): Observable<any> {

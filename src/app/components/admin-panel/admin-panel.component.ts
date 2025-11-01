@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AdminService } from '../../services/admin.service';
 
@@ -7,18 +7,22 @@ import { AdminService } from '../../services/admin.service';
   templateUrl: './admin-panel.component.html',
   styleUrls: ['./admin-panel.component.css']
 })
-export class AdminPanelComponent implements OnInit {
+export class AdminPanelComponent implements OnInit, OnDestroy {
   token: string = '';
   tokenValido: boolean = false;
   cargando: boolean = true;
   
   // Tabs
-  tabActivo: string = 'pendientes'; // 'pendientes', 'verificadas', 'crear-rifa', 'estadisticas'
+  tabActivo: string = 'pendientes'; // 'pendientes', 'verificadas', 'rechazadas', 'crear-rifa', 'estadisticas'
   
   // Compras
   comprasPendientes: any[] = [];
   comprasVerificadas: any[] = [];
+  comprasRechazadas: any[] = [];
   cargandoCompras: boolean = false;
+  
+  // Auto-refresh
+  private refreshInterval: any;
   
   // Estadísticas
   estadisticas: any = null;
@@ -35,15 +39,33 @@ export class AdminPanelComponent implements OnInit {
   };
   imagenPreview: string = '';
   creandoRifa: boolean = false;
+  fechaMinima: string = new Date().toISOString().split('T')[0]; // Fecha de hoy en formato YYYY-MM-DD
   
   // Mensajes
   mensaje: string = '';
   tipoMensaje: 'success' | 'error' | 'info' = 'info';
+  
+  // Modales
+  mostrarModalVerificar: boolean = false;
+  mostrarModalRechazar: boolean = false;
+  compraSeleccionada: any = null;
+  motivoRechazo: string = '';
+  
+  // Ver comprobante
+  mostrarModalComprobante: boolean = false;
+  comprobanteUrl: string = '';
 
   constructor(
     private route: ActivatedRoute,
     private adminService: AdminService
   ) {}
+  
+  ngOnDestroy(): void {
+    // Limpiar interval al destruir componente
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+    }
+  }
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -59,6 +81,7 @@ export class AdminPanelComponent implements OnInit {
           this.tokenValido = true;
           this.cargarComprasPendientes();
           this.cargarEstadisticas();
+          this.iniciarAutoRefresh();
         }
         this.cargando = false;
       },
@@ -70,6 +93,20 @@ export class AdminPanelComponent implements OnInit {
       }
     });
   }
+  
+  iniciarAutoRefresh(): void {
+    // Refrescar cada 30 segundos
+    this.refreshInterval = setInterval(() => {
+      if (this.tabActivo === 'pendientes') {
+        this.cargarComprasPendientes();
+      } else if (this.tabActivo === 'verificadas') {
+        this.cargarComprasVerificadas();
+      } else if (this.tabActivo === 'rechazadas') {
+        this.cargarComprasRechazadas();
+      }
+      this.cargarEstadisticas();
+    }, 30000); // 30 segundos
+  }
 
   cambiarTab(tab: string): void {
     this.tabActivo = tab;
@@ -78,6 +115,8 @@ export class AdminPanelComponent implements OnInit {
       this.cargarComprasPendientes();
     } else if (tab === 'verificadas' && this.comprasVerificadas.length === 0) {
       this.cargarComprasVerificadas();
+    } else if (tab === 'rechazadas' && this.comprasRechazadas.length === 0) {
+      this.cargarComprasRechazadas();
     } else if (tab === 'estadisticas' && !this.estadisticas) {
       this.cargarEstadisticas();
     }
@@ -117,6 +156,23 @@ export class AdminPanelComponent implements OnInit {
     });
   }
 
+  cargarComprasRechazadas(): void {
+    this.cargandoCompras = true;
+    this.adminService.obtenerComprasRechazadas(this.token).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.comprasRechazadas = response.data;
+        }
+        this.cargandoCompras = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar compras rechazadas:', error);
+        this.mostrarMensaje('Error al cargar compras rechazadas', 'error');
+        this.cargandoCompras = false;
+      }
+    });
+  }
+
   cargarEstadisticas(): void {
     this.adminService.obtenerEstadisticas(this.token).subscribe({
       next: (response) => {
@@ -130,15 +186,24 @@ export class AdminPanelComponent implements OnInit {
     });
   }
 
-  verificarPago(compraId: string): void {
-    if (!confirm('¿Estás seguro de verificar este pago? Se enviará un email al usuario con sus números.')) {
-      return;
-    }
+  abrirModalVerificar(compra: any): void {
+    this.compraSeleccionada = compra;
+    this.mostrarModalVerificar = true;
+  }
 
-    this.adminService.verificarPago(this.token, compraId).subscribe({
+  cerrarModalVerificar(): void {
+    this.mostrarModalVerificar = false;
+    this.compraSeleccionada = null;
+  }
+
+  confirmarVerificacion(): void {
+    if (!this.compraSeleccionada) return;
+
+    this.adminService.verificarPago(this.token, this.compraSeleccionada._id).subscribe({
       next: (response) => {
         if (response.success) {
           this.mostrarMensaje('Pago verificado exitosamente. Email enviado al usuario.', 'success');
+          this.cerrarModalVerificar();
           this.cargarComprasPendientes();
           this.cargarEstadisticas();
         }
@@ -150,15 +215,31 @@ export class AdminPanelComponent implements OnInit {
     });
   }
 
-  rechazarPago(compraId: string): void {
-    const motivo = prompt('Motivo del rechazo:');
-    if (!motivo) return;
+  abrirModalRechazar(compra: any): void {
+    this.compraSeleccionada = compra;
+    this.motivoRechazo = '';
+    this.mostrarModalRechazar = true;
+  }
 
-    this.adminService.rechazarPago(this.token, compraId, motivo).subscribe({
+  cerrarModalRechazar(): void {
+    this.mostrarModalRechazar = false;
+    this.compraSeleccionada = null;
+    this.motivoRechazo = '';
+  }
+
+  confirmarRechazo(): void {
+    if (!this.compraSeleccionada || !this.motivoRechazo.trim()) {
+      this.mostrarMensaje('Debes especificar un motivo de rechazo', 'error');
+      return;
+    }
+
+    this.adminService.rechazarPago(this.token, this.compraSeleccionada._id, this.motivoRechazo).subscribe({
       next: (response) => {
         if (response.success) {
-          this.mostrarMensaje('Pago rechazado', 'info');
+          this.mostrarMensaje('Pago rechazado y email enviado al usuario', 'info');
+          this.cerrarModalRechazar();
           this.cargarComprasPendientes();
+          this.cargarEstadisticas();
         }
       },
       error: (error) => {
@@ -166,6 +247,16 @@ export class AdminPanelComponent implements OnInit {
         this.mostrarMensaje('Error al rechazar pago', 'error');
       }
     });
+  }
+
+  verComprobante(url: string): void {
+    this.comprobanteUrl = url;
+    this.mostrarModalComprobante = true;
+  }
+
+  cerrarModalComprobante(): void {
+    this.mostrarModalComprobante = false;
+    this.comprobanteUrl = '';
   }
 
   seleccionarImagen(event: any): void {

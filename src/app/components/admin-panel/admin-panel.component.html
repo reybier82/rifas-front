@@ -25,14 +25,37 @@
     </div>
   </div>
 
-  <!-- Mensaje -->
+  <!-- Mensaje (Shadcn Style Alert) -->
   <div *ngIf="mensaje" class="container mx-auto px-4 mt-4">
     <div [ngClass]="{
-      'bg-green-50 border-green-200 text-green-900': tipoMensaje === 'success',
-      'bg-red-50 border-red-200 text-red-900': tipoMensaje === 'error',
-      'bg-blue-50 border-blue-200 text-blue-900': tipoMensaje === 'info'
-    }" class="border p-4 rounded-lg text-sm">
-      {{ mensaje }}
+      'border-green-200 bg-green-50': tipoMensaje === 'success',
+      'border-red-200 bg-red-50': tipoMensaje === 'error',
+      'border-blue-200 bg-blue-50': tipoMensaje === 'info'
+    }" class="relative w-full rounded-lg border px-4 py-3 text-sm flex items-start gap-3">
+      <!-- Icon -->
+      <svg *ngIf="tipoMensaje === 'success'" class="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+      <svg *ngIf="tipoMensaje === 'error'" class="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+      <svg *ngIf="tipoMensaje === 'info'" class="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <!-- Content -->
+      <div class="flex-1" [ngClass]="{
+        'text-green-900': tipoMensaje === 'success',
+        'text-red-900': tipoMensaje === 'error',
+        'text-blue-900': tipoMensaje === 'info'
+      }">
+        {{ mensaje }}
+      </div>
+      <!-- Close button -->
+      <button (click)="mensaje = ''" class="opacity-70 hover:opacity-100 transition flex-shrink-0">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
     </div>
   </div>
 
@@ -56,16 +79,24 @@
           Verificadas
         </button>
         <button 
-          (click)="cambiarTab('crear-rifa')"
-          [ngClass]="{'bg-white border-b-2 border-gray-900 text-gray-900': tabActivo === 'crear-rifa', 'text-gray-600': tabActivo !== 'crear-rifa'}"
+          (click)="cambiarTab('rechazadas')"
+          [ngClass]="{'bg-white border-b-2 border-gray-900 text-gray-900': tabActivo === 'rechazadas', 'text-gray-600': tabActivo !== 'rechazadas'}"
           class="flex-1 px-6 py-3 text-sm font-medium hover:bg-white transition">
-          Nueva Rifa
+          Rechazadas
+          <span *ngIf="comprasRechazadas.length > 0" class="ml-2 bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded-full">
+            {{ comprasRechazadas.length }}
+          </span>
         </button>
         <button 
           (click)="cambiarTab('estadisticas')"
           [ngClass]="{'bg-white border-b-2 border-gray-900 text-gray-900': tabActivo === 'estadisticas', 'text-gray-600': tabActivo !== 'estadisticas'}"
           class="flex-1 px-6 py-3 text-sm font-medium hover:bg-white transition">
           Estadísticas
+        </button>
+        <button 
+          (click)="abrirModalRifa()"
+          class="px-6 py-3 text-sm font-medium bg-gray-900 text-white hover:bg-gray-800 transition rounded-md ml-4">
+          + Nueva Rifa
         </button>
       </div>
 
@@ -94,9 +125,15 @@
                   <!-- Comprobante -->
                   <div>
                     <h3 class="text-sm font-medium text-gray-700 mb-3">Comprobante</h3>
-                    <a [href]="compra.pago.comprobanteUrl" target="_blank">
-                      <img [src]="compra.pago.comprobanteUrl" alt="Comprobante" class="w-full h-48 object-cover rounded-md border border-gray-200 cursor-pointer hover:opacity-90 transition">
-                    </a>
+                    <button 
+                      (click)="verComprobante(compra.pago.comprobanteUrl)"
+                      class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium py-3 px-4 rounded-md border transition flex items-center justify-center gap-2">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                      </svg>
+                      Ver Comprobante
+                    </button>
                   </div>
 
                   <!-- Datos del Comprador -->
@@ -139,12 +176,12 @@
                 <!-- Botones de Acción -->
                 <div class="mt-6 flex gap-3">
                   <button 
-                    (click)="verificarPago(compra._id)"
+                    (click)="abrirModalVerificar(compra)"
                     class="flex-1 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium py-2.5 px-4 rounded-md transition">
                     Verificar y Enviar Email
                   </button>
                   <button 
-                    (click)="rechazarPago(compra._id)"
+                    (click)="abrirModalRechazar(compra)"
                     class="bg-white hover:bg-gray-50 text-gray-900 text-sm font-medium py-2.5 px-4 rounded-md border transition">
                     Rechazar
                   </button>
@@ -209,101 +246,57 @@
           </div>
         </div>
 
-        <!-- Tab: Crear Rifa -->
-        <div *ngIf="tabActivo === 'crear-rifa'">
-          <h2 class="text-2xl font-bold text-gray-800 mb-4">Crear Nueva Rifa</h2>
+        <!-- Tab: Compras Rechazadas -->
+        <div *ngIf="tabActivo === 'rechazadas'">
+          <h2 class="text-xl font-semibold text-gray-900 mb-6">Compras Rechazadas</h2>
           
-          <form (ngSubmit)="crearRifa()" class="max-w-2xl">
-            <div class="space-y-4">
-              <!-- Título -->
-              <div>
-                <label class="block text-gray-700 font-medium mb-2">Título de la Rifa *</label>
-                <input 
-                  type="text" 
-                  [(ngModel)]="nuevaRifa.titulo" 
-                  name="titulo"
-                  placeholder="Ej: iPhone 15 Pro Max"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required>
-              </div>
+          <div *ngIf="cargandoCompras" class="text-center py-12">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900 mx-auto"></div>
+            <p class="mt-4 text-sm text-gray-500">Cargando...</p>
+          </div>
 
-              <!-- Descripción -->
-              <div>
-                <label class="block text-gray-700 font-medium mb-2">Descripción *</label>
-                <textarea 
-                  [(ngModel)]="nuevaRifa.descripcion" 
-                  name="descripcion"
-                  rows="4"
-                  placeholder="Describe el premio y las condiciones del sorteo..."
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required></textarea>
-              </div>
+          <div *ngIf="!cargandoCompras && comprasRechazadas.length === 0" class="text-center py-12">
+            <p class="text-sm text-gray-500">No hay compras rechazadas</p>
+          </div>
 
-              <!-- Precio y Cantidad -->
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-gray-700 font-medium mb-2">Precio por Ticket (USD) *</label>
-                  <input 
-                    type="number" 
-                    [(ngModel)]="nuevaRifa.precioTicketUSD" 
-                    name="precioTicketUSD"
-                    min="1"
-                    step="0.01"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required>
+          <div *ngIf="!cargandoCompras && comprasRechazadas.length > 0" class="space-y-4">
+            <div *ngFor="let compra of comprasRechazadas" class="border border-red-200 rounded-lg p-6 bg-red-50">
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-2">
+                    <h3 class="text-lg font-bold text-gray-800">{{ compra.nombreCompleto }}</h3>
+                  </div>
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-3">
+                    <div>
+                      <p class="text-gray-600">Email</p>
+                      <p class="font-medium">{{ compra.email }}</p>
+                    </div>
+                    <div>
+                      <p class="text-gray-600">Rifa</p>
+                      <p class="font-medium">{{ compra.rifaId.titulo }}</p>
+                    </div>
+                    <div>
+                      <p class="text-gray-600">Total</p>
+                      <p class="font-medium">${{ compra.totalUSD.toFixed(2) }}</p>
+                    </div>
+                    <div>
+                      <p class="text-gray-600">Rechazado</p>
+                      <p class="font-medium">{{ compra.fechaVerificacion | date:'short' }}</p>
+                    </div>
+                  </div>
+                  <div *ngIf="compra.motivoRechazo" class="bg-white border border-red-200 rounded p-3 text-sm">
+                    <p class="text-gray-600 font-medium mb-1">Motivo:</p>
+                    <p class="text-gray-800">{{ compra.motivoRechazo }}</p>
+                  </div>
+                  <button 
+                    (click)="verComprobante(compra.pago.comprobanteUrl)"
+                    class="mt-3 text-sm text-gray-600 hover:text-gray-900 underline">
+                    Ver comprobante
+                  </button>
                 </div>
-                <div>
-                  <label class="block text-gray-700 font-medium mb-2">Cantidad de Números *</label>
-                  <input 
-                    type="number" 
-                    [(ngModel)]="nuevaRifa.cantidadNumeros" 
-                    name="cantidadNumeros"
-                    min="10"
-                    max="10000"
-                    placeholder="Ej: 100"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required>
-                  <p class="text-sm text-gray-500 mt-1">Números del 0 al {{ nuevaRifa.cantidadNumeros - 1 }}</p>
-                </div>
-              </div>
-
-              <!-- Fecha del Sorteo -->
-              <div>
-                <label class="block text-gray-700 font-medium mb-2">Fecha del Sorteo *</label>
-                <input 
-                  type="date" 
-                  [(ngModel)]="nuevaRifa.fechaSorteo" 
-                  name="fechaSorteo"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required>
-              </div>
-
-              <!-- Imagen -->
-              <div>
-                <label class="block text-gray-700 font-medium mb-2">Imagen del Premio</label>
-                <input 
-                  type="file" 
-                  (change)="seleccionarImagen($event)"
-                  accept="image/*"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                
-                <div *ngIf="imagenPreview" class="mt-4">
-                  <img [src]="imagenPreview" alt="Preview" class="w-64 h-64 object-cover rounded-lg border">
-                </div>
-              </div>
-
-              <!-- Botón -->
-              <div class="pt-4">
-                <button 
-                  type="submit"
-                  [disabled]="creandoRifa"
-                  class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
-                  <span *ngIf="!creandoRifa">➕ Crear Rifa</span>
-                  <span *ngIf="creandoRifa">Creando...</span>
-                </button>
               </div>
             </div>
-          </form>
+          </div>
         </div>
 
         <!-- Tab: Estadísticas -->
@@ -362,6 +355,200 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal: Verificar Pago -->
+  <div *ngIf="mostrarModalVerificar" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+      <div class="p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Confirmar Verificación</h3>
+        <p class="text-gray-600 mb-6">
+          ¿Estás seguro de verificar este pago? Se enviará un email al usuario 
+          <strong>{{ compraSeleccionada?.nombreCompleto }}</strong> con sus números de la suerte.
+        </p>
+        <div class="flex gap-3">
+          <button 
+            (click)="cerrarModalVerificar()"
+            class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-md transition">
+            Cancelar
+          </button>
+          <button 
+            (click)="confirmarVerificacion()"
+            class="flex-1 bg-gray-900 hover:bg-gray-800 text-white font-medium py-2 px-4 rounded-md transition">
+            Verificar y Enviar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Rechazar Pago -->
+  <div *ngIf="mostrarModalRechazar" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+      <div class="p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Rechazar Pago</h3>
+        <p class="text-gray-600 mb-4">
+          Rechazar pago de <strong>{{ compraSeleccionada?.nombreCompleto }}</strong>
+        </p>
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Motivo del rechazo *</label>
+          <textarea 
+            [(ngModel)]="motivoRechazo"
+            rows="3"
+            placeholder="Ej: Comprobante ilegible, datos incorrectos..."
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm"></textarea>
+        </div>
+        <div class="flex gap-3">
+          <button 
+            (click)="cerrarModalRechazar()"
+            class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-md transition">
+            Cancelar
+          </button>
+          <button 
+            (click)="confirmarRechazo()"
+            class="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition">
+            Rechazar y Notificar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Ver Comprobante -->
+  <div *ngIf="mostrarModalComprobante" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50" (click)="cerrarModalComprobante()">
+    <div class="max-w-4xl w-full mx-4" (click)="$event.stopPropagation()">
+      <div class="bg-white rounded-lg overflow-hidden">
+        <div class="p-4 border-b flex justify-between items-center">
+          <h3 class="text-lg font-semibold text-gray-900">Comprobante de Pago</h3>
+          <button 
+            (click)="cerrarModalComprobante()"
+            class="text-gray-500 hover:text-gray-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="p-4">
+          <img [src]="comprobanteUrl" alt="Comprobante" class="w-full h-auto">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Crear Rifa -->
+  <div *ngIf="mostrarModalRifa" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
+        <h3 class="text-lg font-semibold text-gray-900">Crear Nueva Rifa</h3>
+        <button 
+          (click)="cerrarModalRifa()"
+          class="text-gray-400 hover:text-gray-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      
+      <form (ngSubmit)="crearRifa()" class="p-6">
+        <div class="space-y-4">
+          <!-- Título -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Título de la Rifa *</label>
+            <input 
+              type="text" 
+              [(ngModel)]="nuevaRifa.titulo" 
+              name="titulo"
+              placeholder="Ej: iPhone 15 Pro Max"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm"
+              required>
+          </div>
+
+          <!-- Descripción -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Descripción *</label>
+            <textarea 
+              [(ngModel)]="nuevaRifa.descripcion" 
+              name="descripcion"
+              rows="3"
+              placeholder="Describe el premio y las condiciones del sorteo..."
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm"
+              required></textarea>
+          </div>
+
+          <!-- Precio y Cantidad -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">Precio por Ticket (USD) *</label>
+              <input 
+                type="number" 
+                [(ngModel)]="nuevaRifa.precioTicketUSD" 
+                name="precioTicketUSD"
+                min="1"
+                step="0.01"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm"
+                required>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">Cantidad de Números *</label>
+              <input 
+                type="number" 
+                [(ngModel)]="nuevaRifa.cantidadNumeros" 
+                name="cantidadNumeros"
+                min="10"
+                max="10000"
+                placeholder="Ej: 100"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm"
+                required>
+              <p class="text-xs text-gray-500 mt-1">Números del 0 al {{ nuevaRifa.cantidadNumeros - 1 }}</p>
+            </div>
+          </div>
+
+          <!-- Fecha del Sorteo -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha del Sorteo *</label>
+            <input 
+              type="date" 
+              [(ngModel)]="nuevaRifa.fechaSorteo" 
+              name="fechaSorteo"
+              [min]="fechaMinima"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm"
+              required>
+            <p class="text-xs text-gray-500 mt-1">La fecha debe ser hoy o posterior</p>
+          </div>
+
+          <!-- Imagen -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Imagen del Premio (Opcional)</label>
+            <input 
+              type="file" 
+              (change)="seleccionarImagen($event)"
+              accept="image/*"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
+            
+            <div *ngIf="imagenPreview" class="mt-3">
+              <img [src]="imagenPreview" alt="Preview" class="w-full h-48 object-cover rounded-md border">
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="flex gap-3 mt-6 pt-6 border-t">
+          <button 
+            type="button"
+            (click)="cerrarModalRifa()"
+            class="flex-1 bg-white hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-md border transition">
+            Cancelar
+          </button>
+          <button 
+            type="submit"
+            [disabled]="creandoRifa"
+            class="flex-1 bg-gray-900 hover:bg-gray-800 text-white font-medium py-2 px-4 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed">
+            <span *ngIf="!creandoRifa">Crear Rifa</span>
+            <span *ngIf="creandoRifa">Creando...</span>
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
