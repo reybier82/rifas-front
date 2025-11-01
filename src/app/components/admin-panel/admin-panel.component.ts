@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AdminService } from '../../services/admin.service';
 
@@ -81,7 +81,8 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private adminService: AdminService
+    private adminService: AdminService,
+    private cdr: ChangeDetectorRef
   ) {}
   
   ngOnDestroy(): void {
@@ -363,6 +364,8 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   verDetallesCompra(compra: any): void {
     this.compraSeleccionada = compra;
     this.mostrarModalDetalles = true;
+    // Forzar detección de cambios inmediata
+    this.cdr.detectChanges();
   }
 
   cerrarModalDetalles(): void {
