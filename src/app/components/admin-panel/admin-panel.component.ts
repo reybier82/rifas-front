@@ -546,4 +546,66 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     };
     return textos[estado] || estado;
   }
+
+  // Verificar si se puede inactivar la rifa
+  puedeCambiarEstadoRifa(): boolean {
+    if (!this.rifaSeleccionadaEstadisticas) return false;
+    
+    const rifa = this.rifaSeleccionadaEstadisticas.rifa;
+    const estadisticas = this.rifaSeleccionadaEstadisticas.estadisticas;
+    
+    // Si la rifa está cerrada, no se puede cambiar
+    if (rifa.estado === 'cerrada') return false;
+    
+    // Si está activa, verificar que no tenga compras pendientes
+    if (rifa.estado === 'activa') {
+      return estadisticas.compras.pendientes === 0;
+    }
+    
+    // Si está inactiva, siempre se puede activar
+    return true;
+  }
+
+  // Obtener mensaje de por qué no se puede cambiar el estado
+  getMensajeEstadoRifa(): string {
+    if (!this.rifaSeleccionadaEstadisticas) return '';
+    
+    const rifa = this.rifaSeleccionadaEstadisticas.rifa;
+    const estadisticas = this.rifaSeleccionadaEstadisticas.estadisticas;
+    
+    if (rifa.estado === 'cerrada') {
+      return 'La rifa ya finalizó';
+    }
+    
+    if (rifa.estado === 'activa' && estadisticas.compras.pendientes > 0) {
+      return `Hay ${estadisticas.compras.pendientes} compra(s) pendiente(s)`;
+    }
+    
+    return '';
+  }
+
+  // Cambiar estado de la rifa
+  cambiarEstadoRifa(): void {
+    if (!this.rifaSeleccionadaEstadisticas || !this.puedeCambiarEstadoRifa()) return;
+    
+    const rifa = this.rifaSeleccionadaEstadisticas.rifa;
+    const nuevoEstado = rifa.estado === 'activa' ? 'inactiva' : 'activa';
+    const accion = nuevoEstado === 'activa' ? 'activar' : 'inactivar';
+    
+    if (!confirm(`¿Estás seguro de ${accion} esta rifa?`)) return;
+    
+    this.adminService.cambiarEstadoRifa(rifa._id, nuevoEstado, this.token).subscribe({
+      next: (response: any) => {
+        this.mostrarMensaje(`Rifa ${nuevoEstado === 'activa' ? 'activada' : 'inactivada'} exitosamente`, 'success');
+        // Actualizar el estado local
+        this.rifaSeleccionadaEstadisticas.rifa.estado = nuevoEstado;
+        // Recargar estadísticas
+        this.cargarEstadisticas();
+      },
+      error: (error: any) => {
+        console.error('Error al cambiar estado de rifa:', error);
+        this.mostrarMensaje('Error al cambiar estado de la rifa', 'error');
+      }
+    });
+  }
 }

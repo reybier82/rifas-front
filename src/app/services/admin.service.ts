@@ -94,4 +94,11 @@ export class AdminService {
   obtenerComprasPorRifa(token: string, rifaId: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/admin/${token}/rifas/${rifaId}/compras`);
   }
+
+  /**
+   * Cambiar estado de una rifa (activa/inactiva)
+   */
+  cambiarEstadoRifa(rifaId: string, nuevoEstado: string, token: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/admin/${token}/rifas/${rifaId}/estado`, { estado: nuevoEstado });
+  }
 }
