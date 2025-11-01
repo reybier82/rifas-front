@@ -221,102 +221,58 @@
                 <p *ngIf="errores.nombreTitular" class="text-xs text-red-600 mt-1">{{ errores.nombreTitular }}</p>
               </div>
 
-              <!-- Método de Pago -->
+              <!-- Bancos Disponibles -->
               <div>
-                <label class="text-sm font-medium text-gray-900 mb-2 block">Método de Pago</label>
-                <p class="text-xs text-gray-600 mb-3">Elige una opción</p>
+                <label class="text-sm font-medium text-gray-900 mb-2 block">Selecciona tu Banco*</label>
                 
-                <!-- Logos de métodos de pago -->
-                <div class="grid grid-cols-3 gap-4 mb-2">
-                  <!-- Pago Móvil (BDV) -->
-                  <div 
-                    (click)="seleccionarMetodoPago('pago_movil')"
-                    class="flex flex-col items-center cursor-pointer group"
-                  >
-                    <div 
-                      class="w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 relative"
-                      [class.ring-4]="metodoPago === 'pago_movil'"
-                      [class.ring-blue-500]="metodoPago === 'pago_movil'"
-                      [class.bg-white]="metodoPago !== 'pago_movil'"
-                      [class.bg-blue-50]="metodoPago === 'pago_movil'"
-                      [class.shadow-lg]="metodoPago === 'pago_movil'"
-                      [class.shadow-md]="metodoPago !== 'pago_movil'"
-                      [class.hover:shadow-lg]="metodoPago !== 'pago_movil'"
-                    >
-                      <img src="assets/img/bdv.png" alt="Pago Móvil" class="w-12 h-12 object-contain">
-                      <!-- Check mark cuando está seleccionado -->
-                      <div 
-                        *ngIf="metodoPago === 'pago_movil'"
-                        class="absolute -top-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center"
-                      >
-                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                      </div>
-                    </div>
-                    <p class="text-xs font-medium text-gray-900 mt-2 text-center">Pago Móvil</p>
-                  </div>
+                <!-- Mensaje de carga -->
+                <div *ngIf="cargandoBancos" class="flex items-center justify-center py-8">
+                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                  <p class="ml-3 text-sm text-gray-600">Cargando bancos...</p>
+                </div>
 
-                  <!-- Binance -->
+                <!-- Grid de bancos -->
+                <div *ngIf="!cargandoBancos && bancosDisponibles.length > 0" class="grid grid-cols-2 gap-4 mb-2">
                   <div 
-                    (click)="seleccionarMetodoPago('binance')"
-                    class="flex flex-col items-center cursor-pointer group"
+                    *ngFor="let banco of bancosDisponibles"
+                    (click)="seleccionarBanco(banco)"
+                    class="flex flex-col items-center cursor-pointer group p-4 rounded-lg border-2 transition-all duration-200"
+                    [class.border-gray-900]="bancoSeleccionado?._id === banco._id"
+                    [class.bg-gray-50]="bancoSeleccionado?._id === banco._id"
+                    [class.border-gray-200]="bancoSeleccionado?._id !== banco._id"
+                    [class.hover:border-gray-400]="bancoSeleccionado?._id !== banco._id"
                   >
-                    <div 
-                      class="w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 relative"
-                      [class.ring-4]="metodoPago === 'binance'"
-                      [class.ring-yellow-500]="metodoPago === 'binance'"
-                      [class.bg-white]="metodoPago !== 'binance'"
-                      [class.bg-yellow-50]="metodoPago === 'binance'"
-                      [class.shadow-lg]="metodoPago === 'binance'"
-                      [class.shadow-md]="metodoPago !== 'binance'"
-                      [class.hover:shadow-lg]="metodoPago !== 'binance'"
-                    >
-                      <img src="assets/img/binance.png" alt="Binance" class="w-16 h-16 object-contain">
+                    <div class="relative">
+                      <div 
+                        class="w-16 h-16 rounded-full flex items-center justify-center bg-white shadow-md transition-all duration-200"
+                        [class.shadow-lg]="bancoSeleccionado?._id === banco._id"
+                      >
+                        <img [src]="banco.imagenUrl" [alt]="banco.nombre" class="w-12 h-12 object-contain">
+                      </div>
                       <!-- Check mark cuando está seleccionado -->
                       <div 
-                        *ngIf="metodoPago === 'binance'"
-                        class="absolute -top-1 -right-1 w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center"
+                        *ngIf="bancoSeleccionado?._id === banco._id"
+                        class="absolute -top-1 -right-1 w-6 h-6 bg-gray-900 rounded-full flex items-center justify-center"
                       >
                         <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                         </svg>
                       </div>
                     </div>
-                    <p class="text-xs font-medium text-gray-900 mt-2 text-center">Binance</p>
-                  </div>
-
-                  <!-- Zelle -->
-                  <div 
-                    (click)="seleccionarMetodoPago('zelle')"
-                    class="flex flex-col items-center cursor-pointer group"
-                  >
-                    <div 
-                      class="w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 relative"
-                      [class.ring-4]="metodoPago === 'zelle'"
-                      [class.ring-purple-500]="metodoPago === 'zelle'"
-                      [class.bg-white]="metodoPago !== 'zelle'"
-                      [class.bg-purple-50]="metodoPago === 'zelle'"
-                      [class.shadow-lg]="metodoPago === 'zelle'"
-                      [class.shadow-md]="metodoPago !== 'zelle'"
-                      [class.hover:shadow-lg]="metodoPago !== 'zelle'"
-                    >
-                      <img src="assets/img/zelle.png" alt="Zelle" class="w-16 h-16 object-contain">
-                      <!-- Check mark cuando está seleccionado -->
-                      <div 
-                        *ngIf="metodoPago === 'zelle'"
-                        class="absolute -top-1 -right-1 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center"
-                      >
-                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                      </div>
-                    </div>
-                    <p class="text-xs font-medium text-gray-900 mt-2 text-center">Zelle</p>
+                    <p class="text-xs font-medium text-gray-900 mt-2 text-center">{{ banco.nombre }}</p>
+                    <p class="text-xs text-gray-500 text-center">{{ banco.metodoPago }}</p>
                   </div>
                 </div>
+
+                <!-- Mensaje si no hay bancos -->
+                <div *ngIf="!cargandoBancos && bancosDisponibles.length === 0" class="text-center py-8 bg-gray-50 rounded-lg">
+                  <svg class="w-12 h-12 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <p class="text-sm text-gray-600">No hay bancos disponibles para este país</p>
+                </div>
                 
-                <p *ngIf="errores.metodoPago" class="text-xs text-red-600 mt-1">{{ errores.metodoPago }}</p>
+                <p *ngIf="errores.bancoId" class="text-xs text-red-600 mt-1">{{ errores.bancoId }}</p>
               </div>
 
               <!-- Banco Seleccionado (Oculto, se selecciona automáticamente) -->

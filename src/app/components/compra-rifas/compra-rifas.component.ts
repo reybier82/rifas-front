@@ -35,16 +35,10 @@ export class CompraRifasComponent implements OnInit {
   paises: any[] = [];
   bancos: any[] = [];
   bancosDisponibles: any[] = [];
+  cargandoBancos: boolean = false;
   mostrarImagenGrande: boolean = false;
-  bancoSeleccionado: string = '';
+  bancoSeleccionado: any = null;
   numerosAsignados: number[] = [];
-  
-  // ⭐ Mapeo directo de métodos de pago a IDs de banco
-  bancosMap: any = {
-    'pago_movil': '690516ded6b683289b85129d',  // ID del Pago Móvil BDV
-    'binance': '',  // Agregar cuando tengas el ID
-    'zelle': '690516ded6b683289b85129e'   // ID de Zelle
-  };
   
   // Conversión de moneda
   tasaCambio: number = 216; // Tasa: 216 Bs por cada dólar (8 USD = 1728 Bs)
@@ -226,17 +220,24 @@ export class CompraRifasComponent implements OnInit {
   onCambioPais(): void {
     this.telefono = '';
     this.errores.telefono = '';
+    this.bancoSeleccionado = null;
+    this.metodoPago = '';
     
     // Cargar bancos del país seleccionado
     if (this.codigoPais) {
+      this.cargandoBancos = true;
       this.bancosService.obtenerBancosPorPais(this.codigoPais).subscribe({
         next: (response) => {
+          this.cargandoBancos = false;
           if (response.success) {
             this.bancosDisponibles = response.data;
+            console.log('✅ Bancos cargados para', this.codigoPais, ':', this.bancosDisponibles);
           }
         },
         error: (error) => {
+          this.cargandoBancos = false;
           console.error('Error al cargar bancos:', error);
+          this.bancosDisponibles = [];
         }
       });
     }
@@ -345,24 +346,11 @@ export class CompraRifasComponent implements OnInit {
     }
   }
 
-  seleccionarMetodoPago(metodo: string): void {
-    this.metodoPago = metodo;
-    this.validarMetodoPago();
-    
-    console.log('🔍 Método seleccionado:', metodo);
-    
-    // ⭐ Usar mapeo directo de IDs
-    const bancoId = this.bancosMap[metodo];
-    
-    if (bancoId && bancoId !== '') {
-      this.bancoSeleccionado = bancoId;
-      this.errores.bancoId = ''; // ⭐ Limpiar error inmediatamente
-      console.log('✅ Banco seleccionado (ID):', bancoId);
-      console.log('✅ bancoSeleccionado:', this.bancoSeleccionado);
-    } else {
-      console.warn('❌ No hay ID configurado para el método:', metodo);
-      this.errores.bancoId = 'No hay banco configurado para este método de pago';
-    }
+  seleccionarBanco(banco: any): void {
+    this.bancoSeleccionado = banco;
+    this.metodoPago = banco.metodoPago;
+    this.errores.bancoId = '';
+    console.log('✅ Banco seleccionado:', banco);
   }
 
   validarMetodoPago(): void {
@@ -472,7 +460,7 @@ export class CompraRifasComponent implements OnInit {
     formData.append('telefono', this.telefono);
     formData.append('nombreTitular', this.nombreTitular);
     formData.append('metodoPago', this.metodoPago);
-    formData.append('bancoId', this.bancoSeleccionado);
+    formData.append('bancoId', this.bancoSeleccionado?._id || '');
     formData.append('codigoReferencia', this.codigoReferencia);
     
     // ⭐ CRÍTICO: Agregar el archivo (comprobante de pago)
