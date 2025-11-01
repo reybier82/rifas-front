@@ -803,45 +803,45 @@
 <div *ngIf="mostrarModalCompradores" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[70] p-4" (click)="cerrarModalCompradores()">
   <div class="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] flex flex-col shadow-2xl" (click)="$event.stopPropagation()">
     <!-- Header -->
-    <div class="flex items-center justify-between p-6 border-b">
+    <div class="flex items-center justify-between p-4 md:p-6 border-b">
       <div>
-        <h2 class="text-2xl font-bold text-gray-900">Compradores de la Rifa</h2>
-        <p class="text-sm text-gray-600 mt-1">Total: {{ compradoresRifa.length }} compras</p>
+        <h2 class="text-lg md:text-2xl font-bold text-gray-900">Compradores</h2>
+        <p class="text-xs md:text-sm text-gray-600 mt-1">Total: {{ compradoresRifa.length }} compras</p>
       </div>
       <button (click)="cerrarModalCompradores()" class="text-gray-400 hover:text-gray-600 transition">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
         </svg>
       </button>
     </div>
 
     <!-- Filtros y Búsqueda -->
-    <div class="p-6 border-b bg-gray-50">
-      <div class="flex flex-col md:flex-row gap-4">
+    <div class="p-3 md:p-6 border-b bg-gray-50">
+      <div class="flex flex-col gap-3">
         <!-- Buscador -->
-        <div class="flex-1">
+        <div class="w-full">
           <div class="relative">
-            <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
             <input
               type="text"
               [(ngModel)]="busquedaComprador"
               (input)="buscarComprador()"
-              placeholder="Buscar por nombre o email..."
-              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              placeholder="Buscar..."
+              class="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
           </div>
         </div>
 
-        <!-- Filtros de Estado -->
-        <div class="flex gap-2">
+        <!-- Filtros de Estado (scroll horizontal en móviles) -->
+        <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
           <button
             (click)="cambiarFiltroEstado('todos')"
             [class.bg-gray-900]="filtroEstado === 'todos'"
             [class.text-white]="filtroEstado === 'todos'"
             [class.bg-white]="filtroEstado !== 'todos'"
             [class.text-gray-700]="filtroEstado !== 'todos'"
-            class="px-4 py-2 rounded-lg border font-medium transition">
+            class="flex-shrink-0 px-3 py-1.5 rounded-lg border text-xs font-medium transition whitespace-nowrap">
             Todos ({{ compradoresRifa.length }})
           </button>
           <button
@@ -850,7 +850,7 @@
             [class.text-white]="filtroEstado === 'pendiente'"
             [class.bg-white]="filtroEstado !== 'pendiente'"
             [class.text-gray-700]="filtroEstado !== 'pendiente'"
-            class="px-4 py-2 rounded-lg border font-medium transition">
+            class="flex-shrink-0 px-3 py-1.5 rounded-lg border text-xs font-medium transition whitespace-nowrap">
             Pendientes
           </button>
           <button
@@ -859,7 +859,7 @@
             [class.text-white]="filtroEstado === 'verificado'"
             [class.bg-white]="filtroEstado !== 'verificado'"
             [class.text-gray-700]="filtroEstado !== 'verificado'"
-            class="px-4 py-2 rounded-lg border font-medium transition">
+            class="flex-shrink-0 px-3 py-1.5 rounded-lg border text-xs font-medium transition whitespace-nowrap">
             Verificados
           </button>
           <button
@@ -868,7 +868,7 @@
             [class.text-white]="filtroEstado === 'rechazado'"
             [class.bg-white]="filtroEstado !== 'rechazado'"
             [class.text-gray-700]="filtroEstado !== 'rechazado'"
-            class="px-4 py-2 rounded-lg border font-medium transition">
+            class="flex-shrink-0 px-3 py-1.5 rounded-lg border text-xs font-medium transition whitespace-nowrap">
             Rechazados
           </button>
         </div>
@@ -876,7 +876,7 @@
     </div>
 
     <!-- Lista de Compradores -->
-    <div class="flex-1 overflow-y-auto p-6">
+    <div class="flex-1 overflow-y-auto p-3 md:p-6">
       <!-- Loading -->
       <div *ngIf="cargandoCompradores" class="flex items-center justify-center py-12">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
@@ -891,61 +891,63 @@
         <p class="text-gray-500 text-sm mt-1">Intenta con otros filtros</p>
       </div>
 
-      <!-- Tabla de Compradores -->
+      <!-- Tarjetas de Compradores -->
       <div *ngIf="!cargandoCompradores && compradoresFiltrados.length > 0" class="space-y-3">
-        <div *ngFor="let compra of compradoresFiltrados" class="bg-white border rounded-lg p-4 hover:shadow-md transition">
-          <div class="flex items-start gap-4">
-            <!-- Info Principal -->
-            <div class="flex-1">
-              <div class="flex items-center gap-3 mb-2">
-                <h3 class="font-bold text-gray-900">{{ compra.nombreCompleto }}</h3>
-                <span [class]="obtenerBadgeEstado(compra.estado)" class="px-2 py-1 rounded-full text-xs font-medium">
-                  {{ obtenerTextoEstado(compra.estado) }}
-                </span>
-              </div>
-              
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                <div>
-                  <span class="text-gray-600">Email:</span>
-                  <p class="font-medium text-gray-900">{{ compra.email }}</p>
-                </div>
-                <div>
-                  <span class="text-gray-600">Teléfono:</span>
-                  <p class="font-medium text-gray-900">{{ compra.telefono.completo }}</p>
-                </div>
-                <div>
-                  <span class="text-gray-600">Tickets:</span>
-                  <p class="font-medium text-gray-900">{{ compra.cantidadTickets }} tickets</p>
-                </div>
-                <div>
-                  <span class="text-gray-600">Total:</span>
-                  <p class="font-medium text-green-600">${{ compra.totalUSD }}</p>
-                </div>
-              </div>
-
-              <div class="mt-3 flex items-center gap-4 text-sm">
-                <div class="flex items-center gap-2">
-                  <img [src]="compra.pago.bancoId?.imagenUrl" [alt]="compra.pago.bancoId?.nombre" class="w-6 h-6 object-contain">
-                  <span class="text-gray-700">{{ compra.pago.bancoId?.nombre }}</span>
-                </div>
-                <div class="text-gray-600">
-                  Ref: <span class="font-mono font-medium">{{ compra.pago.codigoReferencia }}</span>
-                </div>
-                <div class="text-gray-500">
-                  {{ compra.fechaCreacion | date:'short' }}
-                </div>
-              </div>
-
-              <!-- Números asignados (solo si está verificado) -->
-              <div *ngIf="compra.estado === 'verificado' && compra.tickets.length > 0" class="mt-3 p-2 bg-green-50 border border-green-200 rounded">
-                <span class="text-xs text-green-700 font-medium">Números: </span>
-                <span class="text-xs text-green-900 font-mono">{{ obtenerNumeros(compra.tickets) }}</span>
+        <div *ngFor="let compra of compradoresFiltrados" class="bg-white border rounded-lg p-3 hover:shadow-md transition">
+          <!-- Header -->
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex-1 min-w-0">
+              <h3 class="font-semibold text-sm text-gray-900 truncate">{{ compra.nombreCompleto }}</h3>
+              <p class="text-xs text-gray-500 truncate">{{ compra.email }}</p>
+            </div>
+            <span [class]="obtenerBadgeEstado(compra.estado)" class="flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-medium ml-2">
+              {{ obtenerTextoEstado(compra.estado) }}
+            </span>
+          </div>
+          
+          <!-- Info Grid -->
+          <div class="grid grid-cols-2 gap-2 text-xs mb-3">
+            <div>
+              <p class="text-gray-500">Teléfono</p>
+              <p class="font-medium text-gray-900">{{ compra.telefono.completo }}</p>
+            </div>
+            <div>
+              <p class="text-gray-500">Tickets</p>
+              <p class="font-medium text-gray-900">{{ compra.cantidadTickets }}</p>
+            </div>
+            <div>
+              <p class="text-gray-500">Total</p>
+              <p class="font-semibold text-green-600">${{ compra.totalUSD }}</p>
+            </div>
+            <div>
+              <p class="text-gray-500">Banco</p>
+              <div class="flex items-center gap-1">
+                <img [src]="compra.pago.bancoId?.imagenUrl" [alt]="compra.pago.bancoId?.nombre" class="w-4 h-4 object-contain">
+                <span class="font-medium text-gray-900 text-xs truncate">{{ compra.pago.bancoId?.nombre }}</span>
               </div>
             </div>
+          </div>
 
-            <!-- Comprobante -->
-            <div class="flex-shrink-0">
-              <img [src]="compra.pago.comprobanteUrl" alt="Comprobante" class="w-20 h-20 object-cover rounded border cursor-pointer hover:opacity-75 transition">
+          <!-- Referencia y Comprobante -->
+          <div class="flex items-center justify-between pt-3 border-t">
+            <div class="flex-1 min-w-0">
+              <p class="text-xs text-gray-500">Ref:</p>
+              <p class="font-mono text-xs font-medium text-gray-900 truncate">{{ compra.pago.codigoReferencia }}</p>
+            </div>
+            <img 
+              [src]="compra.pago.comprobanteUrl" 
+              alt="Comprobante" 
+              (click)="verComprobante(compra.pago.comprobanteUrl, compra.pago.codigoReferencia)"
+              class="w-12 h-12 object-cover rounded border cursor-pointer hover:opacity-75 transition flex-shrink-0 ml-2">
+          </div>
+
+          <!-- Números asignados (solo si está verificado) -->
+          <div *ngIf="compra.estado === 'verificado' && compra.tickets.length > 0" class="mt-3 p-2 bg-green-50 border border-green-200 rounded">
+            <p class="text-xs text-green-700 font-medium mb-1">Números:</p>
+            <div class="flex flex-wrap gap-1">
+              <span *ngFor="let ticket of compra.tickets" class="inline-block bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-xs font-mono font-semibold">
+                {{ ticket.numero }}
+              </span>
             </div>
           </div>
         </div>
