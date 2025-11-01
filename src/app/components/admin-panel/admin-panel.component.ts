@@ -49,6 +49,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   // Modales
   mostrarModalVerificar: boolean = false;
   mostrarModalRechazar: boolean = false;
+  mostrarModalDetalles: boolean = false;
   compraSeleccionada: any = null;
   motivoRechazo: string = '';
   
@@ -254,6 +255,16 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
         this.mostrarMensaje('Error al rechazar pago', 'error');
       }
     });
+  }
+
+  verDetallesCompra(compra: any): void {
+    this.compraSeleccionada = compra;
+    this.mostrarModalDetalles = true;
+  }
+
+  cerrarModalDetalles(): void {
+    this.mostrarModalDetalles = false;
+    this.compraSeleccionada = null;
   }
 
   verComprobante(url: string): void {

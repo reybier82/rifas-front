@@ -118,77 +118,60 @@
             <p class="text-sm text-gray-500">No hay compras pendientes</p>
           </div>
 
-          <div *ngIf="!cargandoCompras && comprasPendientes.length > 0" class="space-y-4">
-            <div *ngFor="let compra of comprasPendientes" class="border rounded-lg overflow-hidden hover:border-gray-300 transition">
-              <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <!-- Comprobante -->
-                  <div>
-                    <h3 class="text-sm font-medium text-gray-700 mb-3">Comprobante</h3>
+          <!-- Tabla Compacta -->
+          <div *ngIf="!cargandoCompras && comprasPendientes.length > 0" class="border rounded-lg overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rifa</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Método</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tickets</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                  <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr *ngFor="let compra of comprasPendientes" class="hover:bg-gray-50 transition">
+                  <td class="px-4 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">{{ compra.nombreCompleto }}</div>
+                    <div class="text-sm text-gray-500">{{ compra.email }}</div>
+                  </td>
+                  <td class="px-4 py-4">
+                    <div class="text-sm text-gray-900">{{ compra.rifaId.titulo }}</div>
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">{{ compra.pago.metodoPago }}</div>
+                    <div class="text-sm text-gray-500">{{ compra.pago.bancoId?.nombre || 'N/A' }}</div>
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {{ compra.cantidadTickets }}
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">${{ compra.totalUSD.toFixed(2) }}</div>
+                    <div class="text-sm text-gray-500">Bs. {{ compra.totalBs.toFixed(2) }}</div>
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {{ compra.createdAt | date:'short' }}
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                    <button 
+                      (click)="verDetallesCompra(compra)"
+                      class="text-blue-600 hover:text-blue-900 transition">
+                      Ver Detalles
+                    </button>
                     <button 
                       (click)="verComprobante(compra.pago.comprobanteUrl)"
-                      class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium py-3 px-4 rounded-md border transition flex items-center justify-center gap-2">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                      </svg>
-                      Ver Comprobante
+                      class="text-gray-600 hover:text-gray-900 transition">
+                      Comprobante
                     </button>
-                  </div>
-
-                  <!-- Datos del Comprador -->
-                  <div>
-                    <h3 class="text-sm font-medium text-gray-700 mb-3">Datos del Comprador</h3>
-                    <div class="space-y-2 text-sm text-gray-600">
-                      <p><span class="font-medium text-gray-900">Nombre:</span> {{ compra.nombreCompleto }}</p>
-                      <p><span class="font-medium text-gray-900">Email:</span> {{ compra.email }}</p>
-                      <p><span class="font-medium text-gray-900">Teléfono:</span> {{ compra.telefono.completo }}</p>
-                      <p><span class="font-medium text-gray-900">Rifa:</span> {{ compra.rifaId.titulo }}</p>
-                      <p><span class="font-medium text-gray-900">Fecha:</span> {{ compra.createdAt | date:'short' }}</p>
-                    </div>
-                  </div>
-
-                  <!-- Datos del Pago -->
-                  <div>
-                    <h3 class="text-sm font-medium text-gray-700 mb-3">Datos del Pago</h3>
-                    <div class="space-y-2 text-sm text-gray-600">
-                      <p><span class="font-medium text-gray-900">Método:</span> {{ compra.pago.metodoPago }}</p>
-                      <p><span class="font-medium text-gray-900">Banco:</span> {{ compra.pago.bancoId?.nombre || 'N/A' }}</p>
-                      <p><span class="font-medium text-gray-900">Titular:</span> {{ compra.pago.nombreTitular }}</p>
-                      <p><span class="font-medium text-gray-900">Referencia:</span> <span class="font-mono text-xs bg-gray-100 px-2 py-1 rounded">{{ compra.pago.codigoReferencia }}</span></p>
-                      <p><span class="font-medium text-gray-900">Cantidad:</span> {{ compra.cantidadTickets }} tickets</p>
-                      <p><span class="font-medium text-gray-900">Total USD:</span> <span class="font-semibold">${{ compra.totalUSD.toFixed(2) }}</span></p>
-                      <p><span class="font-medium text-gray-900">Total Bs:</span> <span class="font-semibold">Bs. {{ compra.totalBs.toFixed(2) }}</span></p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Números Asignados -->
-                <div class="mt-6 pt-6 border-t">
-                  <h3 class="text-sm font-medium text-gray-700 mb-3">Números Asignados</h3>
-                  <div class="flex flex-wrap gap-2">
-                    <span *ngFor="let ticket of compra.tickets" class="inline-flex items-center justify-center w-10 h-10 bg-gray-100 text-gray-900 text-sm font-semibold rounded-md border">
-                      {{ ticket.numero }}
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Botones de Acción -->
-                <div class="mt-6 flex gap-3">
-                  <button 
-                    (click)="abrirModalVerificar(compra)"
-                    class="flex-1 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium py-2.5 px-4 rounded-md transition">
-                    Verificar y Enviar Email
-                  </button>
-                  <button 
-                    (click)="abrirModalRechazar(compra)"
-                    class="bg-white hover:bg-gray-50 text-gray-900 text-sm font-medium py-2.5 px-4 rounded-md border transition">
-                    Rechazar
-                  </button>
-                </div>
-              </div>
-            </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
+
         </div>
 
         <!-- Tab: Compras Verificadas -->
@@ -415,22 +398,127 @@
     </div>
   </div>
 
-  <!-- Modal: Ver Comprobante -->
-  <div *ngIf="mostrarModalComprobante" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50" (click)="cerrarModalComprobante()">
-    <div class="max-w-4xl w-full mx-4" (click)="$event.stopPropagation()">
+  <!-- Modal: Ver Detalles de Compra -->
+  <div *ngIf="mostrarModalDetalles && compraSeleccionada" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
+        <h3 class="text-lg font-semibold text-gray-900">Detalles de la Compra</h3>
+        <button 
+          (click)="cerrarModalDetalles()"
+          class="text-gray-500 hover:text-gray-700 transition">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="p-6 space-y-6">
+        <!-- Datos del Comprador -->
+        <div>
+          <h4 class="text-sm font-semibold text-gray-900 mb-3">Datos del Comprador</h4>
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span class="text-gray-500">Nombre:</span>
+              <p class="font-medium text-gray-900">{{ compraSeleccionada.nombreCompleto }}</p>
+            </div>
+            <div>
+              <span class="text-gray-500">Email:</span>
+              <p class="font-medium text-gray-900">{{ compraSeleccionada.email }}</p>
+            </div>
+            <div>
+              <span class="text-gray-500">Teléfono:</span>
+              <p class="font-medium text-gray-900">{{ compraSeleccionada.telefono.completo }}</p>
+            </div>
+            <div>
+              <span class="text-gray-500">Fecha:</span>
+              <p class="font-medium text-gray-900">{{ compraSeleccionada.createdAt | date:'short' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Datos de la Rifa -->
+        <div class="border-t pt-4">
+          <h4 class="text-sm font-semibold text-gray-900 mb-3">Datos de la Rifa</h4>
+          <div class="text-sm">
+            <span class="text-gray-500">Rifa:</span>
+            <p class="font-medium text-gray-900">{{ compraSeleccionada.rifaId.titulo }}</p>
+          </div>
+        </div>
+
+        <!-- Datos del Pago -->
+        <div class="border-t pt-4">
+          <h4 class="text-sm font-semibold text-gray-900 mb-3">Datos del Pago</h4>
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span class="text-gray-500">Método:</span>
+              <p class="font-medium text-gray-900">{{ compraSeleccionada.pago.metodoPago }}</p>
+            </div>
+            <div>
+              <span class="text-gray-500">Banco:</span>
+              <p class="font-medium text-gray-900">{{ compraSeleccionada.pago.bancoId?.nombre || 'N/A' }}</p>
+            </div>
+            <div>
+              <span class="text-gray-500">Titular:</span>
+              <p class="font-medium text-gray-900">{{ compraSeleccionada.pago.nombreTitular }}</p>
+            </div>
+            <div>
+              <span class="text-gray-500">Referencia:</span>
+              <p class="font-mono text-xs bg-gray-100 px-2 py-1 rounded inline-block">{{ compraSeleccionada.pago.codigoReferencia }}</p>
+            </div>
+            <div>
+              <span class="text-gray-500">Cantidad Tickets:</span>
+              <p class="font-medium text-gray-900">{{ compraSeleccionada.cantidadTickets }}</p>
+            </div>
+            <div>
+              <span class="text-gray-500">Total:</span>
+              <p class="font-semibold text-gray-900">${{ compraSeleccionada.totalUSD.toFixed(2) }} / Bs. {{ compraSeleccionada.totalBs.toFixed(2) }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Números Asignados -->
+        <div class="border-t pt-4">
+          <h4 class="text-sm font-semibold text-gray-900 mb-3">Números Asignados</h4>
+          <div class="flex flex-wrap gap-2">
+            <span *ngFor="let ticket of compraSeleccionada.tickets" class="inline-flex items-center justify-center w-10 h-10 bg-gray-100 text-gray-900 text-sm font-semibold rounded-md border">
+              {{ ticket.numero }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="border-t pt-4 flex gap-3">
+          <button 
+            (click)="abrirModalVerificar(compraSeleccionada)"
+            class="flex-1 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium py-2.5 px-4 rounded-md transition">
+            Verificar y Enviar Email
+          </button>
+          <button 
+            (click)="abrirModalRechazar(compraSeleccionada)"
+            class="bg-white hover:bg-gray-50 text-gray-900 text-sm font-medium py-2.5 px-4 rounded-md border transition">
+            Rechazar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Ver Comprobante (Imagen más pequeña) -->
+  <div *ngIf="mostrarModalComprobante" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4" (click)="cerrarModalComprobante()">
+    <div class="max-w-2xl w-full" (click)="$event.stopPropagation()">
       <div class="bg-white rounded-lg overflow-hidden">
         <div class="p-4 border-b flex justify-between items-center">
           <h3 class="text-lg font-semibold text-gray-900">Comprobante de Pago</h3>
           <button 
             (click)="cerrarModalComprobante()"
-            class="text-gray-500 hover:text-gray-700">
+            class="text-gray-500 hover:text-gray-700 transition">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
           </button>
         </div>
-        <div class="p-4">
-          <img [src]="comprobanteUrl" alt="Comprobante" class="w-full h-auto">
+        <div class="p-4 flex justify-center bg-gray-50">
+          <img [src]="comprobanteUrl" alt="Comprobante" class="max-w-full max-h-[70vh] object-contain rounded">
         </div>
       </div>
     </div>
