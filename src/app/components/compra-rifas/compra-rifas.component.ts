@@ -90,6 +90,8 @@ export class CompraRifasComponent implements OnInit {
     
     this.cargarPaises();
     this.cargarTasa();
+    // Cargar bancos del país por defecto (Venezuela)
+    this.cargarBancosPorPais();
   }
 
   seleccionarCantidad(cantidad: number): void {
@@ -217,13 +219,7 @@ export class CompraRifasComponent implements OnInit {
     });
   }
 
-  onCambioPais(): void {
-    this.telefono = '';
-    this.errores.telefono = '';
-    this.bancoSeleccionado = null;
-    this.metodoPago = '';
-    
-    // Cargar bancos del país seleccionado
+  cargarBancosPorPais(): void {
     if (this.codigoPais) {
       this.cargandoBancos = true;
       this.bancosService.obtenerBancosPorPais(this.codigoPais).subscribe({
@@ -241,6 +237,16 @@ export class CompraRifasComponent implements OnInit {
         }
       });
     }
+  }
+
+  onCambioPais(): void {
+    this.telefono = '';
+    this.errores.telefono = '';
+    this.bancoSeleccionado = null;
+    this.metodoPago = '';
+    
+    // Cargar bancos del país seleccionado
+    this.cargarBancosPorPais();
   }
 
   obtenerCodigoTelefonico(): string {
