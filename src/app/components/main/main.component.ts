@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { RifasService } from '../../services/rifas.service';
 import { ComprasService } from '../../services/compras.service';
@@ -8,7 +8,7 @@ import { ComprasService } from '../../services/compras.service';
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.css']
 })
-export class MainComponent implements OnInit {
+export class MainComponent implements OnInit, OnDestroy {
   rifas: any[] = [];
   cargando: boolean = true;
 
@@ -24,6 +24,10 @@ export class MainComponent implements OnInit {
   mostrarModalNumeroGanador: boolean = false;
   rifaGanadoraSeleccionada: any = null;
 
+  // Polling automático
+  private pollingInterval: any;
+  private readonly POLLING_INTERVAL_MS = 3000; // 3 segundos
+
   constructor(
     private router: Router,
     private rifasService: RifasService,
@@ -32,6 +36,55 @@ export class MainComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarRifas();
+    this.iniciarPolling();
+  }
+
+  ngOnDestroy(): void {
+    this.detenerPolling();
+  }
+
+  /**
+   * Iniciar polling automático cada 3 segundos
+   */
+  iniciarPolling(): void {
+    this.pollingInterval = setInterval(() => {
+      this.cargarRifasSilencioso();
+    }, this.POLLING_INTERVAL_MS);
+    console.log('🔄 Polling iniciado: actualizando rifas cada 3 segundos');
+  }
+
+  /**
+   * Detener polling automático
+   */
+  detenerPolling(): void {
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+      console.log('⏹️ Polling detenido');
+    }
+  }
+
+  /**
+   * Cargar rifas sin mostrar spinner (para polling)
+   */
+  cargarRifasSilencioso(): void {
+    this.rifasService.obtenerRifasActivas().subscribe({
+      next: (response) => {
+        if (response.success) {
+          const rifasNuevas = response.data.filter((rifa: any) => 
+            rifa.estado === 'activa' || rifa.estado === 'completada'
+          );
+          
+          // Actualizar solo si hay cambios
+          if (JSON.stringify(this.rifas) !== JSON.stringify(rifasNuevas)) {
+            this.rifas = rifasNuevas;
+            console.log('✅ Rifas actualizadas automáticamente');
+          }
+        }
+      },
+      error: (error) => {
+        console.error('Error en polling:', error);
+      }
+    });
   }
 
   cargarRifas(): void {
