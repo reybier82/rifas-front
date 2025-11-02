@@ -92,10 +92,12 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   compraSeleccionada: any = null;
   motivoRechazo: string = '';
   rechazandoPago: boolean = false;
+  verificandoPago: boolean = false;
   
   // Modales desde compradores
   mostrarModalVerificarCompradores: boolean = false;
   rechazandoPagoCompradores: boolean = false;
+  verificandoPagoCompradores: boolean = false;
   mostrarModalRechazarCompradores: boolean = false;
   compraSeleccionadaCompradores: any = null;
   motivoRechazoCompradores: string = '';
@@ -340,8 +342,10 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   confirmarVerificacion(): void {
     if (!this.compraSeleccionada) return;
 
+    this.verificandoPago = true;
     this.adminService.verificarPago(this.token, this.compraSeleccionada._id).subscribe({
       next: (response) => {
+        this.verificandoPago = false;
         if (response.success) {
           this.mostrarMensaje('Pago verificado exitosamente. Email enviado al usuario.', 'success');
           this.cerrarModalVerificar();
@@ -350,6 +354,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
         }
       },
       error: (error) => {
+        this.verificandoPago = false;
         console.error('Error al verificar pago:', error);
         this.mostrarMensaje('Error al verificar pago', 'error');
       }
@@ -779,14 +784,17 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   confirmarVerificacionCompradores(): void {
     if (!this.compraSeleccionadaCompradores) return;
     
+    this.verificandoPagoCompradores = true;
     this.adminService.verificarPago(this.token, this.compraSeleccionadaCompradores._id).subscribe({
       next: (response: any) => {
+        this.verificandoPagoCompradores = false;
         this.mostrarMensaje('Pago verificado y email enviado exitosamente', 'success');
         this.cerrarModalVerificarCompradores();
         // Recargar compradores
         this.cargarCompradoresRifa(this.compraSeleccionadaCompradores.rifaId._id || this.compraSeleccionadaCompradores.rifaId);
       },
       error: (error: any) => {
+        this.verificandoPagoCompradores = false;
         console.error('Error al verificar pago:', error);
         this.mostrarMensaje('Error al verificar pago', 'error');
       }
