@@ -1106,7 +1106,13 @@
           <!-- Header -->
           <div class="flex items-start justify-between mb-3">
             <div class="flex-1 min-w-0">
-              <h3 class="font-semibold text-sm text-gray-900 truncate">{{ compra.nombreCompleto }}</h3>
+              <div class="flex items-center gap-2">
+                <h3 class="font-semibold text-sm text-gray-900 truncate">{{ compra.nombreCompleto }}</h3>
+                <!-- Badge de Ganador -->
+                <span *ngIf="esGanador(compra)" class="inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold rounded-full animate-pulse">
+                  🏆 GANADOR
+                </span>
+              </div>
               <p class="text-xs text-gray-500 truncate">{{ compra.email }}</p>
             </div>
             <span [class]="obtenerBadgeEstado(compra.estado)" class="flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-medium ml-2">

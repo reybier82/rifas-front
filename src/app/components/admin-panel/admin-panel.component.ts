@@ -497,6 +497,12 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     return tickets.map(t => t.numero).sort((a, b) => a - b).join(', ');
   }
 
+  // Verificar si una compra es ganadora
+  esGanador(compra: any): boolean {
+    if (!compra.tickets || compra.tickets.length === 0) return false;
+    return compra.tickets.some((ticket: any) => ticket.esGanador === true);
+  }
+
   // ==================== MODAL DE COMPRADORES ====================
 
   abrirModalCompradores(rifaId: string): void {
