@@ -48,18 +48,25 @@
             <!-- Dynamic rifas -->
             <article *ngFor="let rifa of rifas" 
                      class="flex flex-col gap-3 bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100">
-              <!-- Imagen con filtro gris si está agotado -->
+              <!-- Imagen con filtro gris si está agotado o completado -->
               <div class="w-full aspect-video bg-center bg-no-repeat bg-cover relative" 
                    [style.background-image]="'url(' + rifa.imagenUrl + ')'" 
-                   [class.grayscale]="rifa.ticketsDisponibles === 0"
-                   [class.opacity-60]="rifa.ticketsDisponibles === 0"
+                   [class.grayscale]="rifa.ticketsDisponibles === 0 || rifa.estado === 'completada'"
+                   [class.opacity-60]="rifa.ticketsDisponibles === 0 || rifa.estado === 'completada'"
                    role="img" 
                    [attr.aria-label]="rifa.titulo">
                 <!-- Badge de agotado -->
-                <div *ngIf="rifa.ticketsDisponibles === 0" 
+                <div *ngIf="rifa.ticketsDisponibles === 0 && rifa.estado !== 'completada'" 
                      class="absolute inset-0 flex items-center justify-center bg-black/50">
                   <span class="bg-red-600 text-white font-bold px-6 py-2 rounded-lg text-lg">
                     AGOTADO
+                  </span>
+                </div>
+                <!-- Badge de completada -->
+                <div *ngIf="rifa.estado === 'completada'" 
+                     class="absolute inset-0 flex items-center justify-center bg-black/50">
+                  <span class="bg-blue-600 text-white font-bold px-6 py-2 rounded-lg text-lg">
+                    🎉 RIFA COMPLETADA
                   </span>
                 </div>
               </div>
@@ -78,9 +85,17 @@
                   {{ rifa.descripcion }}
                 </p>
                 
-                <!-- Botón de compra (deshabilitado si está agotado) -->
+                <!-- Botón Ver Número Ganador (si está completada) -->
                 <button 
-                  *ngIf="rifa.ticketsDisponibles > 0"
+                  *ngIf="rifa.estado === 'completada'"
+                  class="w-full mt-auto h-12 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors" 
+                  (click)="abrirModalNumeroGanador(rifa)">
+                  🏆 Ver Número Ganador
+                </button>
+
+                <!-- Botón de compra (si está activa y tiene tickets disponibles) -->
+                <button 
+                  *ngIf="rifa.estado === 'activa' && rifa.ticketsDisponibles > 0"
                   class="w-full mt-auto h-12 rounded-lg bg-gray-900 text-white font-bold hover:bg-gray-800 transition-colors" 
                   (click)="redirectToCompraRifas(rifa._id)">
                   Comprar Boleto
@@ -88,7 +103,7 @@
                 
                 <!-- Botón deshabilitado cuando está agotado -->
                 <button 
-                  *ngIf="rifa.ticketsDisponibles === 0"
+                  *ngIf="rifa.estado === 'activa' && rifa.ticketsDisponibles === 0"
                   disabled
                   class="w-full mt-auto h-12 rounded-lg bg-gray-400 text-gray-200 font-bold cursor-not-allowed">
                   Boletos Agotados
@@ -327,6 +342,35 @@
       class="w-full bg-gray-900 hover:bg-gray-800 text-white font-semibold py-3 px-4 rounded-lg transition-colors">
       Aceptar
     </button>
+  </div>
+</div>
+
+<!-- Modal: Número Ganador -->
+<div *ngIf="mostrarModalNumeroGanador && rifaGanadoraSeleccionada" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" (click)="cerrarModalNumeroGanador()">
+  <div class="bg-white rounded-xl max-w-md w-full shadow-2xl" (click)="$event.stopPropagation()">
+    <div class="p-6">
+      <h3 class="text-2xl font-bold text-gray-900 mb-4 text-center">🎉 ¡Tenemos un Ganador! 🎉</h3>
+      
+      <div class="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl p-6 mb-4">
+        <p class="text-sm font-medium text-gray-700 text-center mb-3">Número Ganador de</p>
+        <h4 class="text-lg font-bold text-gray-900 text-center mb-4">{{ rifaGanadoraSeleccionada.titulo }}</h4>
+        <div class="bg-white rounded-lg px-8 py-6 shadow-md">
+          <p class="text-6xl font-bold text-center bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+            {{ rifaGanadoraSeleccionada.numeroGanador }}
+          </p>
+        </div>
+      </div>
+
+      <p class="text-sm text-gray-600 text-center mb-6">
+        ¡Felicidades al ganador! Esta rifa ha sido completada exitosamente.
+      </p>
+
+      <button
+        (click)="cerrarModalNumeroGanador()"
+        class="w-full bg-gray-900 hover:bg-gray-800 text-white font-semibold py-3 px-4 rounded-lg transition-colors">
+        Cerrar
+      </button>
+    </div>
   </div>
 </div>
 

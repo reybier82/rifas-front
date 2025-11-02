@@ -503,6 +503,13 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     return compra.tickets.some((ticket: any) => ticket.esGanador === true);
   }
 
+  // Obtener el número ganador de una compra
+  obtenerNumeroGanador(compra: any): number | null {
+    if (!compra.tickets || compra.tickets.length === 0) return null;
+    const ticketGanador = compra.tickets.find((ticket: any) => ticket.esGanador === true);
+    return ticketGanador ? ticketGanador.numero : null;
+  }
+
   // ==================== MODAL DE COMPRADORES ====================
 
   abrirModalCompradores(rifaId: string): void {
@@ -554,11 +561,11 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     
     // Filtrar por estado
     if (this.filtroEstado === 'ganador') {
-      // Mostrar solo el ganador
+      // Mostrar solo el ganador (usando el campo esGanador)
       resultado = resultado.filter(c => 
         c.estado === 'verificado' && 
         c.tickets && 
-        c.tickets.some((ticket: any) => ticket.numero === this.numeroGanadorRifa)
+        c.tickets.some((ticket: any) => ticket.esGanador === true)
       );
     } else if (this.filtroEstado !== 'todos') {
       resultado = resultado.filter(c => c.estado === this.filtroEstado);

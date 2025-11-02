@@ -20,6 +20,10 @@ export class MainComponent implements OnInit {
   cargandoVerificacion: boolean = false;
   mostrarAlertaNoCompras: boolean = false;
 
+  // Modal de número ganador
+  mostrarModalNumeroGanador: boolean = false;
+  rifaGanadoraSeleccionada: any = null;
+
   constructor(
     private router: Router,
     private rifasService: RifasService,
@@ -34,7 +38,10 @@ export class MainComponent implements OnInit {
     this.rifasService.obtenerRifasActivas().subscribe({
       next: (response) => {
         if (response.success) {
-          this.rifas = response.data;
+          // Filtrar para mostrar solo rifas activas y completadas
+          this.rifas = response.data.filter((rifa: any) => 
+            rifa.estado === 'activa' || rifa.estado === 'completada'
+          );
         }
         this.cargando = false;
       },
@@ -99,6 +106,18 @@ export class MainComponent implements OnInit {
 
   obtenerNumeros(tickets: any[]): string {
     return tickets.map(t => t.numero).sort((a, b) => a - b).join(', ');
+  }
+
+  // ==================== MODAL DE NÚMERO GANADOR ====================
+
+  abrirModalNumeroGanador(rifa: any): void {
+    this.rifaGanadoraSeleccionada = rifa;
+    this.mostrarModalNumeroGanador = true;
+  }
+
+  cerrarModalNumeroGanador(): void {
+    this.mostrarModalNumeroGanador = false;
+    this.rifaGanadoraSeleccionada = null;
   }
 
 }
