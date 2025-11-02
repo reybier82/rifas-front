@@ -1390,14 +1390,21 @@
 
       <!-- Número Ganador (si la rifa está completada) -->
       <div *ngIf="rifaSeleccionadaEstadisticas.rifa.estado === 'completada' && rifaSeleccionadaEstadisticas.rifa.numeroGanador" 
-           class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6 mb-6">
-        <div class="flex items-center justify-center gap-4">
-          <div class="text-center">
-            <p class="text-sm font-medium text-blue-700 mb-2">🎉 Número Ganador 🎉</p>
-            <div class="bg-white rounded-lg px-6 py-4 shadow-md">
-              <span class="text-4xl font-bold text-blue-600">{{ rifaSeleccionadaEstadisticas.rifa.numeroGanador }}</span>
+           class="border border-blue-200 bg-blue-50/50 rounded-lg p-4 mb-6">
+        <div class="flex items-center gap-3">
+          <div class="flex-shrink-0">
+            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+              <span class="text-xl">🎉</span>
             </div>
-            <p class="text-xs text-blue-600 mt-2">Esta rifa ha sido completada</p>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-blue-900">Número Ganador</p>
+            <p class="text-xs text-blue-700 mt-0.5">Esta rifa ha sido completada</p>
+          </div>
+          <div class="flex-shrink-0">
+            <div class="bg-white border border-blue-200 rounded-md px-4 py-2 shadow-sm">
+              <span class="text-2xl font-bold text-blue-600">{{ rifaSeleccionadaEstadisticas.rifa.numeroGanador }}</span>
+            </div>
           </div>
         </div>
       </div>
