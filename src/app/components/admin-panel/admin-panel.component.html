@@ -505,13 +505,19 @@
         <div class="flex gap-3">
           <button 
             (click)="cerrarModalRechazar()"
-            class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-md transition">
+            [disabled]="rechazandoPago"
+            class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed">
             Cancelar
           </button>
           <button 
             (click)="confirmarRechazo()"
-            class="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition">
-            Rechazar y Notificar
+            [disabled]="rechazandoPago"
+            class="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+            <svg *ngIf="rechazandoPago" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            {{ rechazandoPago ? 'Rechazando...' : 'Rechazar y Notificar' }}
           </button>
         </div>
       </div>
@@ -1239,13 +1245,19 @@
       <div class="flex gap-3">
         <button
           (click)="cerrarModalRechazarCompradores()"
-          class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-lg transition">
+          [disabled]="rechazandoPagoCompradores"
+          class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
           Cancelar
         </button>
         <button
           (click)="confirmarRechazoCompradores()"
-          class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-4 rounded-lg transition">
-          Rechazar y Notificar
+          [disabled]="rechazandoPagoCompradores"
+          class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+          <svg *ngIf="rechazandoPagoCompradores" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          {{ rechazandoPagoCompradores ? 'Rechazando...' : 'Rechazar y Notificar' }}
         </button>
       </div>
     </div>

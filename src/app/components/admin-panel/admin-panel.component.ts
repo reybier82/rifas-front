@@ -88,9 +88,11 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   mostrarModalDetalles: boolean = false;
   compraSeleccionada: any = null;
   motivoRechazo: string = '';
+  rechazandoPago: boolean = false;
   
   // Modales desde compradores
   mostrarModalVerificarCompradores: boolean = false;
+  rechazandoPagoCompradores: boolean = false;
   mostrarModalRechazarCompradores: boolean = false;
   compraSeleccionadaCompradores: any = null;
   motivoRechazoCompradores: string = '';
@@ -369,16 +371,19 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.rechazandoPago = true;
     this.adminService.rechazarPago(this.token, this.compraSeleccionada._id, this.motivoRechazo).subscribe({
       next: (response) => {
+        this.rechazandoPago = false;
         if (response.success) {
-          this.mostrarMensaje('Pago rechazado y email enviado al usuario', 'info');
+          this.mostrarMensaje('Pago rechazado y email enviado al usuario', 'success');
           this.cerrarModalRechazar();
           this.cargarComprasPendientes();
           this.cargarEstadisticas();
         }
       },
       error: (error) => {
+        this.rechazandoPago = false;
         console.error('Error al rechazar pago:', error);
         this.mostrarMensaje('Error al rechazar pago', 'error');
       }
@@ -752,14 +757,17 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
       return;
     }
     
+    this.rechazandoPagoCompradores = true;
     this.adminService.rechazarPago(this.token, this.compraSeleccionadaCompradores._id, this.motivoRechazoCompradores).subscribe({
       next: (response: any) => {
+        this.rechazandoPagoCompradores = false;
         this.mostrarMensaje('Pago rechazado y notificación enviada', 'success');
         this.cerrarModalRechazarCompradores();
         // Recargar compradores
         this.cargarCompradoresRifa(this.compraSeleccionadaCompradores.rifaId._id || this.compraSeleccionadaCompradores.rifaId);
       },
       error: (error: any) => {
+        this.rechazandoPagoCompradores = false;
         console.error('Error al rechazar pago:', error);
         this.mostrarMensaje('Error al rechazar pago', 'error');
       }
