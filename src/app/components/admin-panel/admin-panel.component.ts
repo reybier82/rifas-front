@@ -47,9 +47,12 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   cargandoCompradores: boolean = false;
   rifaIdCompradores: string = ''; // ID de la rifa actual en el modal de compradores
   busquedaComprador: string = '';
-  filtroEstado: 'todos' | 'pendiente' | 'verificado' | 'rechazado' | 'ganador' = 'todos';
+  filtroEstado: 'todos' | 'pendiente' | 'verificado' | 'rechazado' | 'ganador' | 'numeros' = 'todos';
   rifaCompletada: boolean = false; // Indica si la rifa está completada
   numeroGanadorRifa: number | null = null; // Número ganador de la rifa
+  numerosJugados: number[] = []; // Números vendidos de la rifa
+  numerosJugadosFiltrados: number[] = []; // Números filtrados por búsqueda
+  busquedaNumero: string = ''; // Búsqueda de número específico
   
   // Crear rifa
   mostrarModalRifa: boolean = false;
@@ -552,9 +555,47 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     this.filtroEstado = 'todos';
   }
 
-  cambiarFiltroEstado(estado: 'todos' | 'pendiente' | 'verificado' | 'rechazado' | 'ganador'): void {
+  cambiarFiltroEstado(estado: 'todos' | 'pendiente' | 'verificado' | 'rechazado' | 'ganador' | 'numeros'): void {
     this.filtroEstado = estado;
-    this.aplicarFiltros();
+    
+    // Si se selecciona "numeros", extraer todos los números jugados
+    if (estado === 'numeros') {
+      this.extraerNumerosJugados();
+    } else {
+      this.aplicarFiltros();
+    }
+  }
+
+  // Extraer todos los números jugados de las compras verificadas
+  extraerNumerosJugados(): void {
+    const numeros: number[] = [];
+    
+    // Solo tomar números de compras verificadas
+    this.compradoresRifa
+      .filter(compra => compra.estado === 'verificado')
+      .forEach(compra => {
+        if (compra.tickets && compra.tickets.length > 0) {
+          compra.tickets.forEach((ticket: any) => {
+            numeros.push(ticket.numero);
+          });
+        }
+      });
+    
+    // Ordenar números de menor a mayor y eliminar duplicados
+    this.numerosJugados = [...new Set(numeros)].sort((a, b) => a - b);
+    // Inicializar filtrados con todos los números
+    this.numerosJugadosFiltrados = [...this.numerosJugados];
+    this.busquedaNumero = '';
+  }
+
+  // Filtrar números por búsqueda
+  filtrarNumeros(): void {
+    if (!this.busquedaNumero || this.busquedaNumero.trim() === '') {
+      this.numerosJugadosFiltrados = [...this.numerosJugados];
+    } else {
+      const numeroBuscado = parseInt(this.busquedaNumero);
+      this.numerosJugadosFiltrados = this.numerosJugados.filter(num => num === numeroBuscado);
+    }
   }
 
   buscarComprador(): void {

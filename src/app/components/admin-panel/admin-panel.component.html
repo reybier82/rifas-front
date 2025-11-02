@@ -1086,6 +1086,15 @@
             class="flex-shrink-0 px-3 py-1.5 rounded-lg border text-xs font-medium transition whitespace-nowrap">
             🏆 Ganadores
           </button>
+          <button
+            (click)="cambiarFiltroEstado('numeros')"
+            [class.bg-purple-600]="filtroEstado === 'numeros'"
+            [class.text-white]="filtroEstado === 'numeros'"
+            [class.bg-white]="filtroEstado !== 'numeros'"
+            [class.text-gray-700]="filtroEstado !== 'numeros'"
+            class="flex-shrink-0 px-3 py-1.5 rounded-lg border text-xs font-medium transition whitespace-nowrap">
+            🎯 Números Jugados
+          </button>
         </div>
       </div>
     </div>
@@ -1098,7 +1107,7 @@
       </div>
 
       <!-- Sin resultados -->
-      <div *ngIf="!cargandoCompradores && compradoresFiltrados.length === 0" class="text-center py-12">
+      <div *ngIf="!cargandoCompradores && compradoresFiltrados.length === 0 && filtroEstado !== 'numeros'" class="text-center py-12">
         <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
         </svg>
@@ -1106,8 +1115,63 @@
         <p class="text-gray-500 text-sm mt-1">Intenta con otros filtros</p>
       </div>
 
+      <!-- Vista de Números Jugados -->
+      <div *ngIf="!cargandoCompradores && filtroEstado === 'numeros'" class="space-y-4">
+        <!-- Header con información -->
+        <div class="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-lg p-4">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-2xl">🎯</span>
+            <h3 class="text-lg font-bold text-purple-900">Números Jugados</h3>
+          </div>
+          <p class="text-sm text-purple-700">
+            Total de números vendidos: <span class="font-bold">{{ numerosJugados.length }}</span>
+          </p>
+        </div>
+
+        <!-- Buscador de números (solo si hay números) -->
+        <div *ngIf="numerosJugados.length > 0" class="bg-white border rounded-lg p-3">
+          <div class="relative">
+            <input
+              type="number"
+              [(ngModel)]="busquedaNumero"
+              (input)="filtrarNumeros()"
+              placeholder="Buscar número específico..."
+              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
+            <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Sin números vendidos -->
+        <div *ngIf="numerosJugados.length === 0" class="text-center py-12">
+          <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+          </svg>
+          <p class="text-gray-500 font-medium">No hay números vendidos aún</p>
+        </div>
+
+        <!-- Grid de números -->
+        <div *ngIf="numerosJugadosFiltrados.length > 0" class="bg-white border rounded-lg p-4">
+          <div class="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
+            <div *ngFor="let numero of numerosJugadosFiltrados" 
+                 class="aspect-square flex items-center justify-center bg-purple-100 hover:bg-purple-200 border-2 border-purple-300 rounded-lg text-sm font-bold text-purple-900 transition cursor-default shadow-sm">
+              {{ numero }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Mensaje si no hay resultados de búsqueda -->
+        <div *ngIf="numerosJugados.length > 0 && numerosJugadosFiltrados.length === 0" class="text-center py-8">
+          <p class="text-gray-500">No se encontró el número <span class="font-bold">{{ busquedaNumero }}</span></p>
+          <button (click)="busquedaNumero = ''; filtrarNumeros()" class="mt-2 text-purple-600 hover:text-purple-700 text-sm font-medium">
+            Limpiar búsqueda
+          </button>
+        </div>
+      </div>
+
       <!-- Tarjetas de Compradores -->
-      <div *ngIf="!cargandoCompradores && compradoresFiltrados.length > 0" class="space-y-3">
+      <div *ngIf="!cargandoCompradores && compradoresFiltrados.length > 0 && filtroEstado !== 'numeros'" class="space-y-3">
         <div *ngFor="let compra of compradoresFiltrados" class="bg-white border rounded-lg p-3 hover:shadow-md transition">
           <!-- Header -->
           <div class="flex items-start justify-between mb-3">
