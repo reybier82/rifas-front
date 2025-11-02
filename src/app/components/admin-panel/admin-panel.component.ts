@@ -47,7 +47,9 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   cargandoCompradores: boolean = false;
   rifaIdCompradores: string = ''; // ID de la rifa actual en el modal de compradores
   busquedaComprador: string = '';
-  filtroEstado: 'todos' | 'pendiente' | 'verificado' | 'rechazado' = 'todos';
+  filtroEstado: 'todos' | 'pendiente' | 'verificado' | 'rechazado' | 'ganador' = 'todos';
+  rifaCompletada: boolean = false; // Indica si la rifa está completada
+  numeroGanadorRifa: number | null = null; // Número ganador de la rifa
   
   // Crear rifa
   mostrarModalRifa: boolean = false;
@@ -504,6 +506,11 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     this.filtroEstado = 'todos';
     this.busquedaComprador = '';
     
+    // Verificar si la rifa está completada
+    const rifaActual = this.rifasConEstadisticas.find((r: any) => r._id === rifaId);
+    this.rifaCompletada = rifaActual?.estado === 'completada';
+    this.numeroGanadorRifa = rifaActual?.numeroGanador || null;
+    
     this.adminService.obtenerComprasPorRifa(this.token, rifaId).subscribe({
       next: (response) => {
         this.cargandoCompradores = false;
@@ -513,8 +520,8 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
         }
       },
       error: (error) => {
-        this.cargandoCompradores = false;
         console.error('Error al cargar compradores:', error);
+        this.cargandoCompradores = false;
       }
     });
   }
@@ -527,7 +534,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     this.filtroEstado = 'todos';
   }
 
-  cambiarFiltroEstado(estado: 'todos' | 'pendiente' | 'verificado' | 'rechazado'): void {
+  cambiarFiltroEstado(estado: 'todos' | 'pendiente' | 'verificado' | 'rechazado' | 'ganador'): void {
     this.filtroEstado = estado;
     this.aplicarFiltros();
   }
@@ -540,7 +547,14 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     let resultado = [...this.compradoresRifa];
     
     // Filtrar por estado
-    if (this.filtroEstado !== 'todos') {
+    if (this.filtroEstado === 'ganador') {
+      // Mostrar solo el ganador
+      resultado = resultado.filter(c => 
+        c.estado === 'verificado' && 
+        c.tickets && 
+        c.tickets.some((ticket: any) => ticket.numero === this.numeroGanadorRifa)
+      );
+    } else if (this.filtroEstado !== 'todos') {
       resultado = resultado.filter(c => c.estado === this.filtroEstado);
     }
     
@@ -951,14 +965,17 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
 
     this.adminService.notificarGanador(data, this.token).subscribe({
       next: (response: any) => {
-        this.mostrarMensaje('Notificación enviada al ganador exitosamente', 'success');
+        this.mostrarMensaje('Notificación enviada al ganador exitosamente. La rifa ha sido completada.', 'success');
         this.cerrarModalNotificarGanador();
+        this.cerrarModalCompradores();
         this.notificandoGanador = false;
+        // Recargar estadísticas para reflejar el cambio de estado
+        this.cargarEstadisticas();
       },
       error: (error: any) => {
         console.error('Error al notificar ganador:', error);
         const mensaje = error.error?.message || 'Error al enviar notificación';
-        this.mostrarMensaje(mensaje, 'error');
+        this.errorNotificarGanador = mensaje;
         this.notificandoGanador = false;
       }
     });
