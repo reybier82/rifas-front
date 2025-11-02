@@ -599,7 +599,26 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   }
 
   buscarComprador(): void {
-    this.aplicarFiltros();
+    // Si estamos en la vista de números, filtrar números
+    if (this.filtroEstado === 'numeros') {
+      this.filtrarNumerosPorBuscador();
+    } else {
+      this.aplicarFiltros();
+    }
+  }
+
+  // Filtrar números usando el buscador principal
+  filtrarNumerosPorBuscador(): void {
+    if (!this.busquedaComprador || this.busquedaComprador.trim() === '') {
+      this.numerosJugadosFiltrados = [...this.numerosJugados];
+    } else {
+      const numeroBuscado = parseInt(this.busquedaComprador);
+      if (!isNaN(numeroBuscado)) {
+        this.numerosJugadosFiltrados = this.numerosJugados.filter(num => num === numeroBuscado);
+      } else {
+        this.numerosJugadosFiltrados = [...this.numerosJugados];
+      }
+    }
   }
 
   aplicarFiltros(): void {

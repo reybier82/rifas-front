@@ -1128,21 +1128,6 @@
           </p>
         </div>
 
-        <!-- Buscador de números (solo si hay números) -->
-        <div *ngIf="numerosJugados.length > 0" class="bg-white border rounded-lg p-3">
-          <div class="relative">
-            <input
-              type="number"
-              [(ngModel)]="busquedaNumero"
-              (input)="filtrarNumeros()"
-              placeholder="Buscar número específico..."
-              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
-            <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
-          </div>
-        </div>
-
         <!-- Sin números vendidos -->
         <div *ngIf="numerosJugados.length === 0" class="text-center py-12">
           <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1163,8 +1148,8 @@
 
         <!-- Mensaje si no hay resultados de búsqueda -->
         <div *ngIf="numerosJugados.length > 0 && numerosJugadosFiltrados.length === 0" class="text-center py-8">
-          <p class="text-gray-500">No se encontró el número <span class="font-bold">{{ busquedaNumero }}</span></p>
-          <button (click)="busquedaNumero = ''; filtrarNumeros()" class="mt-2 text-purple-600 hover:text-purple-700 text-sm font-medium">
+          <p class="text-gray-500">No se encontró el número <span class="font-bold">{{ busquedaComprador }}</span></p>
+          <button (click)="busquedaComprador = ''; filtrarNumerosPorBuscador()" class="mt-2 text-purple-600 hover:text-purple-700 text-sm font-medium">
             Limpiar búsqueda
           </button>
         </div>
