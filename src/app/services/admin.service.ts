@@ -115,4 +115,11 @@ export class AdminService {
   notificarGanador(data: any, token: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/admin/${token}/notificar-ganador`, data);
   }
+
+  /**
+   * Cambiar visibilidad de una rifa completada
+   */
+  cambiarVisibilidadRifa(rifaId: string, token: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/admin/${token}/cambiar-visibilidad`, { rifaId });
+  }
 }

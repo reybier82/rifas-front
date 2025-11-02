@@ -940,6 +940,31 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     this.errorNotificarGanador = '';
   }
 
+  // Cambiar visibilidad de rifa completada
+  cambiarVisibilidadRifa(): void {
+    if (!this.rifaSeleccionadaEstadisticas) return;
+
+    const rifaId = this.rifaSeleccionadaEstadisticas.rifa._id;
+    const visible = this.rifaSeleccionadaEstadisticas.rifa.visible;
+
+    this.adminService.cambiarVisibilidadRifa(rifaId, this.token).subscribe({
+      next: (response: any) => {
+        this.mostrarMensaje(
+          visible ? 'Rifa oculta de la página principal' : 'Rifa visible en la página principal',
+          'success'
+        );
+        // Actualizar el estado local
+        this.rifaSeleccionadaEstadisticas.rifa.visible = !visible;
+        // Recargar estadísticas
+        this.cargarEstadisticas();
+      },
+      error: (error: any) => {
+        console.error('Error al cambiar visibilidad:', error);
+        this.mostrarMensaje('Error al cambiar visibilidad', 'error');
+      }
+    });
+  }
+
   // Notificar al ganador
   notificarGanador(): void {
     // Limpiar error previo
