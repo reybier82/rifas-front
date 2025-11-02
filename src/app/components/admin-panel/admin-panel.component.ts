@@ -612,12 +612,11 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     if (!this.busquedaComprador || this.busquedaComprador.trim() === '') {
       this.numerosJugadosFiltrados = [...this.numerosJugados];
     } else {
-      const numeroBuscado = parseInt(this.busquedaComprador);
-      if (!isNaN(numeroBuscado)) {
-        this.numerosJugadosFiltrados = this.numerosJugados.filter(num => num === numeroBuscado);
-      } else {
-        this.numerosJugadosFiltrados = [...this.numerosJugados];
-      }
+      const textoBuscado = this.busquedaComprador.trim();
+      // Filtrar números que contengan el texto buscado
+      this.numerosJugadosFiltrados = this.numerosJugados.filter(num => 
+        num.toString().includes(textoBuscado)
+      );
     }
   }
 

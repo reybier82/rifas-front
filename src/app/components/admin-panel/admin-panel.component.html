@@ -1148,7 +1148,7 @@
 
         <!-- Mensaje si no hay resultados de búsqueda -->
         <div *ngIf="numerosJugados.length > 0 && numerosJugadosFiltrados.length === 0" class="text-center py-8">
-          <p class="text-gray-500">No se encontró el número <span class="font-bold">{{ busquedaComprador }}</span></p>
+          <p class="text-gray-500">No se encontraron números que contengan <span class="font-bold">"{{ busquedaComprador }}"</span></p>
           <button (click)="busquedaComprador = ''; filtrarNumerosPorBuscador()" class="mt-2 text-purple-600 hover:text-purple-700 text-sm font-medium">
             Limpiar búsqueda
           </button>
