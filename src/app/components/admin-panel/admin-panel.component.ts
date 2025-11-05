@@ -911,7 +911,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
 
   // Abrir modal de editar rifa
   abrirModalEditarRifa(): void {
-    if (!this.rifaSeleccionadaEstadisticas || !this.puedeEditarRifa()) return;
+    if (!this.rifaSeleccionadaEstadisticas) return;
     
     const rifa = this.rifaSeleccionadaEstadisticas.rifa;
     
