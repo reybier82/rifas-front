@@ -1405,25 +1405,16 @@
               Ver Compradores
             </button>
 
-            <!-- Botón Editar Rifa (solo si no está completada) -->
+            <!-- Botón Editar Rifa (siempre disponible, excepto si está completada) -->
             <button
               *ngIf="rifaSeleccionadaEstadisticas.rifa.estado !== 'completada'"
               (click)="abrirModalEditarRifa()"
-              [disabled]="!puedeEditarRifa()"
-              [title]="getMensajeNoEditable()"
-              [class.opacity-50]="!puedeEditarRifa()"
-              [class.cursor-not-allowed]="!puedeEditarRifa()"
-              class="w-full flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors text-sm disabled:hover:bg-gray-700">
+              class="w-full flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors text-sm">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
               </svg>
               Editar Rifa
             </button>
-            
-            <!-- Mensaje de ayuda para editar -->
-            <p *ngIf="rifaSeleccionadaEstadisticas.rifa.estado !== 'completada' && !puedeEditarRifa()" class="text-xs text-gray-600 text-center -mt-1">
-              {{ getMensajeNoEditable() }}
-            </p>
             
             <!-- Botón Activar/Inactivar Rifa (solo si no está completada) -->
             <button
