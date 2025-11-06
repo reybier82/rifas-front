@@ -419,26 +419,26 @@
                 </div>
               </div>
               
-
-              <!-- Código de Referencia -->
-              <div>
+              <!-- ⭐ Código de Referencia - Solo aparece si hay banco seleccionado -->
+              <div *ngIf="bancoSeleccionado">
                 <label class="text-sm font-medium text-gray-900 mb-1 block">Código de Referencia</label>
-                <p class="text-xs text-gray-700 mb-2">⚠️ Importante: Coloque los últimos 6 dígitos de la referencia del pago</p>
+                <!-- ⭐ Mensaje dinámico según el banco -->
+                <p class="text-xs text-gray-700 mb-2">{{ obtenerMensajeAyudaReferencia() }}</p>
                 <input 
                   type="text" 
                   [(ngModel)]="codigoReferencia"
                   (input)="formatearCodigoReferencia($event)"
                   (blur)="validarCodigoReferencia()"
-                  placeholder="Últimos 6 dígitos"
-                  maxlength="6"
+                  [placeholder]="obtenerPlaceholderReferencia()"
+                  [maxlength]="esBancoVenezolano() ? 6 : 999"
                   [class.border-red-500]="errores.codigoReferencia"
                   class="w-full h-10 px-3 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
                 />
                 <p *ngIf="errores.codigoReferencia" class="text-xs text-red-600 mt-1">{{ errores.codigoReferencia }}</p>
               </div>
 
-              <!-- Comprobante de Pago -->
-              <div>
+              <!-- ⭐ Comprobante de Pago - Solo aparece si hay banco seleccionado -->
+              <div *ngIf="bancoSeleccionado">
                 <label class="text-sm font-medium text-gray-900 mb-1 block">Comprobante de Pago</label>
                 <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center" [class.border-red-500]="errores.comprobante">
                   <input 

@@ -385,12 +385,20 @@ export class CompraRifasComponent implements OnInit {
   }
 
   formatearCodigoReferencia(event: any): void {
-    let valor = event.target.value.replace(/\D/g, ''); // Solo números
+    // ⭐ NUEVA LÓGICA: Validación dinámica según el banco
+    let valor = event.target.value;
     
-    // Limitar a 6 dígitos
-    if (valor.length > 6) {
-      valor = valor.substring(0, 6);
+    // Si es Banesco (Venezuela), solo números y máximo 6 dígitos
+    if (this.esBancoVenezolano()) {
+      valor = valor.replace(/\D/g, ''); // Solo números
+      
+      // Limitar a 6 dígitos
+      if (valor.length > 6) {
+        valor = valor.substring(0, 6);
+      }
     }
+    // Para otros bancos (Zelle, Bancolombia, Banco de Chile): alfanumérico sin límite
+    // No se aplica ninguna restricción de formato ni longitud
     
     this.codigoReferencia = valor;
     event.target.value = valor;
@@ -402,10 +410,20 @@ export class CompraRifasComponent implements OnInit {
       return;
     }
     
-    if (this.codigoReferencia.length !== 6) {
-      this.errores.codigoReferencia = 'Debe ingresar exactamente los últimos 6 dígitos';
-      return;
+    // ⭐ NUEVA VALIDACIÓN: Solo para bancos venezolanos (Banesco)
+    if (this.esBancoVenezolano()) {
+      // Validar que sean exactamente 6 dígitos numéricos
+      if (this.codigoReferencia.length !== 6) {
+        this.errores.codigoReferencia = 'Debe ingresar exactamente 6 dígitos';
+        return;
+      }
+      
+      if (!/^\d{6}$/.test(this.codigoReferencia)) {
+        this.errores.codigoReferencia = 'Solo se permiten números (6 dígitos)';
+        return;
+      }
     }
+    // Para otros bancos: cualquier valor alfanumérico es válido
     
     this.errores.codigoReferencia = '';
   }
@@ -650,5 +668,50 @@ export class CompraRifasComponent implements OnInit {
   cerrarModalError(): void {
     this.mostrarModalError = false;
     this.mensajeError = '';
+  }
+
+  /**
+   * ⭐ NUEVO MÉTODO: Determinar si el banco seleccionado es venezolano (Banesco o Pago Móvil)
+   * Los bancos venezolanos requieren código de referencia numérico de 6 dígitos
+   * Los demás bancos (Zelle, Bancolombia, Banco de Chile) aceptan alfanumérico sin límite
+   */
+  esBancoVenezolano(): boolean {
+    if (!this.bancoSeleccionado) {
+      return false;
+    }
+    
+    // Verificar si el banco es de Venezuela por el nombre o método de pago
+    const nombre = this.bancoSeleccionado.nombre?.toLowerCase() || '';
+    const metodoPago = this.bancoSeleccionado.metodoPago?.toLowerCase() || '';
+    
+    // Bancos venezolanos: Banesco, Pago Móvil, o cualquier banco con país VE
+    const esBancoVE = nombre.includes('banesco') || 
+                      nombre.includes('pago móvil') || 
+                      nombre.includes('pago movil') ||
+                      metodoPago.includes('pago móvil') ||
+                      metodoPago.includes('pago movil') ||
+                      this.bancoSeleccionado.pais === 'VE';
+    
+    return esBancoVE;
+  }
+
+  /**
+   * ⭐ NUEVO MÉTODO: Obtener el placeholder dinámico según el banco
+   */
+  obtenerPlaceholderReferencia(): string {
+    if (this.esBancoVenezolano()) {
+      return 'Últimos 6 dígitos (solo números)';
+    }
+    return 'Código de referencia (alfanumérico)';
+  }
+
+  /**
+   * ⭐ NUEVO MÉTODO: Obtener el mensaje de ayuda dinámico
+   */
+  obtenerMensajeAyudaReferencia(): string {
+    if (this.esBancoVenezolano()) {
+      return '⚠️ Importante: Coloque los últimos 6 dígitos de la referencia del pago (solo números)';
+    }
+    return '⚠️ Importante: Ingrese el código de referencia de su transacción';
   }
 }
