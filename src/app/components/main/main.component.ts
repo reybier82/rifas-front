@@ -24,6 +24,11 @@ export class MainComponent implements OnInit, OnDestroy {
   mostrarModalNumeroGanador: boolean = false;
   rifaGanadoraSeleccionada: any = null;
 
+  // ⭐ Modal de selección de país (nuevo)
+  mostrarModalPais: boolean = false;
+  paisSeleccionado: string = '';
+  rifaIdSeleccionada: string = '';
+
   // Polling automático
   private pollingInterval: any;
   private readonly POLLING_INTERVAL_MS = 3000; // 3 segundos
@@ -105,8 +110,40 @@ export class MainComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * ⭐ MODIFICADO: Ahora abre modal de país antes de redirigir
+   */
   redirectToCompraRifas(rifaId: string): void {
-    this.router.navigate(['/rifa'], { queryParams: { id: rifaId } });
+    this.rifaIdSeleccionada = rifaId;
+    this.mostrarModalPais = true;
+  }
+
+  /**
+   * ⭐ NUEVO: Confirmar país y redirigir a compra
+   */
+  confirmarPaisYComprar(): void {
+    if (!this.paisSeleccionado) {
+      return;
+    }
+    
+    this.mostrarModalPais = false;
+    
+    // Redirigir con el país seleccionado como parámetro
+    this.router.navigate(['/rifa'], { 
+      queryParams: { 
+        id: this.rifaIdSeleccionada,
+        pais: this.paisSeleccionado
+      } 
+    });
+  }
+
+  /**
+   * ⭐ NUEVO: Cerrar modal de país
+   */
+  cerrarModalPais(): void {
+    this.mostrarModalPais = false;
+    this.paisSeleccionado = '';
+    this.rifaIdSeleccionada = '';
   }
 
   // ==================== MODAL DE VERIFICACIÓN ====================

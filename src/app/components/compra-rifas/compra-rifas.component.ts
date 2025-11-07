@@ -94,17 +94,35 @@ export class CompraRifasComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // Obtener ID de la rifa desde la URL
+    // ⭐ Obtener ID de la rifa Y país desde la URL
     this.route.queryParams.subscribe(params => {
       this.rifaId = params['id'];
+      const paisParam = params['pais'];
+      
       if (this.rifaId) {
         this.cargarRifa();
+      }
+      
+      // Si viene el país desde la URL, usarlo
+      if (paisParam) {
+        this.codigoPais = paisParam;
+        this.paisSeleccionadoModal = paisParam;
+        
+        // Cargar tasa solo si es Venezuela
+        if (this.codigoPais === 'VE') {
+          this.cargarTasa();
+        }
+        
+        // Cargar bancos del país
+        this.cargarBancosPorPais();
+        this.calcularTotal();
+      } else {
+        // Si no viene país, mostrar modal (fallback)
+        this.mostrarModalPais = true;
       }
     });
     
     this.cargarPaises();
-    // ⭐ Mostrar modal de país al inicio
-    this.mostrarModalPais = true;
   }
 
   seleccionarCantidad(cantidad: number): void {
