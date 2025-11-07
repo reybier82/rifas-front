@@ -113,8 +113,13 @@ export class CompraRifasComponent implements OnInit {
   }
 
   incrementarCantidad(): void {
-    const disponibles = this.rifaSeleccionada?.numerosDisponibles?.length || 0;
-    if (this.cantidadTickets < disponibles) {
+    // Obtener tickets disponibles de la rifa
+    const disponibles = this.rifaSeleccionada?.ticketsDisponibles || 1000;
+    
+    // Permitir incrementar hasta el límite de tickets disponibles o máximo 20
+    const maximo = Math.min(disponibles, 20);
+    
+    if (this.cantidadTickets < maximo) {
       this.cantidadTickets++;
       this.calcularTotal();
     }
