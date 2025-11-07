@@ -54,6 +54,10 @@ export class CompraRifasComponent implements OnInit {
   cargandoVerificacion: boolean = false;
   mostrarAlertaNoCompras: boolean = false;
 
+  // ⭐ Modal de selección de país (nuevo)
+  mostrarModalPais: boolean = false;
+  paisSeleccionadoModal: string = '';
+
   // Modal de éxito
   mostrarModalExito: boolean = false;
   
@@ -99,9 +103,8 @@ export class CompraRifasComponent implements OnInit {
     });
     
     this.cargarPaises();
-    this.cargarTasa();
-    // Cargar bancos del país por defecto (Venezuela)
-    this.cargarBancosPorPais();
+    // ⭐ Mostrar modal de país al inicio
+    this.mostrarModalPais = true;
   }
 
   seleccionarCantidad(cantidad: number): void {
@@ -126,7 +129,12 @@ export class CompraRifasComponent implements OnInit {
 
   calcularTotal(): void {
     this.totalUSD = this.cantidadTickets * this.precioPorTicket;
-    this.totalBs = this.totalUSD * this.tasaCambio;
+    // ⭐ Solo calcular Bs si es Venezuela
+    if (this.codigoPais === 'VE') {
+      this.totalBs = this.totalUSD * this.tasaCambio;
+    } else {
+      this.totalBs = 0; // No mostrar Bs para otros países
+    }
   }
 
   onFileSelected(event: any): void {
@@ -713,5 +721,46 @@ export class CompraRifasComponent implements OnInit {
       return '⚠️ Importante: Coloque los últimos 6 dígitos de la referencia del pago (solo números)';
     }
     return '⚠️ Importante: Ingrese el código de referencia de su transacción';
+  }
+
+  /**
+   * ⭐ NUEVO: Confirmar selección de país desde el modal
+   */
+  confirmarPais(): void {
+    if (!this.paisSeleccionadoModal) {
+      return;
+    }
+    
+    this.codigoPais = this.paisSeleccionadoModal;
+    this.mostrarModalPais = false;
+    
+    // Cargar tasa solo si es Venezuela
+    if (this.codigoPais === 'VE') {
+      this.cargarTasa();
+    }
+    
+    // Cargar bancos del país seleccionado
+    this.cargarBancosPorPais();
+    this.calcularTotal();
+  }
+
+  /**
+   * ⭐ NUEVO: Obtener nombre del país seleccionado
+   */
+  obtenerNombrePais(): string {
+    const paises: any = {
+      'VE': '🇻🇪 Venezuela',
+      'US': '🇺🇸 Estados Unidos',
+      'CO': '🇨🇴 Colombia',
+      'CL': '🇨🇱 Chile'
+    };
+    return paises[this.codigoPais] || '';
+  }
+
+  /**
+   * ⭐ NUEVO: Volver a la página principal
+   */
+  volverAPrincipal(): void {
+    this.router.navigate(['/']);
   }
 }
