@@ -1,4 +1,4 @@
-<div class="min-h-screen py-12 px-4 flex items-center justify-center relative bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900">
+<div class="min-h-screen py-12 px-4 flex items-center justify-center relative bg-white">
   <div class="w-full max-w-5xl">
     <!-- Detalles de la Rifa Section -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -6,10 +6,10 @@
       <div>
         <!-- ⭐ Header con botón Volver -->
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-2xl font-bold text-white drop-shadow-lg">Detalles de la Rifa</h2>
+          <h2 class="text-2xl font-bold text-gray-900">Detalles de la Rifa</h2>
           <button 
             (click)="volverAPrincipal()"
-            class="flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 font-medium py-2 px-4 rounded-lg transition-all shadow-md hover:shadow-lg"
+            class="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white font-medium py-2 px-4 rounded-lg transition-all shadow-md hover:shadow-lg"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -17,7 +17,7 @@
             <span>Volver</span>
           </button>
         </div>
-        <div class="bg-white rounded-xl shadow-2xl border border-gray-200 p-4 mb-4">
+        <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-xl border-2 border-gray-300 p-4 mb-4">
           <!-- Imagen clickeable -->
           <div 
             class="w-full rounded-lg overflow-hidden cursor-pointer hover:opacity-95 transition"
@@ -36,7 +36,7 @@
           </div>
         </div>
         <button 
-          class="w-full bg-white text-gray-900 font-bold py-3 px-4 rounded-lg hover:bg-gray-100 transition-colors shadow-lg hover:shadow-xl border-2 border-gray-200"
+          class="w-full bg-gray-900 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors shadow-lg hover:shadow-xl"
           (click)="abrirModalVerificar()"
         >
           Ingresar Email para Verificar Tickets
@@ -45,15 +45,15 @@
 
       <!-- Right Column: Comprar Tickets -->
       <div>
-        <h2 class="text-2xl font-bold text-white mb-4 drop-shadow-lg">Comprar Tickets</h2>
-        <div class="bg-white rounded-xl shadow-2xl border border-gray-200 p-6">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Comprar Tickets</h2>
+        <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-xl border-2 border-gray-300 p-6">
           
-          <!-- PASO 1: Cantidad de Tickets -->
+          <!-- PASO 1: Cantidad de Tickets y Selección de Números -->
           <div *ngIf="pasoActual === 1">
             <!-- Cantidad de Tickets -->
             <div class="mb-6">
               <label class="text-sm font-medium text-gray-900 mb-3 block">Cantidad de Tickets</label>
-              <div class="grid grid-cols-5 gap-2 mb-4">
+              <div class="grid grid-cols-6 gap-2 mb-4">
                 <button 
                   *ngFor="let opcion of opcionesCantidad"
                   [class.bg-gray-900]="cantidadTickets === opcion"
@@ -63,8 +63,54 @@
                   class="py-3 px-2 rounded-lg font-bold text-sm hover:bg-gray-200 transition-colors"
                   (click)="seleccionarCantidad(opcion)"
                 >
-                  {{ opcion }}<br><span class="text-xs font-normal">tickets</span>
+                  {{ opcion }}<br><span class="text-xs font-normal">{{ opcion === 1 ? 'ticket' : 'tickets' }}</span>
                 </button>
+              </div>
+            </div>
+
+            <!-- Selección de Números -->
+            <div class="mb-6">
+              <div class="flex items-center justify-between mb-2">
+                <label class="text-sm font-medium text-gray-900">
+                  Selecciona tus números
+                </label>
+                <span class="text-sm font-bold" 
+                      [class.text-green-600]="numerosSeleccionados.length === cantidadTickets"
+                      [class.text-red-600]="numerosSeleccionados.length !== cantidadTickets">
+                  {{ numerosSeleccionados.length }}/{{ cantidadTickets }}
+                </span>
+              </div>
+              
+              <div class="grid grid-cols-10 gap-1 mb-4 max-h-64 overflow-y-auto p-2 bg-white rounded-lg border border-gray-300">
+                <button 
+                  *ngFor="let numero of numerosDisponibles"
+                  (click)="toggleNumero(numero)"
+                  [ngClass]="obtenerClaseNumero(numero)"
+                  [disabled]="estaOcupado(numero) || estaEnVerificacion(numero)"
+                  class="aspect-square flex items-center justify-center rounded-md font-bold text-xs border-2 transition-all"
+                >
+                  {{ numero }}
+                </button>
+              </div>
+              
+              <!-- Leyenda de colores -->
+              <div class="flex flex-wrap gap-3 text-xs">
+                <div class="flex items-center gap-1">
+                  <div class="w-4 h-4 bg-green-500 rounded border border-green-600"></div>
+                  <span class="text-gray-700">Disponible</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <div class="w-4 h-4 bg-blue-600 rounded border border-blue-700"></div>
+                  <span class="text-gray-700">Seleccionado</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <div class="w-4 h-4 bg-yellow-400 rounded border border-yellow-500"></div>
+                  <span class="text-gray-700">En verificación</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <div class="w-4 h-4 bg-gray-400 rounded border border-gray-500"></div>
+                  <span class="text-gray-700">Ocupado</span>
+                </div>
               </div>
             </div>
 
@@ -78,7 +124,10 @@
 
             <!-- Botón Siguiente -->
             <button 
-              class="w-full bg-gray-900 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors"
+              [disabled]="numerosSeleccionados.length !== cantidadTickets"
+              [class.opacity-50]="numerosSeleccionados.length !== cantidadTickets"
+              [class.cursor-not-allowed]="numerosSeleccionados.length !== cantidadTickets"
+              class="w-full bg-gray-900 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors disabled:hover:bg-gray-900"
               (click)="irAPaso2()"
             >
               Siguiente

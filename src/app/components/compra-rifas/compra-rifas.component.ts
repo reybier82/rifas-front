@@ -15,10 +15,16 @@ export class CompraRifasComponent implements OnInit {
   pasoActual: number = 1;
   
   // Opciones de cantidad de tickets
-  opcionesCantidad: number[] = [2, 5, 10, 15, 20];
+  opcionesCantidad: number[] = [1, 2, 5, 10, 15, 20];
   
   // Datos del formulario
-  cantidadTickets: number = 2;
+  cantidadTickets: number = 1;
+  
+  // Selección manual de números
+  numerosSeleccionados: number[] = [];
+  numerosDisponibles: number[] = [];
+  numerosOcupados: number[] = [];
+  numerosEnVerificacion: number[] = [];
   nombreCompleto: string = '';
   email: string = '';
   confirmarEmail: string = '';
@@ -115,7 +121,58 @@ export class CompraRifasComponent implements OnInit {
 
   seleccionarCantidad(cantidad: number): void {
     this.cantidadTickets = cantidad;
+    // Limpiar números seleccionados si cambia la cantidad
+    this.numerosSeleccionados = [];
     this.calcularTotal();
+  }
+  
+  // Método para seleccionar/deseleccionar un número
+  toggleNumero(numero: number): void {
+    // No permitir si está ocupado o en verificación
+    if (this.numerosOcupados.includes(numero) || this.numerosEnVerificacion.includes(numero)) {
+      return;
+    }
+    
+    const index = this.numerosSeleccionados.indexOf(numero);
+    
+    if (index > -1) {
+      // Deseleccionar
+      this.numerosSeleccionados.splice(index, 1);
+    } else {
+      // Seleccionar solo si no se ha alcanzado el límite
+      if (this.numerosSeleccionados.length < this.cantidadTickets) {
+        this.numerosSeleccionados.push(numero);
+      }
+    }
+  }
+  
+  // Verificar si un número está seleccionado
+  estaSeleccionado(numero: number): boolean {
+    return this.numerosSeleccionados.includes(numero);
+  }
+  
+  // Verificar si un número está ocupado
+  estaOcupado(numero: number): boolean {
+    return this.numerosOcupados.includes(numero);
+  }
+  
+  // Verificar si un número está en verificación
+  estaEnVerificacion(numero: number): boolean {
+    return this.numerosEnVerificacion.includes(numero);
+  }
+  
+  // Obtener clase CSS para un número
+  obtenerClaseNumero(numero: number): string {
+    if (this.estaSeleccionado(numero)) {
+      return 'bg-blue-600 text-white border-blue-600';
+    }
+    if (this.estaOcupado(numero)) {
+      return 'bg-gray-400 text-gray-600 cursor-not-allowed border-gray-400';
+    }
+    if (this.estaEnVerificacion(numero)) {
+      return 'bg-yellow-400 text-yellow-900 cursor-not-allowed border-yellow-400';
+    }
+    return 'bg-green-500 text-white hover:bg-green-600 border-green-500';
   }
 
   incrementarCantidad(): void {
@@ -208,12 +265,75 @@ export class CompraRifasComponent implements OnInit {
           this.rifaSeleccionada = response.data;
           this.precioPorTicket = response.data.precioTicketBs;
           this.calcularTotal();
+          
+          // Cargar números disponibles, ocupados y en verificación
+          this.cargarEstadoNumeros();
         }
       },
       error: (error) => {
         console.error('Error al cargar rifa:', error);
         // Redirigir a la página principal si la rifa no existe
         this.router.navigate(['/']);
+      }
+    });
+  }
+  
+  // Cargar estado de los números (disponibles, ocupados, en verificación)
+  cargarEstadoNumeros(): void {
+    if (!this.rifaSeleccionada) return;
+    
+    // Llamar al endpoint para obtener estado actualizado
+    this.rifasService.obtenerEstadoNumeros(this.rifaId).subscribe({
+      next: (response) => {
+        if (response.success) {
+          const data = response.data;
+          
+          // Generar array de todos los números (0 a totalNumeros-1)
+          this.numerosDisponibles = Array.from({ length: data.totalNumeros }, (_, i) => i);
+          
+          // Asignar números ocupados y en verificación desde el servidor
+          this.numerosOcupados = data.ocupados || [];
+          this.numerosEnVerificacion = data.enVerificacion || [];
+          
+          console.log('Estado de números cargado:', {
+            total: this.numerosDisponibles.length,
+            ocupados: this.numerosOcupados.length,
+            enVerificacion: this.numerosEnVerificacion.length
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar estado de números:', error);
+        // Fallback: generar números básicos
+        const totalNumeros = this.rifaSeleccionada.cantidadNumeros || 100;
+        this.numerosDisponibles = Array.from({ length: totalNumeros }, (_, i) => i);
+        this.numerosOcupados = [];
+        this.numerosEnVerificacion = [];
+      }
+    });
+    
+    // Actualizar cada 5 segundos para mantener sincronizado
+    setInterval(() => {
+      if (this.pasoActual === 1) {
+        this.actualizarEstadoNumeros();
+      }
+    }, 5000);
+  }
+  
+  // Actualizar estado de números sin logs
+  actualizarEstadoNumeros(): void {
+    if (!this.rifaId) return;
+    
+    this.rifasService.obtenerEstadoNumeros(this.rifaId).subscribe({
+      next: (response) => {
+        if (response.success) {
+          const data = response.data;
+          this.numerosOcupados = data.ocupados || [];
+          this.numerosEnVerificacion = data.enVerificacion || [];
+        }
+      },
+      error: (error) => {
+        console.error('Error al actualizar estado de números:', error);
       }
     });
   }
@@ -499,6 +619,7 @@ export class CompraRifasComponent implements OnInit {
     // Agregar todos los campos de texto
     formData.append('rifaId', this.rifaId);
     formData.append('cantidadTickets', this.cantidadTickets.toString());
+    formData.append('numerosSeleccionados', JSON.stringify(this.numerosSeleccionados)); // Números elegidos por el usuario
     formData.append('nombreCompleto', this.nombreCompleto);
     formData.append('email', this.email);
     formData.append('codigoPais', this.codigoPais);
@@ -573,6 +694,13 @@ export class CompraRifasComponent implements OnInit {
   }
 
   irAPaso2(): void {
+    // Validar que se hayan seleccionado la cantidad correcta de números
+    if (this.numerosSeleccionados.length !== this.cantidadTickets) {
+      this.mostrarModalError = true;
+      this.mensajeError = `Debes seleccionar exactamente ${this.cantidadTickets} número${this.cantidadTickets > 1 ? 's' : ''}. Has seleccionado ${this.numerosSeleccionados.length}.`;
+      return;
+    }
+    
     this.pasoActual = 2;
   }
 

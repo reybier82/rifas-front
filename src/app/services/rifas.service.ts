@@ -30,4 +30,8 @@ export class RifasService {
   obtenerRifaPorId(id: string): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
+
+  obtenerEstadoNumeros(id: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}/numeros`);
+  }
 }
