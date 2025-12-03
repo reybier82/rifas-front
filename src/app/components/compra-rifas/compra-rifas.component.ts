@@ -263,6 +263,21 @@ export class CompraRifasComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           this.rifaSeleccionada = response.data;
+          
+          // Verificar si la rifa está finalizada (ya tiene ganador)
+          if (this.rifaSeleccionada.estado === 'finalizada') {
+            console.log('⚠️ La rifa ya finalizó. Redirigiendo a página principal...');
+            this.router.navigate(['/']);
+            return;
+          }
+          
+          // Verificar si la rifa no está activa
+          if (this.rifaSeleccionada.estado !== 'activa') {
+            console.log('⚠️ La rifa no está activa. Redirigiendo a página principal...');
+            this.router.navigate(['/']);
+            return;
+          }
+          
           this.precioPorTicket = response.data.precioTicketBs;
           this.calcularTotal();
           
@@ -317,6 +332,8 @@ export class CompraRifasComponent implements OnInit {
       if (this.pasoActual === 1) {
         this.actualizarEstadoNumeros();
       }
+      // Verificar estado de la rifa periódicamente
+      this.verificarEstadoRifa();
     }, 5000);
   }
   
@@ -334,6 +351,35 @@ export class CompraRifasComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al actualizar estado de números:', error);
+      }
+    });
+  }
+  
+  // Verificar si la rifa cambió de estado (finalizada)
+  verificarEstadoRifa(): void {
+    if (!this.rifaId) return;
+    
+    this.rifasService.obtenerRifaPorId(this.rifaId).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          const estadoActual = response.data.estado;
+          
+          // Si la rifa cambió a finalizada, redirigir
+          if (estadoActual === 'finalizada') {
+            console.log('🏆 La rifa ha finalizado. Redirigiendo a página principal...');
+            alert('Esta rifa ha finalizado. Ya se ha seleccionado un ganador.');
+            this.router.navigate(['/']);
+          }
+          
+          // Si la rifa ya no está activa
+          if (estadoActual !== 'activa') {
+            console.log('⚠️ La rifa ya no está activa. Redirigiendo...');
+            this.router.navigate(['/']);
+          }
+        }
+      },
+      error: (error) => {
+        console.error('Error al verificar estado de rifa:', error);
       }
     });
   }
