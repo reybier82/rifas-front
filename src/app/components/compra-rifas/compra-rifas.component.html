@@ -1,4 +1,4 @@
-<div class="min-h-screen py-12 px-4 flex items-center justify-center relative" style="background-image: url('assets/img/texture.jpg'); background-size: 200px 200px; background-repeat: repeat; background-position: center; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;">
+<div class="min-h-screen py-12 px-4 flex items-center justify-center relative bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900">
   <div class="w-full max-w-5xl">
     <!-- Detalles de la Rifa Section -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -9,7 +9,7 @@
           <h2 class="text-2xl font-bold text-white drop-shadow-lg">Detalles de la Rifa</h2>
           <button 
             (click)="volverAPrincipal()"
-            class="flex items-center gap-2 bg-white/90 hover:bg-white text-gray-900 font-medium py-2 px-4 rounded-lg transition-all shadow-sm hover:shadow-md"
+            class="flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 font-medium py-2 px-4 rounded-lg transition-all shadow-md hover:shadow-lg"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -17,7 +17,7 @@
             <span>Volver</span>
           </button>
         </div>
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-4">
+        <div class="bg-white rounded-xl shadow-2xl border border-gray-200 p-4 mb-4">
           <!-- Imagen clickeable -->
           <div 
             class="w-full rounded-lg overflow-hidden cursor-pointer hover:opacity-95 transition"
@@ -32,11 +32,11 @@
               <span class="font-bold text-lg">{{ rifaSeleccionada?.titulo || 'Cargando...' }}</span>
             </p>
             <p class="text-sm text-gray-600 mb-2">{{ rifaSeleccionada?.descripcion }}</p>
-            <p class="text-sm text-gray-600">Precio por ticket: <span class="font-bold">${{ precioPorTicket?.toFixed(2) }}</span></p>
+            <p class="text-sm text-gray-600">Precio por ticket: <span class="font-bold">Bs {{ precioPorTicket?.toFixed(2) }}</span></p>
           </div>
         </div>
         <button 
-          class="w-full bg-gray-900 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors"
+          class="w-full bg-white text-gray-900 font-bold py-3 px-4 rounded-lg hover:bg-gray-100 transition-colors shadow-lg hover:shadow-xl border-2 border-gray-200"
           (click)="abrirModalVerificar()"
         >
           Ingresar Email para Verificar Tickets
@@ -46,9 +46,9 @@
       <!-- Right Column: Comprar Tickets -->
       <div>
         <h2 class="text-2xl font-bold text-white mb-4 drop-shadow-lg">Comprar Tickets</h2>
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-white rounded-xl shadow-2xl border border-gray-200 p-6">
           
-          <!-- PASO 1: Cantidad de Tickets y Conversor -->
+          <!-- PASO 1: Cantidad de Tickets -->
           <div *ngIf="pasoActual === 1">
             <!-- Cantidad de Tickets -->
             <div class="mb-6">
@@ -68,48 +68,11 @@
               </div>
             </div>
 
-            <!-- Conversor USD a Bs -->
+            <!-- Total en Bs -->
             <div class="mb-6">
-              <label class="text-sm font-medium text-gray-900 mb-2 block">Conversor USD a Bs</label>
-              <div class="flex items-center gap-3">
-                <button 
-                  [disabled]="cantidadTickets <= 2"
-                  [class.bg-gray-200]="cantidadTickets > 2"
-                  [class.hover:bg-gray-300]="cantidadTickets > 2"
-                  [class.bg-gray-100]="cantidadTickets <= 2"
-                  [class.cursor-not-allowed]="cantidadTickets <= 2"
-                  [class.opacity-50]="cantidadTickets <= 2"
-                  class="w-10 h-10 rounded-lg flex items-center justify-center transition-colors"
-                  (click)="decrementarCantidad()"
-                >
-                  <span class="text-xl font-bold">-</span>
-                </button>
-                <input 
-                  type="number" 
-                  [(ngModel)]="cantidadTickets"
-                  (ngModelChange)="calcularTotal()"
-                  class="flex-1 h-10 text-center bg-gray-900 text-white rounded-lg font-bold"
-                  min="2"
-                />
-                <button 
-                  class="w-10 h-10 bg-gray-900 text-white rounded-lg flex items-center justify-center hover:bg-gray-800 transition-colors"
-                  (click)="incrementarCantidad()"
-                >
-                  <span class="text-xl font-bold">+</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- ⭐ Totales - Dinámico según país -->
-            <div class="mb-6 space-y-2">
-              <div class="flex justify-between text-sm">
-                <span class="text-gray-700">Total (USD):</span>
-                <span class="font-bold text-gray-900">{{ totalUSD | currency:'USD':'symbol':'1.2-2' }}</span>
-              </div>
-              <!-- Solo mostrar Bs si es Venezuela -->
-              <div *ngIf="codigoPais === 'VE'" class="flex justify-between text-sm">
-                <span class="text-gray-700">Total (Bs):</span>
-                <span class="font-bold text-gray-900">Bs {{ totalBs | number:'1.2-2' }}</span>
+              <div class="flex justify-between items-center bg-gray-50 p-4 rounded-lg">
+                <span class="text-gray-700 font-medium">Total a Pagar:</span>
+                <span class="font-bold text-gray-900 text-2xl">Bs {{ totalBs | number:'1.2-2' }}</span>
               </div>
             </div>
 
@@ -528,7 +491,7 @@
       Su compra se está validando. Verifique por su correo electrónico cuáles fueron los tickets de su rifa.
     </p>
     <p class="text-gray-900 font-bold text-lg mb-6">
-      Total: ${{ totalUSD.toFixed(2) }} (Bs {{ totalBs.toFixed(2) }})
+      Total: Bs {{ totalBs.toFixed(2) }}
     </p>
     
     <!-- Botón -->
@@ -688,7 +651,7 @@
           </div>
           <div>
             <p class="text-sm text-gray-600">Total Pagado</p>
-            <p class="font-semibold text-green-600">${{ compra.totalUSD?.toFixed(2) || '0.00' }} USD / Bs. {{ compra.totalBs?.toFixed(2) || '0.00' }}</p>
+            <p class="font-semibold text-green-600">Bs. {{ compra.totalBs?.toFixed(2) || '0.00' }}</p>
           </div>
         </div>
 
@@ -808,67 +771,15 @@
   </div>
 </div>
 
-<!-- ⭐ Modal: Selección de País (NUEVO - Aparece al inicio) -->
+<!-- ⭐ Modal: Selección de País (DESHABILITADO - Solo Venezuela) -->
+<!-- 
 <div 
   *ngIf="mostrarModalPais"
   class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[100] p-4"
 >
-  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 border border-gray-100">
-    <div class="text-center mb-6">
-      <div class="mx-auto w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4 border-2 border-blue-200">
-        <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-      </div>
-      <h3 class="text-2xl font-bold text-gray-900 mb-2">Selecciona tu País</h3>
-      <p class="text-gray-600 text-sm">Elige el país desde donde realizarás la compra</p>
-    </div>
-
-    <!-- Selector de País -->
-    <div class="mb-6">
-      <label class="text-sm font-medium text-gray-900 mb-3 block">País</label>
-      <div class="grid grid-cols-1 gap-3">
-        <button
-          *ngFor="let pais of [
-            {codigo: 'VE', nombre: '🇻🇪 Venezuela', telefono: '+58'},
-            {codigo: 'US', nombre: '🇺🇸 Estados Unidos', telefono: '+1'},
-            {codigo: 'CO', nombre: '🇨🇴 Colombia', telefono: '+57'},
-            {codigo: 'CL', nombre: '🇨🇱 Chile', telefono: '+56'}
-          ]"
-          (click)="paisSeleccionadoModal = pais.codigo"
-          class="flex items-center justify-between p-4 rounded-lg border-2 transition-all duration-200 hover:border-gray-400"
-          [class.border-gray-900]="paisSeleccionadoModal === pais.codigo"
-          [class.bg-gray-50]="paisSeleccionadoModal === pais.codigo"
-          [class.border-gray-200]="paisSeleccionadoModal !== pais.codigo"
-        >
-          <div class="flex items-center gap-3">
-            <span class="text-lg font-medium">{{ pais.nombre }}</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="text-sm text-gray-500">{{ pais.telefono }}</span>
-            <div 
-              *ngIf="paisSeleccionadoModal === pais.codigo"
-              class="w-6 h-6 bg-gray-900 rounded-full flex items-center justify-center"
-            >
-              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-              </svg>
-            </div>
-          </div>
-        </button>
-      </div>
-    </div>
-
-    <!-- Botón Confirmar -->
-    <button 
-      (click)="confirmarPais()"
-      [disabled]="!paisSeleccionadoModal"
-      class="w-full bg-gray-900 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed hover:bg-gray-800"
-    >
-      Continuar
-    </button>
-  </div>
+  Modal comentado - Ya no se usa
 </div>
+-->
 
 <!-- Modal: Ver Imagen Grande -->
 <div *ngIf="mostrarImagenGrande" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4" (click)="mostrarImagenGrande = false">

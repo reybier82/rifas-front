@@ -40,11 +40,9 @@ export class CompraRifasComponent implements OnInit {
   bancoSeleccionado: any = null;
   numerosAsignados: number[] = [];
   
-  // Conversión de moneda
-  tasaCambio: number = 216; // Tasa: 216 Bs por cada dólar (8 USD = 1728 Bs)
-  precioPorTicket: number = 8.00;
-  totalUSD: number = 16.00;
-  totalBs: number = 0;
+  // Precio en Bs
+  precioPorTicket: number = 300.00;
+  totalBs: number = 600.00;
   
   // Modal de verificación
   mostrarModalVerificar: boolean = false;
@@ -54,9 +52,9 @@ export class CompraRifasComponent implements OnInit {
   cargandoVerificacion: boolean = false;
   mostrarAlertaNoCompras: boolean = false;
 
-  // ⭐ Modal de selección de país (nuevo)
+  // ⭐ Modal de selección de país (DESHABILITADO - Solo Venezuela)
   mostrarModalPais: boolean = false;
-  paisSeleccionadoModal: string = '';
+  paisSeleccionadoModal: string = 'VE';
 
   // Modal de éxito
   mostrarModalExito: boolean = false;
@@ -103,23 +101,13 @@ export class CompraRifasComponent implements OnInit {
         this.cargarRifa();
       }
       
-      // Si viene el país desde la URL, usarlo
-      if (paisParam) {
-        this.codigoPais = paisParam;
-        this.paisSeleccionadoModal = paisParam;
-        
-        // Cargar tasa solo si es Venezuela
-        if (this.codigoPais === 'VE') {
-          this.cargarTasa();
-        }
-        
-        // Cargar bancos del país
-        this.cargarBancosPorPais();
-        this.calcularTotal();
-      } else {
-        // Si no viene país, mostrar modal (fallback)
-        this.mostrarModalPais = true;
-      }
+      // ⭐ Solo Venezuela - No mostrar modal de país
+      this.codigoPais = 'VE';
+      this.paisSeleccionadoModal = 'VE';
+      
+      // Cargar bancos de Venezuela
+      this.cargarBancosPorPais();
+      this.calcularTotal();
     });
     
     this.cargarPaises();
@@ -151,13 +139,7 @@ export class CompraRifasComponent implements OnInit {
   }
 
   calcularTotal(): void {
-    this.totalUSD = this.cantidadTickets * this.precioPorTicket;
-    // ⭐ Solo calcular Bs si es Venezuela
-    if (this.codigoPais === 'VE') {
-      this.totalBs = this.totalUSD * this.tasaCambio;
-    } else {
-      this.totalBs = 0; // No mostrar Bs para otros países
-    }
+    this.totalBs = this.cantidadTickets * this.precioPorTicket;
   }
 
   onFileSelected(event: any): void {
@@ -224,7 +206,7 @@ export class CompraRifasComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           this.rifaSeleccionada = response.data;
-          this.precioPorTicket = response.data.precioTicketUSD;
+          this.precioPorTicket = response.data.precioTicketBs;
           this.calcularTotal();
         }
       },
@@ -249,19 +231,7 @@ export class CompraRifasComponent implements OnInit {
     });
   }
 
-  cargarTasa(): void {
-    this.comprasService.obtenerTasaBCV().subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.tasaCambio = response.data.tasa;
-          this.calcularTotal();
-        }
-      },
-      error: (error) => {
-        console.error('Error al obtener tasa:', error);
-      }
-    });
-  }
+  // ⭐ Método eliminado - Ya no se usa tasa BCV
 
   cargarBancosPorPais(): void {
     if (this.codigoPais) {
@@ -747,24 +717,10 @@ export class CompraRifasComponent implements OnInit {
   }
 
   /**
-   * ⭐ NUEVO: Confirmar selección de país desde el modal
+   * ⭐ DESHABILITADO: Solo Venezuela - No se usa modal de país
    */
   confirmarPais(): void {
-    if (!this.paisSeleccionadoModal) {
-      return;
-    }
-    
-    this.codigoPais = this.paisSeleccionadoModal;
-    this.mostrarModalPais = false;
-    
-    // Cargar tasa solo si es Venezuela
-    if (this.codigoPais === 'VE') {
-      this.cargarTasa();
-    }
-    
-    // Cargar bancos del país seleccionado
-    this.cargarBancosPorPais();
-    this.calcularTotal();
+    // No hace nada - Solo Venezuela
   }
 
   /**

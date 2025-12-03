@@ -25,13 +25,13 @@
     </div>
   </div>
   
-  <main class="font-display min-h-screen relative" style="background-image: url('assets/img/texture.jpg'); background-size: 200px 200px; background-repeat: repeat; background-position: center; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;">
+  <main class="font-display min-h-screen relative bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900">
     <div class="max-w-[960px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <section class="pt-6">
         <div class="flex flex-col gap-6">
           <div>
             <h2 class="text-4xl sm:text-5xl font-black text-white leading-tight drop-shadow-lg">Descubre Nuestras Increíbles Rifas</h2>
-            <p class="mt-3 text-base text-gray-200 drop-shadow-md">Participa en nuestras rifas y gana premios increíbles. ¡Tu próximo premio está a un boleto de distancia!</p>
+            <p class="mt-3 text-base text-gray-200">Participa en nuestras rifas y gana premios increíbles. ¡Tu próximo premio está a un boleto de distancia!</p>
           </div>
   
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -47,7 +47,7 @@
 
             <!-- Dynamic rifas -->
             <article *ngFor="let rifa of rifas" 
-                     class="flex flex-col gap-3 bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100">
+                     class="flex flex-col gap-3 bg-white rounded-2xl overflow-hidden shadow-2xl hover:shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-all duration-300 border border-gray-200 hover:border-indigo-300 hover:scale-[1.02]">
               <!-- Imagen con filtro gris si está agotado o completado -->
               <div class="w-full aspect-video bg-center bg-no-repeat bg-cover relative" 
                    [style.background-image]="'url(' + rifa.imagenUrl + ')'" 
@@ -75,10 +75,10 @@
                   {{ rifa.titulo }}
                 </h3>
                 <div class="flex items-center justify-between mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  <span class="font-semibold text-blue-600">${{ rifa.precioTicketUSD }} por boleto</span>
+                  <span class="font-semibold text-blue-600">Bs {{ rifa.precioTicketBs }} por boleto</span>
                   <span [class.text-red-600]="rifa.ticketsDisponibles === 0" 
                         [class.font-bold]="rifa.ticketsDisponibles === 0">
-                    Tickets disponibles
+                    {{ rifa.ticketsDisponibles }} boletos disponibles
                   </span>
                 </div>
                 <p class="mt-3 mb-4 text-sm text-gray-600 dark:text-gray-400">
@@ -270,7 +270,7 @@
           </div>
           <div>
             <p class="text-sm text-gray-600">Total Pagado</p>
-            <p class="font-semibold text-green-600">${{ compra.totalUSD?.toFixed(2) || '0.00' }} USD / Bs. {{ compra.totalBs?.toFixed(2) || '0.00' }}</p>
+            <p class="font-semibold text-green-600">Bs. {{ compra.totalBs?.toFixed(2) || '0.00' }}</p>
           </div>
         </div>
 
@@ -374,75 +374,15 @@
   </div>
 </div>
 
-<!-- ⭐ Modal: Selección de País (NUEVO - Aparece antes de redirigir a compra) -->
+<!-- ⭐ Modal: Selección de País (DESHABILITADO - Solo Venezuela) -->
+<!--
 <div 
   *ngIf="mostrarModalPais"
   class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[100] p-4"
 >
-  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 border border-gray-100">
-    <div class="text-center mb-6">
-      <div class="mx-auto w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4 border-2 border-blue-200">
-        <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-      </div>
-      <h3 class="text-2xl font-bold text-gray-900 mb-2">Selecciona tu País</h3>
-      <p class="text-gray-600 text-sm">Elige el país desde donde realizarás la compra</p>
-    </div>
-
-    <!-- Selector de País -->
-    <div class="mb-6">
-      <label class="text-sm font-medium text-gray-900 mb-3 block">País</label>
-      <div class="grid grid-cols-1 gap-3">
-        <button
-          *ngFor="let pais of [
-            {codigo: 'VE', nombre: '🇻🇪 Venezuela', telefono: '+58'},
-            {codigo: 'US', nombre: '🇺🇸 Estados Unidos', telefono: '+1'},
-            {codigo: 'CO', nombre: '🇨🇴 Colombia', telefono: '+57'},
-            {codigo: 'CL', nombre: '🇨🇱 Chile', telefono: '+56'}
-          ]"
-          (click)="paisSeleccionado = pais.codigo"
-          class="flex items-center justify-between p-4 rounded-lg border-2 transition-all duration-200 hover:border-gray-400"
-          [class.border-gray-900]="paisSeleccionado === pais.codigo"
-          [class.bg-gray-50]="paisSeleccionado === pais.codigo"
-          [class.border-gray-200]="paisSeleccionado !== pais.codigo"
-        >
-          <div class="flex items-center gap-3">
-            <span class="text-lg font-medium">{{ pais.nombre }}</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="text-sm text-gray-500">{{ pais.telefono }}</span>
-            <div 
-              *ngIf="paisSeleccionado === pais.codigo"
-              class="w-6 h-6 bg-gray-900 rounded-full flex items-center justify-center"
-            >
-              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-              </svg>
-            </div>
-          </div>
-        </button>
-      </div>
-    </div>
-
-    <!-- Botones -->
-    <div class="flex gap-3">
-      <button 
-        (click)="cerrarModalPais()"
-        class="flex-1 bg-gray-200 text-gray-900 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors"
-      >
-        Cancelar
-      </button>
-      <button 
-        (click)="confirmarPaisYComprar()"
-        [disabled]="!paisSeleccionado"
-        class="flex-1 bg-gray-900 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed hover:bg-gray-800"
-      >
-        Continuar
-      </button>
-    </div>
-  </div>
+  Modal comentado - Ya no se usa (solo Venezuela)
 </div>
+-->
 
 <!-- Botón Flotante de WhatsApp -->
 <a 

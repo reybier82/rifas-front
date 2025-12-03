@@ -111,11 +111,16 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * ⭐ MODIFICADO: Ahora abre modal de país antes de redirigir
+   * ⭐ MODIFICADO: Redirigir directamente a compra (solo Venezuela)
    */
   redirectToCompraRifas(rifaId: string): void {
-    this.rifaIdSeleccionada = rifaId;
-    this.mostrarModalPais = true;
+    // Redirigir directamente con Venezuela como país por defecto
+    this.router.navigate(['/rifa'], { 
+      queryParams: { 
+        id: rifaId,
+        pais: 'VE'
+      } 
+    });
   }
 
   /**

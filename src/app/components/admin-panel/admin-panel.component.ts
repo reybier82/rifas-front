@@ -59,7 +59,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   nuevaRifa = {
     titulo: '',
     descripcion: '',
-    precioTicketUSD: 8,
+    precioTicketBs: 300,
     cantidadNumeros: 100,
     fechaSorteo: '',
     horaSorteo: '20:00',
@@ -459,7 +459,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     const formData = new FormData();
     formData.append('titulo', this.nuevaRifa.titulo);
     formData.append('descripcion', this.nuevaRifa.descripcion);
-    formData.append('precioTicketUSD', this.nuevaRifa.precioTicketUSD.toString());
+    formData.append('precioTicketBs', this.nuevaRifa.precioTicketBs.toString());
     formData.append('cantidadNumeros', this.nuevaRifa.cantidadNumeros.toString());
     formData.append('fechaSorteo', fechaHoraSorteo);
     
@@ -488,7 +488,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     this.nuevaRifa = {
       titulo: '',
       descripcion: '',
-      precioTicketUSD: 8,
+      precioTicketBs: 300,
       cantidadNumeros: 100,
       fechaSorteo: '',
       horaSorteo: '20:00',
@@ -924,7 +924,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
       _id: rifa._id,
       titulo: rifa.titulo,
       descripcion: rifa.descripcion,
-      precioTicketUSD: rifa.precioTicketUSD,
+      precioTicketBs: rifa.precioTicketBs,
       fechaSorteo: fecha,
       horaSorteo: hora,
       imagenUrl: rifa.imagenUrl,
@@ -972,7 +972,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     const formData = new FormData();
     formData.append('titulo', this.rifaEditando.titulo);
     formData.append('descripcion', this.rifaEditando.descripcion);
-    formData.append('precioTicketUSD', this.rifaEditando.precioTicketUSD.toString());
+    formData.append('precioTicketBs', this.rifaEditando.precioTicketBs.toString());
     formData.append('fechaSorteo', fechaHoraSorteo);
     
     if (this.rifaEditando.imagen) {
