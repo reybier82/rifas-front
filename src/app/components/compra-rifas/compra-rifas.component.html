@@ -526,7 +526,7 @@
   *ngIf="mostrarModalConfirmacion"
   class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
 >
-  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 animate-fade-in border border-gray-100">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 animate-fade-in border border-gray-100">
     <!-- Botón cerrar (X) -->
     <div class="flex justify-end mb-2">
       <button 
@@ -539,26 +539,90 @@
       </button>
     </div>
     
-    <!-- Icono de advertencia -->
-    <div class="mx-auto w-20 h-20 bg-yellow-50 rounded-full flex items-center justify-center mb-4 border-2 border-yellow-200">
-      <svg class="w-12 h-12 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+    <!-- Icono de confirmación -->
+    <div class="mx-auto w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 border-2 border-blue-200">
+      <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
       </svg>
     </div>
     
-    <!-- Mensaje -->
-    <h3 class="text-2xl font-bold text-gray-900 mb-4 text-center">¡Importante!</h3>
-    <p class="text-gray-700 mb-4 text-center leading-relaxed">
-      Recuerda que debes colocar un <strong class="text-gray-900">correo electrónico válido</strong>, 
-      ya que allí se estará informando el estatus de tu rifa.
-    </p>
+    <!-- Título -->
+    <h3 class="text-2xl font-bold text-gray-900 mb-2 text-center">Confirma tus datos</h3>
     <p class="text-gray-600 text-sm mb-6 text-center">
-      Verifica que tu correo sea: <strong class="text-blue-600">{{ email }}</strong>
+      ¿Estás de acuerdo que estos datos son correctos?
     </p>
+    
+    <!-- Datos en modo vista -->
+    <div *ngIf="!modoEdicionModal" class="space-y-4 mb-6">
+      <div class="bg-gray-50 rounded-lg p-4">
+        <label class="text-xs text-gray-500 font-semibold uppercase">Nombre y Apellido</label>
+        <p class="text-gray-900 font-medium">{{ nombreCompleto }}</p>
+      </div>
+      
+      <div class="bg-gray-50 rounded-lg p-4">
+        <label class="text-xs text-gray-500 font-semibold uppercase">Email</label>
+        <p class="text-gray-900 font-medium">{{ email }}</p>
+      </div>
+      
+      <div class="bg-gray-50 rounded-lg p-4">
+        <label class="text-xs text-gray-500 font-semibold uppercase">Teléfono</label>
+        <p class="text-gray-900 font-medium">+{{ codigoPais }} {{ telefono }}</p>
+      </div>
+    </div>
+    
+    <!-- Datos en modo edición -->
+    <div *ngIf="modoEdicionModal" class="space-y-4 mb-6">
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">Nombre y Apellido*</label>
+        <input 
+          type="text" 
+          [(ngModel)]="nombreCompleto"
+          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="Ingresa tu nombre completo"
+        />
+      </div>
+      
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">Email*</label>
+        <input 
+          type="email" 
+          [(ngModel)]="email"
+          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="ejemplo@gmail.com"
+        />
+      </div>
+      
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">Teléfono*</label>
+        <div class="flex gap-2">
+          <input 
+            type="text" 
+            [(ngModel)]="codigoPais"
+            class="w-20 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="+58"
+            readonly
+          />
+          <input 
+            type="text" 
+            [(ngModel)]="telefono"
+            class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="4241234567"
+          />
+        </div>
+      </div>
+    </div>
     
     <!-- Botones -->
     <div class="flex gap-3">
       <button 
+        *ngIf="!modoEdicionModal"
+        (click)="activarEdicionModal()"
+        class="flex-1 bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors"
+      >
+        No, Editar
+      </button>
+      <button 
+        *ngIf="modoEdicionModal"
         (click)="cancelarConfirmacion()"
         class="flex-1 bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors"
       >
@@ -568,7 +632,7 @@
         (click)="confirmarCompra()"
         class="flex-1 bg-gray-900 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-800 transition-colors"
       >
-        Aceptar
+        Sí, Confirmar
       </button>
     </div>
   </div>
