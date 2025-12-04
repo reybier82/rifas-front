@@ -448,7 +448,7 @@ export class CompraRifasComponent implements OnInit {
   obtenerPlaceholderTelefono(): string {
     const placeholders: any = {
       'VE': '4241234567',
-      'US': '2025551234',
+      'US': 'cle551234',
       'CO': '3001234567',
       'CL': '912345678'
     };
