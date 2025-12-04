@@ -69,6 +69,9 @@ export class CompraRifasComponent implements OnInit {
   mostrarModalError: boolean = false;
   mensajeError: string = '';
   
+  // Modal de confirmación de compra
+  mostrarModalConfirmacion: boolean = false;
+  
   // Modal de copiado
   mostrarMensajeCopiado: boolean = false;
   
@@ -650,11 +653,30 @@ export class CompraRifasComponent implements OnInit {
            !this.errores.comprobante;
   }
 
-  comprarTickets(): void {
+  // Mostrar modal de confirmación antes de comprar
+  mostrarConfirmacionCompra(): void {
+    // Mostrar modal sin validar primero
+    this.mostrarModalConfirmacion = true;
+  }
+  
+  // Confirmar y proceder con la compra
+  confirmarCompra(): void {
+    this.mostrarModalConfirmacion = false;
+    
+    // Validar antes de proceder
     if (!this.validarPaso3()) {
       return;
     }
+    
+    this.comprarTickets();
+  }
+  
+  // Cancelar compra
+  cancelarConfirmacion(): void {
+    this.mostrarModalConfirmacion = false;
+  }
 
+  comprarTickets(): void {
     // 🔄 Activar estado de carga
     this.procesandoCompra = true;
 

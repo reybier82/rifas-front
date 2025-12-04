@@ -28,6 +28,9 @@ export class MainComponent implements OnInit, OnDestroy {
   mostrarModalPais: boolean = false;
   paisSeleccionado: string = '';
   rifaIdSeleccionada: string = '';
+  
+  // Modal de confirmación de compra
+  mostrarModalConfirmacion: boolean = false;
 
   // Polling automático
   private pollingInterval: any;
@@ -111,16 +114,35 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * ⭐ MODIFICADO: Redirigir directamente a compra (solo Venezuela)
+   * ⭐ MODIFICADO: Mostrar modal de confirmación antes de redirigir
    */
   redirectToCompraRifas(rifaId: string): void {
-    // Redirigir directamente con Venezuela como país por defecto
+    // Guardar el ID de la rifa seleccionada
+    this.rifaIdSeleccionada = rifaId;
+    // Mostrar modal de confirmación
+    this.mostrarModalConfirmacion = true;
+  }
+  
+  /**
+   * Confirmar y proceder con la compra
+   */
+  confirmarYComprar(): void {
+    this.mostrarModalConfirmacion = false;
+    // Redirigir con Venezuela como país por defecto
     this.router.navigate(['/rifa'], { 
       queryParams: { 
-        id: rifaId,
+        id: this.rifaIdSeleccionada,
         pais: 'VE'
       } 
     });
+  }
+  
+  /**
+   * Cancelar compra
+   */
+  cancelarCompra(): void {
+    this.mostrarModalConfirmacion = false;
+    this.rifaIdSeleccionada = '';
   }
 
   /**
