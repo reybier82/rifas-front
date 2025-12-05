@@ -330,18 +330,17 @@ export class CompraRifasComponent implements OnInit, OnDestroy {
         if (response.success) {
           this.rifaSeleccionada = response.data;
           
-          // Verificar si la rifa está finalizada (ya tiene ganador)
-          if (this.rifaSeleccionada.estado === 'finalizada') {
+          // Solo redirigir si la rifa está completada (tiene ganador)
+          if (this.rifaSeleccionada.estado === 'completada') {
             console.log('⚠️ La rifa ya finalizó. Redirigiendo a página principal...');
             this.router.navigate(['/']);
             return;
           }
           
-          // Verificar si la rifa no está activa
-          if (this.rifaSeleccionada.estado !== 'activa') {
-            console.log('⚠️ La rifa no está activa. Redirigiendo a página principal...');
-            this.router.navigate(['/']);
-            return;
+          // Si la rifa está cerrada, permitir ver pero no comprar
+          if (this.rifaSeleccionada.estado === 'cerrada') {
+            console.log('🔒 Las compras están cerradas para esta rifa');
+            // No redirigir, solo mostrar mensaje
           }
           
           this.precioPorTicket = response.data.precioTicketBs;
@@ -437,17 +436,17 @@ export class CompraRifasComponent implements OnInit, OnDestroy {
         if (response.success && response.data) {
           const estadoActual = response.data.estado;
           
-          // Si la rifa cambió a finalizada, redirigir
-          if (estadoActual === 'finalizada') {
+          // Solo redirigir si la rifa está completada (tiene ganador)
+          if (estadoActual === 'completada') {
             console.log('🏆 La rifa ha finalizado. Redirigiendo a página principal...');
             alert('Esta rifa ha finalizado. Ya se ha seleccionado un ganador.');
             this.router.navigate(['/']);
           }
           
-          // Si la rifa ya no está activa
-          if (estadoActual !== 'activa') {
-            console.log('⚠️ La rifa ya no está activa. Redirigiendo...');
-            this.router.navigate(['/']);
+          // Si la rifa está cerrada, actualizar el estado local pero no redirigir
+          if (estadoActual === 'cerrada' && this.rifaSeleccionada) {
+            this.rifaSeleccionada.estado = 'cerrada';
+            console.log('🔒 Las compras han sido cerradas para esta rifa');
           }
         }
       },

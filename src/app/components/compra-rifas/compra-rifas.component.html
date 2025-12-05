@@ -134,8 +134,14 @@
               </div>
             </div>
 
+            <!-- Mensaje si la rifa está cerrada -->
+            <div *ngIf="rifaSeleccionada?.estado === 'cerrada'" class="w-full bg-orange-100 border-2 border-orange-500 text-orange-800 font-bold py-3 px-4 rounded-lg text-center">
+              🔒 Compras Cerradas: {{ rifaSeleccionada?.motivoCierre }}
+            </div>
+
             <!-- Botón Siguiente -->
             <button 
+              *ngIf="rifaSeleccionada?.estado !== 'cerrada'"
               [disabled]="numerosSeleccionados.length !== cantidadTickets"
               [class.opacity-50]="numerosSeleccionados.length !== cantidadTickets"
               [class.cursor-not-allowed]="numerosSeleccionados.length !== cantidadTickets"
