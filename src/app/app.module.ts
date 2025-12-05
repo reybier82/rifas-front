@@ -8,13 +8,15 @@ import { AppComponent } from './app.component';
 import { MainComponent } from './components/main/main.component';
 import { CompraRifasComponent } from './components/compra-rifas/compra-rifas.component';
 import { AdminPanelComponent } from './components/admin-panel/admin-panel.component';
+import { FechaEspanolPipe } from './pipes/fecha-espanol.pipe';
 
 @NgModule({
   declarations: [
     AppComponent,
     MainComponent,
     CompraRifasComponent,
-    AdminPanelComponent
+    AdminPanelComponent,
+    FechaEspanolPipe
   ],
   imports: [
     BrowserModule,

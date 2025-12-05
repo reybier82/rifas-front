@@ -63,6 +63,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     cantidadNumeros: 100,
     fechaSorteo: '',
     horaSorteo: '20:00',
+    loteria: '',
     imagen: null as File | null
   };
   imagenPreview: string = '';
@@ -453,8 +454,9 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
 
     this.creandoRifa = true;
 
-    // Combinar fecha y hora en formato ISO
-    const fechaHoraSorteo = `${this.nuevaRifa.fechaSorteo}T${this.nuevaRifa.horaSorteo}:00`;
+    // Combinar fecha y hora en formato ISO con zona horaria de Venezuela (UTC-4)
+    // Agregamos -04:00 para indicar que es hora de Venezuela
+    const fechaHoraSorteo = `${this.nuevaRifa.fechaSorteo}T${this.nuevaRifa.horaSorteo}:00-04:00`;
 
     const formData = new FormData();
     formData.append('titulo', this.nuevaRifa.titulo);
@@ -462,6 +464,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     formData.append('precioTicketBs', this.nuevaRifa.precioTicketBs.toString());
     formData.append('cantidadNumeros', this.nuevaRifa.cantidadNumeros.toString());
     formData.append('fechaSorteo', fechaHoraSorteo);
+    formData.append('loteria', this.nuevaRifa.loteria);
     
     if (this.nuevaRifa.imagen) {
       formData.append('imagen', this.nuevaRifa.imagen);
@@ -492,6 +495,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
       cantidadNumeros: 100,
       fechaSorteo: '',
       horaSorteo: '20:00',
+      loteria: '',
       imagen: null
     };
     this.imagenPreview = '';

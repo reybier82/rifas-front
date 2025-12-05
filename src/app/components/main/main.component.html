@@ -81,9 +81,21 @@
                     {{ rifa.ticketsDisponibles }} boletos disponibles
                   </span>
                 </div>
-                <p class="mt-3 mb-4 text-sm text-gray-600 dark:text-gray-400">
+                <p class="mt-3 mb-2 text-sm text-gray-600 dark:text-gray-400">
                   {{ rifa.descripcion }}
                 </p>
+                
+                <!-- Información del sorteo -->
+                <div class="mt-2 mb-4 space-y-2">
+                  <div>
+                    <span class="text-sm font-semibold text-blue-600">Sorteo: </span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ rifa.fechaSorteo | fechaEspanol }}</span>
+                  </div>
+                  <div *ngIf="rifa.loteria">
+                    <span class="text-sm font-semibold text-blue-600">Lotería: </span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ rifa.loteria }}</span>
+                  </div>
+                </div>
                 
                 <!-- Botón Ver Número Ganador (si está completada) -->
                 <button 
