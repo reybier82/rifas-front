@@ -25,6 +25,7 @@ export class CompraRifasComponent implements OnInit {
   numerosDisponibles: number[] = [];
   numerosOcupados: number[] = [];
   numerosEnVerificacion: number[] = [];
+  cargandoNumeros: boolean = false;
   nombreCompleto: string = '';
   email: string = '';
   confirmarEmail: string = '';
@@ -167,6 +168,11 @@ export class CompraRifasComponent implements OnInit {
     return this.numerosEnVerificacion.includes(numero);
   }
   
+  // Formatear número con dos dígitos (0 -> 00, 5 -> 05, 15 -> 15)
+  formatearNumero(numero: number): string {
+    return numero.toString().padStart(2, '0');
+  }
+  
   // Obtener clase CSS para un número
   obtenerClaseNumero(numero: number): string {
     if (this.estaSeleccionado(numero)) {
@@ -303,6 +309,9 @@ export class CompraRifasComponent implements OnInit {
   cargarEstadoNumeros(): void {
     if (!this.rifaSeleccionada) return;
     
+    // Activar loading
+    this.cargandoNumeros = true;
+    
     // Llamar al endpoint para obtener estado actualizado
     this.rifasService.obtenerEstadoNumeros(this.rifaId).subscribe({
       next: (response) => {
@@ -322,6 +331,8 @@ export class CompraRifasComponent implements OnInit {
             enVerificacion: this.numerosEnVerificacion.length
           });
         }
+        // Desactivar loading
+        this.cargandoNumeros = false;
       },
       error: (error) => {
         console.error('Error al cargar estado de números:', error);
@@ -330,6 +341,8 @@ export class CompraRifasComponent implements OnInit {
         this.numerosDisponibles = Array.from({ length: totalNumeros }, (_, i) => i);
         this.numerosOcupados = [];
         this.numerosEnVerificacion = [];
+        // Desactivar loading
+        this.cargandoNumeros = false;
       }
     });
     

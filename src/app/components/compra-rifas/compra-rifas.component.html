@@ -81,7 +81,19 @@
                 </span>
               </div>
               
-              <div class="grid grid-cols-10 gap-1 mb-4 max-h-64 overflow-y-auto p-2 bg-white rounded-lg border border-gray-300">
+              <!-- Loading de números -->
+              <div *ngIf="cargandoNumeros" class="flex items-center justify-center py-20 bg-white rounded-lg border border-gray-300">
+                <div class="text-center">
+                  <svg class="animate-spin h-12 w-12 text-gray-900 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <p class="text-gray-600 font-medium">Cargando números disponibles...</p>
+                </div>
+              </div>
+              
+              <!-- Grid de números -->
+              <div *ngIf="!cargandoNumeros" class="grid grid-cols-10 gap-1 mb-4 max-h-64 overflow-y-auto p-2 bg-white rounded-lg border border-gray-300">
                 <button 
                   *ngFor="let numero of numerosDisponibles"
                   (click)="toggleNumero(numero)"
@@ -89,7 +101,7 @@
                   [disabled]="estaOcupado(numero) || estaEnVerificacion(numero)"
                   class="aspect-square flex items-center justify-center rounded-md font-bold text-xs border-2 transition-all"
                 >
-                  {{ numero }}
+                  {{ formatearNumero(numero) }}
                 </button>
               </div>
               
