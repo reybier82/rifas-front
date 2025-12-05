@@ -78,9 +78,8 @@ export class MainComponent implements OnInit, OnDestroy {
     this.rifasService.obtenerRifasActivas().subscribe({
       next: (response) => {
         if (response.success) {
-          const rifasNuevas = response.data.filter((rifa: any) => 
-            rifa.estado === 'activa' || rifa.estado === 'completada'
-          );
+          // Mostrar todas las rifas (activas, cerradas y completadas)
+          const rifasNuevas = response.data;
           
           // Actualizar solo si hay cambios
           if (JSON.stringify(this.rifas) !== JSON.stringify(rifasNuevas)) {
@@ -99,10 +98,8 @@ export class MainComponent implements OnInit, OnDestroy {
     this.rifasService.obtenerRifasActivas().subscribe({
       next: (response) => {
         if (response.success) {
-          // Filtrar para mostrar solo rifas activas y completadas
-          this.rifas = response.data.filter((rifa: any) => 
-            rifa.estado === 'activa' || rifa.estado === 'completada'
-          );
+          // Mostrar todas las rifas (activas, cerradas y completadas)
+          this.rifas = response.data;
         }
         this.cargando = false;
       },
