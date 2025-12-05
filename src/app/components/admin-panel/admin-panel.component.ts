@@ -103,8 +103,9 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   compraSeleccionadaCompradores: any = null;
   motivoRechazoCompradores: string = '';
   
-  // Modal de confirmación para inactivar rifa
-  mostrarModalConfirmarInactivar: boolean = false;
+  // Modal de cerrar/reabrir compras
+  mostrarModalCerrarCompras: boolean = false;
+  motivoCierre: string = '';
   
   // Ver comprobante
   mostrarModalComprobante: boolean = false;
@@ -728,46 +729,50 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     return '';
   }
 
-  // Cambiar estado de la rifa
-  cambiarEstadoRifa(): void {
-    if (!this.rifaSeleccionadaEstadisticas || !this.puedeCambiarEstadoRifa()) return;
-    
-    const rifa = this.rifaSeleccionadaEstadisticas.rifa;
-    
-    // Si está activa, mostrar modal de confirmación
-    if (rifa.estado === 'activa') {
-      this.mostrarModalConfirmarInactivar = true;
-    } else {
-      // Si está inactiva, activar directamente
-      this.ejecutarCambioEstadoRifa();
-    }
+  // Abrir modal de cerrar/reabrir compras
+  abrirModalCerrarCompras(): void {
+    if (!this.rifaSeleccionadaEstadisticas) return;
+    this.motivoCierre = '';
+    this.mostrarModalCerrarCompras = true;
   }
 
-  // Cerrar modal de confirmación
-  cerrarModalConfirmarInactivar(): void {
-    this.mostrarModalConfirmarInactivar = false;
+  // Cerrar modal de cerrar compras
+  cerrarModalCerrarCompras(): void {
+    this.mostrarModalCerrarCompras = false;
+    this.motivoCierre = '';
   }
 
-  // Ejecutar cambio de estado
+  // Ejecutar cambio de estado (cerrar/reabrir)
   ejecutarCambioEstadoRifa(): void {
     if (!this.rifaSeleccionadaEstadisticas) return;
     
     const rifa = this.rifaSeleccionadaEstadisticas.rifa;
-    const nuevoEstado = rifa.estado === 'activa' ? 'inactiva' : 'activa';
+    const nuevoEstado = rifa.estado === 'activa' ? 'cerrada' : 'activa';
     
-    this.adminService.cambiarEstadoRifa(rifa._id, nuevoEstado, this.token).subscribe({
+    // Si se va a cerrar, validar que haya motivo
+    if (nuevoEstado === 'cerrada' && !this.motivoCierre) {
+      this.mostrarMensaje('Debe ingresar un motivo para cerrar las compras', 'error');
+      return;
+    }
+    
+    this.adminService.cambiarEstadoRifa(rifa._id, nuevoEstado, this.token, this.motivoCierre).subscribe({
       next: (response: any) => {
-        this.mostrarMensaje(`Rifa ${nuevoEstado === 'activa' ? 'activada' : 'inactivada'} exitosamente`, 'success');
+        this.mostrarMensaje(`Compras ${nuevoEstado === 'activa' ? 'reabiertas' : 'cerradas'} exitosamente`, 'success');
         // Actualizar el estado local
         this.rifaSeleccionadaEstadisticas.rifa.estado = nuevoEstado;
-        // Cerrar modal si está abierto
-        this.cerrarModalConfirmarInactivar();
+        if (nuevoEstado === 'cerrada') {
+          this.rifaSeleccionadaEstadisticas.rifa.motivoCierre = this.motivoCierre;
+        } else {
+          this.rifaSeleccionadaEstadisticas.rifa.motivoCierre = '';
+        }
+        // Cerrar modal
+        this.cerrarModalCerrarCompras();
         // Recargar estadísticas
         this.cargarEstadisticas();
       },
       error: (error: any) => {
         console.error('Error al cambiar estado de rifa:', error);
-        this.mostrarMensaje('Error al cambiar estado de la rifa', 'error');
+        this.mostrarMensaje(error.error?.message || 'Error al cambiar estado de la rifa', 'error');
       }
     });
   }

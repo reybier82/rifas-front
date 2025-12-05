@@ -96,10 +96,14 @@ export class AdminService {
   }
 
   /**
-   * Cambiar estado de una rifa (activa/inactiva)
+   * Cambiar estado de una rifa (cerrar/reabrir compras)
    */
-  cambiarEstadoRifa(rifaId: string, nuevoEstado: string, token: string): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/admin/${token}/rifas/${rifaId}/estado`, { estado: nuevoEstado });
+  cambiarEstadoRifa(rifaId: string, nuevoEstado: string, token: string, motivoCierre?: string): Observable<any> {
+    const body: any = { estado: nuevoEstado };
+    if (motivoCierre) {
+      body.motivoCierre = motivoCierre;
+    }
+    return this.http.patch(`${this.apiUrl}/admin/${token}/rifas/${rifaId}/estado`, body);
   }
 
   /**
