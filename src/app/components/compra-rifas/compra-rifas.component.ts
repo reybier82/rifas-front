@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { RifasService } from '../../services/rifas.service';
 import { PaisesService } from '../../services/paises.service';
@@ -10,7 +10,7 @@ import { ComprasService } from '../../services/compras.service';
   templateUrl: './compra-rifas.component.html',
   styleUrls: ['./compra-rifas.component.css']
 })
-export class CompraRifasComponent implements OnInit {
+export class CompraRifasComponent implements OnInit, OnDestroy {
   // Control de pasos
   pasoActual: number = 1;
   
@@ -82,6 +82,10 @@ export class CompraRifasComponent implements OnInit {
   // Estado de procesamiento de compra
   procesandoCompra: boolean = false;
 
+  // Polling automático para bancos
+  private pollingBancosInterval: any;
+  private readonly POLLING_BANCOS_INTERVAL_MS = 5000; // 5 segundos
+
   // Objeto para almacenar errores de validación
   errores: any = {
     nombreCompleto: '',
@@ -121,9 +125,59 @@ export class CompraRifasComponent implements OnInit {
       // Cargar bancos de Venezuela
       this.cargarBancosPorPais();
       this.calcularTotal();
+      
+      // Iniciar polling de bancos
+      this.iniciarPollingBancos();
     });
     
     this.cargarPaises();
+  }
+
+  ngOnDestroy(): void {
+    this.detenerPollingBancos();
+  }
+
+  /**
+   * Iniciar polling automático de bancos cada 5 segundos
+   */
+  iniciarPollingBancos(): void {
+    this.pollingBancosInterval = setInterval(() => {
+      this.cargarBancosSilencioso();
+    }, this.POLLING_BANCOS_INTERVAL_MS);
+    console.log('🔄 Polling de bancos iniciado: actualizando cada 5 segundos');
+  }
+
+  /**
+   * Detener polling automático de bancos
+   */
+  detenerPollingBancos(): void {
+    if (this.pollingBancosInterval) {
+      clearInterval(this.pollingBancosInterval);
+      console.log('⏹️ Polling de bancos detenido');
+    }
+  }
+
+  /**
+   * Cargar bancos sin mostrar spinner (para polling)
+   */
+  cargarBancosSilencioso(): void {
+    if (this.codigoPais && !this.cargandoBancos) {
+      this.bancosService.obtenerBancosPorPais(this.codigoPais).subscribe({
+        next: (response) => {
+          if (response.success && response.data.length > 0) {
+            // Solo actualizar si hay cambios
+            if (JSON.stringify(this.bancosDisponibles) !== JSON.stringify(response.data)) {
+              this.bancosDisponibles = response.data;
+              console.log('✅ Bancos actualizados automáticamente');
+            }
+          }
+        },
+        error: (error) => {
+          // Silencioso - no mostrar error en polling
+          console.log('⚠️ Error en polling de bancos (se reintentará)');
+        }
+      });
+    }
   }
 
   seleccionarCantidad(cantidad: number): void {
